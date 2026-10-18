@@ -1,0 +1,1 @@
+export default function Home() { return <main><h1>AT BRAND Store API</h1><p>API service is online. Use the Hostinger admin page to sign in.</p><p><a href="/api/v1/health">Check API health</a></p></main>; }
