@@ -1,76 +1,62 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import BuyNowDialog from '@/components/BuyNowDialog';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const BuyContext = createContext(null);
+const AuthContext = createContext(null);
 
-export function BuyProvider({ children }) {
-  const [buyProduct, setBuyProduct] = useState(null);
-  const [cart, setCart] = useState([]);
-  
-  // Cart Drawer ko Left side se open/close karne ke liye state
-  const [isCartOpen, setIsCartOpen] = useState(false);
+export function AuthProvider({ children }) {
+  const [adminUser, setAdminUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('atbrand_admin_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
 
-  const openBuy = useCallback((product) => setBuyProduct(product), []);
-  const closeBuy = useCallback(() => setBuyProduct(null), []);
+  const [token, setToken] = useState(() => {
+    try {
+      return localStorage.getItem('atbrand_admin_token') || null;
+    } catch {
+      return null;
+    }
+  });
 
-  const addToCart = useCallback((product) => {
-    setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
+  const login = async (username, password) => {
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setToken(data.token);
+        setAdminUser(data.user);
+        localStorage.setItem('atbrand_admin_token', data.token);
+        localStorage.setItem('atbrand_admin_user', JSON.stringify(data.user));
+        return { success: true };
       }
-      return [...prevCart, { ...product, quantity: 1 }];
-    });
-    // YAHAN SE setIsCartOpen(true) HATA DIYA HAI. Ab direct open nahi hoga.
-  }, []);
+      return { success: false, error: data.error || 'Login failed' };
+    } catch (err) {
+      return { success: false, error: 'Network error communicating with server' };
+    }
+  };
 
-  const removeFromCart = useCallback((productId) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
-  }, []);
-
-  const updateQuantity = useCallback((productId, delta) => {
-    setCart((prevCart) => prevCart.map(item => {
-      if (item.id === productId) {
-        const newQuantity = item.quantity + delta;
-        return { ...item, quantity: newQuantity > 0 ? newQuantity : 1 };
-      }
-      return item;
-    }));
-  }, []);
-
-  const clearCart = useCallback(() => setCart([]), []);
+  const logout = () => {
+    setToken(null);
+    setAdminUser(null);
+    localStorage.removeItem('atbrand_admin_token');
+    localStorage.removeItem('atbrand_admin_user');
+  };
 
   return (
-    <BuyContext.Provider value={{ 
-      openBuy, 
-      cart, 
-      addToCart, 
-      removeFromCart, 
-      updateQuantity, 
-      clearCart,
-      isCartOpen,       
-      setIsCartOpen     
-    }}>
+    <AuthContext.Provider value={{ adminUser, token, isAuthenticated: Boolean(token), login, logout }}>
       {children}
-      <BuyNowDialog
-        product={buyProduct}
-        open={Boolean(buyProduct)}
-        onOpenChange={(o) => {
-          if (!o) closeBuy();
-        }}
-      />
-    </BuyContext.Provider>
+    </AuthContext.Provider>
   );
 }
 
-export const useBuy = () => {
-  const ctx = useContext(BuyContext);
-  if (!ctx) throw new Error('useBuy must be used within BuyProvider');
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
   return ctx;
 };
-
-export default BuyContext;

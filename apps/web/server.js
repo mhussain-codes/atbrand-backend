@@ -1,0 +1,352 @@
+import express from 'express';
+import cors from 'cors';
+import { sqliteDb, supabase } from './src/lib/db.js';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const JWT_SECRET = process.env.JWT_SECRET || 'atbrand_secure_admin_jwt_secret_key_2026';
+const ADMIN_PASSWORD_HASH = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'atbrandAdmin2026!', 10);
+
+// Auth Middleware
+function requireAdmin(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized. Admin token required.' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.admin = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid or expired session token.' });
+  }
+}
+
+// ----------------------------------------------------
+// AUTH ENDPOINTS
+// ----------------------------------------------------
+app.post('/api/admin/login', (req, res) => {
+  const { username, password } = req.body;
+  if ((username === 'admin' || username === 'atbrand00@gmail.com') && bcrypt.compareSync(password, ADMIN_PASSWORD_HASH)) {
+    const token = jwt.sign({ username: 'admin', role: 'superadmin' }, JWT_SECRET, { expiresIn: '7d' });
+    return res.json({ success: true, token, user: { name: 'Shashwat Admin', email: 'atbrand00@gmail.com', role: 'ADMIN' } });
+  }
+  return res.status(401).json({ error: 'Invalid username or password' });
+});
+
+// ----------------------------------------------------
+// PRODUCTS ENDPOINTS
+// ----------------------------------------------------
+app.get('/api/products', (req, res) => {
+  const { category, type, section, featured, is_new } = req.query;
+  let query = 'SELECT * FROM products WHERE 1=1';
+  const params = {};
+
+  if (category && category !== 'all') {
+    query += ' AND (category = @category OR type = @category)';
+    params.category = category;
+  }
+  if (type && type !== 'all') {
+    query += ' AND type = @type';
+    params.type = type;
+  }
+  if (featured === 'true') {
+    query += ' AND featured = 1';
+  }
+  if (is_new === 'true') {
+    query += ' AND is_new = 1';
+  }
+
+  query += ' ORDER BY created_at DESC';
+  const rows = sqliteDb.prepare(query).all(params);
+  const products = rows.map(r => ({
+    ...r,
+    images: JSON.parse(r.images || '[]'),
+    colors: JSON.parse(r.colors || '[]'),
+    isNew: Boolean(r.is_new),
+    featured: Boolean(r.featured),
+    in_stock: Boolean(r.in_stock),
+    originalPrice: r.original_price
+  }));
+
+  res.json({ success: true, count: products.length, products });
+});
+
+app.get('/api/products/:id', (req, res) => {
+  const row = sqliteDb.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Product not found' });
+  res.json({
+    success: true,
+    product: {
+      ...row,
+      images: JSON.parse(row.images || '[]'),
+      colors: JSON.parse(row.colors || '[]'),
+      isNew: Boolean(row.is_new),
+      featured: Boolean(row.featured),
+      in_stock: Boolean(row.in_stock),
+      originalPrice: row.original_price
+    }
+  });
+});
+
+app.post('/api/products', requireAdmin, (req, res) => {
+  const p = req.body;
+  const id = p.id || `at-${Date.now()}`;
+  const stmt = sqliteDb.prepare(`
+    INSERT INTO products (
+      id, name, type, category, season, price, original_price, cost_price, fabric, images, colors, is_new, featured, in_stock, stock_quantity, low_stock_threshold, sku
+    ) VALUES (
+      @id, @name, @type, @category, @season, @price, @original_price, @cost_price, @fabric, @images, @colors, @is_new, @featured, @in_stock, @stock_quantity, @low_stock_threshold, @sku
+    )
+  `);
+
+  stmt.run({
+    id,
+    name: p.name,
+    type: p.type || 'Unstitched',
+    category: p.category || 'Men',
+    season: p.season || '4 Season',
+    price: Number(p.price) || 0,
+    original_price: p.originalPrice ? Number(p.originalPrice) : null,
+    cost_price: p.cost_price ? Number(p.cost_price) : 0,
+    fabric: p.fabric || '',
+    images: JSON.stringify(p.images || []),
+    colors: JSON.stringify(p.colors || []),
+    is_new: p.isNew ? 1 : 0,
+    featured: p.featured ? 1 : 0,
+    in_stock: p.in_stock !== false ? 1 : 0,
+    stock_quantity: Number(p.stock_quantity) || 10,
+    low_stock_threshold: Number(p.low_stock_threshold) || 3,
+    sku: p.sku || `AT-SKU-${id.toUpperCase()}`
+  });
+
+  res.json({ success: true, id, message: 'Product created successfully' });
+});
+
+app.put('/api/products/:id', requireAdmin, (req, res) => {
+  const p = req.body;
+  const stmt = sqliteDb.prepare(`
+    UPDATE products SET
+      name = @name, type = @type, category = @category, season = @season, price = @price,
+      original_price = @original_price, cost_price = @cost_price, fabric = @fabric,
+      images = @images, colors = @colors, is_new = @is_new, featured = @featured,
+      in_stock = @in_stock, stock_quantity = @stock_quantity, low_stock_threshold = @low_stock_threshold,
+      sku = @sku, updated_at = CURRENT_TIMESTAMP
+    WHERE id = @id
+  `);
+
+  stmt.run({
+    id: req.params.id,
+    name: p.name,
+    type: p.type || 'Unstitched',
+    category: p.category || 'Men',
+    season: p.season || '4 Season',
+    price: Number(p.price) || 0,
+    original_price: p.originalPrice ? Number(p.originalPrice) : null,
+    cost_price: p.cost_price ? Number(p.cost_price) : 0,
+    fabric: p.fabric || '',
+    images: JSON.stringify(p.images || []),
+    colors: JSON.stringify(p.colors || []),
+    is_new: p.isNew ? 1 : 0,
+    featured: p.featured ? 1 : 0,
+    in_stock: p.in_stock !== false ? 1 : 0,
+    stock_quantity: Number(p.stock_quantity) || 10,
+    low_stock_threshold: Number(p.low_stock_threshold) || 3,
+    sku: p.sku || `AT-SKU-${req.params.id.toUpperCase()}`
+  });
+
+  res.json({ success: true, message: 'Product updated successfully' });
+});
+
+app.delete('/api/products/:id', requireAdmin, (req, res) => {
+  sqliteDb.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
+  res.json({ success: true, message: 'Product deleted' });
+});
+
+// ----------------------------------------------------
+// ORDERS ENDPOINTS
+// ----------------------------------------------------
+app.post('/api/orders', (req, res) => {
+  const { customer_name, phone, address, city, items, total_amount, subtotal, delivery_charge, discount, payment_method, customer_notes } = req.body;
+  
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let rand = '';
+  for (let i = 0; i < 6; i++) rand += chars[Math.floor(Math.random() * chars.length)];
+  const order_number = `AT-${rand}`;
+  const id = crypto.randomUUID();
+
+  // Deduct inventory transactionally
+  const insertOrder = sqliteDb.transaction(() => {
+    sqliteDb.prepare(`
+      INSERT INTO orders (
+        id, order_number, customer_name, phone, address, city, items, subtotal, delivery_charge, discount, total_amount, payment_method, customer_notes
+      ) VALUES (
+        @id, @order_number, @customer_name, @phone, @address, @city, @items, @subtotal, @delivery_charge, @discount, @total_amount, @payment_method, @customer_notes
+      )
+    `).run({
+      id,
+      order_number,
+      customer_name: (customer_name || '').trim(),
+      phone: (phone || '').trim(),
+      address: (address || '').trim(),
+      city: city || 'Sargodha',
+      items: JSON.stringify(items || []),
+      subtotal: Number(subtotal) || Number(total_amount) || 0,
+      delivery_charge: Number(delivery_charge) || 0,
+      discount: Number(discount) || 0,
+      total_amount: Number(total_amount) || 0,
+      payment_method: payment_method || 'COD',
+      customer_notes: customer_notes || ''
+    });
+
+    if (Array.isArray(items)) {
+      const updateStock = sqliteDb.prepare(`
+        UPDATE products SET 
+          stock_quantity = MAX(0, stock_quantity - @qty),
+          in_stock = CASE WHEN stock_quantity - @qty <= 0 THEN 0 ELSE 1 END
+        WHERE id = @pid
+      `);
+      items.forEach(it => {
+        if (it.product_id || it.id) {
+          updateStock.run({ pid: it.product_id || it.id, qty: Number(it.quantity) || 1 });
+        }
+      });
+    }
+  });
+
+  insertOrder();
+
+  res.json({
+    success: true,
+    data: {
+      id,
+      order_id: order_number,
+      order_number,
+      status: 'Pending',
+      total_amount
+    }
+  });
+});
+
+app.get('/api/orders/track/:orderNumber', (req, res) => {
+  const order = sqliteDb.prepare('SELECT * FROM orders WHERE UPPER(order_number) = UPPER(?)').get(req.params.orderNumber.trim());
+  if (!order) return res.status(404).json({ error: 'Order not found' });
+  res.json({
+    success: true,
+    order: {
+      ...order,
+      items: JSON.parse(order.items || '[]')
+    }
+  });
+});
+
+app.get('/api/orders', requireAdmin, (req, res) => {
+  const rows = sqliteDb.prepare('SELECT * FROM orders ORDER BY created_at DESC').all();
+  res.json({
+    success: true,
+    orders: rows.map(r => ({
+      ...r,
+      items: JSON.parse(r.items || '[]')
+    }))
+  });
+});
+
+app.patch('/api/orders/:id/status', requireAdmin, (req, res) => {
+  const { status, courier_name, tracking_number } = req.body;
+  sqliteDb.prepare(`
+    UPDATE orders SET 
+      status = COALESCE(@status, status),
+      courier_name = COALESCE(@courier_name, courier_name),
+      tracking_number = COALESCE(@tracking_number, tracking_number),
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = @id
+  `).run({ id: req.params.id, status, courier_name, tracking_number });
+
+  res.json({ success: true, message: 'Order status updated' });
+});
+
+// ----------------------------------------------------
+// STITCHING ENDPOINTS
+// ----------------------------------------------------
+app.post('/api/stitching', (req, res) => {
+  const { customer_name, phone, whatsapp, address, city, unit, style_selections, measurements, fabric_choice, special_instructions } = req.body;
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let rand = '';
+  for (let i = 0; i < 5; i++) rand += chars[Math.floor(Math.random() * chars.length)];
+  const request_number = `ST-${rand}`;
+  const id = crypto.randomUUID();
+
+  sqliteDb.prepare(`
+    INSERT INTO stitching_requests (
+      id, request_number, customer_name, phone, whatsapp, address, city, unit, style_selections, measurements, fabric_choice, special_instructions
+    ) VALUES (
+      @id, @request_number, @customer_name, @phone, @whatsapp, @address, @city, @unit, @style_selections, @measurements, @fabric_choice, @special_instructions
+    )
+  `).run({
+    id,
+    request_number,
+    customer_name: (customer_name || '').trim(),
+    phone: (phone || '').trim(),
+    whatsapp: whatsapp || '',
+    address: (address || '').trim(),
+    city: city || 'Sargodha',
+    unit: unit || 'inches',
+    style_selections: JSON.stringify(style_selections || {}),
+    measurements: JSON.stringify(measurements || {}),
+    fabric_choice: fabric_choice || '',
+    special_instructions: special_instructions || ''
+  });
+
+  res.json({ success: true, request_number, id });
+});
+
+app.get('/api/stitching', requireAdmin, (req, res) => {
+  const rows = sqliteDb.prepare('SELECT * FROM stitching_requests ORDER BY created_at DESC').all();
+  res.json({
+    success: true,
+    requests: rows.map(r => ({
+      ...r,
+      style_selections: JSON.parse(r.style_selections || '{}'),
+      measurements: JSON.parse(r.measurements || '{}')
+    }))
+  });
+});
+
+// ----------------------------------------------------
+// DASHBOARD ANALYTICS ENDPOINT
+// ----------------------------------------------------
+app.get('/api/admin/dashboard-stats', requireAdmin, (req, res) => {
+  const totalOrders = sqliteDb.prepare('SELECT COUNT(*) as count FROM orders').get().count;
+  const totalRevenue = sqliteDb.prepare("SELECT SUM(total_amount) as total FROM orders WHERE status != 'Cancelled'").get().total || 0;
+  const activeProducts = sqliteDb.prepare('SELECT COUNT(*) as count FROM products WHERE in_stock = 1').get().count;
+  const pendingOrders = sqliteDb.prepare("SELECT COUNT(*) as count FROM orders WHERE status = 'Pending'").get().count;
+  
+  const lowStockProducts = sqliteDb.prepare('SELECT * FROM products WHERE stock_quantity <= low_stock_threshold ORDER BY stock_quantity ASC LIMIT 10').all();
+  const recentOrders = sqliteDb.prepare('SELECT * FROM orders ORDER BY created_at DESC LIMIT 6').all().map(r => ({
+    ...r,
+    items: JSON.parse(r.items || '[]')
+  }));
+
+  res.json({
+    success: true,
+    stats: {
+      totalRevenue,
+      totalOrders,
+      activeProducts,
+      pendingOrders,
+      lowStockProducts,
+      recentOrders
+    }
+  });
+});
+
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`AT BRAND unified backend server listening on port ${PORT}`);
+});
