@@ -183,13 +183,6 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              to="/admin"
-              onClick={() => setOpen(false)}
-              className="text-xs font-bold uppercase tracking-wider text-muted-foreground pt-4 border-t border-border"
-            >
-              Admin Portal
-            </Link>
           </nav>
         </div>
       )}
