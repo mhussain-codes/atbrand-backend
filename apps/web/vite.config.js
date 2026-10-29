@@ -418,7 +418,13 @@ export default defineConfig({
 	],
 	server: {
 		port: 3000,
-		cors: { origin: AllowedEditorOrigins },
+		cors: true,
+		proxy: {
+			'/api': {
+				target: 'http://localhost:4000',
+				changeOrigin: true,
+			},
+		},
 		headers: {
 			'Cross-Origin-Embedder-Policy': 'credentialless',
 		},

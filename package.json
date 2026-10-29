@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "setup": "bun install",
-    "dev": "concurrently --kill-others --raw \"npm run dev --prefix apps/web\" \"npm run dev --prefix apps/pocketbase\"",
+    "dev": "concurrently --kill-others --raw \"node apps/web/server.js\" \"npm run dev --prefix apps/web\"",
+    "dev:web": "npm run dev --prefix apps/web",
+    "dev:server": "node apps/web/server.js",
     "build": "concurrently --raw \"npm run build --prefix apps/web\"",
     "start": "concurrently --kill-others --raw \"npm run start --prefix apps/pocketbase\"",
     "lint": "concurrently --raw \"npm run lint --prefix apps/web\""
