@@ -3,31 +3,24 @@ import { Helmet } from 'react-helmet';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import Reveal from '@/components/Reveal';
-import { PRODUCTS, TYPES, PRICE_BANDS, SEASONS } from '@/data/products';
-import { createClient } from '@supabase/supabase-js';
-
-// Supabase Connection
-const supabase = createClient(
-  'https://mgolzolmhfqsjziuuauq.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nb2x6b2xtaGZxc2p6aXV1YXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNDc3NjUsImV4cCI6MjEwNzgyMzc2NX0.vjYe2I5X6cmVuLy7R5q4ibIi_MDi-xurympVa8ikhMY'
-);
+import { TYPES, PRICE_BANDS, SEASONS, PRODUCTS } from '@/data/products';
+import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 function Chip({ active, onClick, children }) {
   return (
     <button
       onClick={onClick}
-      className={`rounded-full border px-4 py-2 text-sm font-medium transition active:scale-[0.98] ${active
-          ? 'border-primary bg-primary text-primary-foreground'
-          : 'border-border bg-card text-foreground/75 hover:border-primary/40 hover:text-primary'
-        }`}
+      className={`rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wider transition active:scale-[0.98] ${
+        active
+          ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+          : 'border-slate-300 bg-white text-slate-700 hover:border-primary/50 hover:text-primary'
+      }`}
     >
       {children}
     </button>
   );
 }
 
-// Smart Color Search Dictionary
 const colorSynonyms = {
   'blue': ['blue', 'sky blue', 'medium blue', 'ice blue', 'arctic blue', 'slate blue', 'powder blue', 'navy', 'peacock', 'zink', 'aqua'],
   'white': ['white', 'pure white', 'off-white', 'off white', 'cream', 'ivory', 'milk white', 'beige'],
@@ -45,77 +38,40 @@ export default function ShopPage() {
   const [bandFilter, setBandFilter] = useState('all');
   const [seasonFilter, setSeasonFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-
-  // State jismein purane + naye dono products honge
   const [allProducts, setAllProducts] = useState(PRODUCTS);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8; // Clean 8 suits per page
 
   useEffect(() => {
-    async function fetchSupabaseProducts() {
-      const { data, error } = await supabase
-        .from('storefront_products')
-        .select('*');
-
-      if (data && !error) {
-        // Naye products ko aapke purane design format mein set karna
-        const formattedSupabaseProducts = data.map(product => {
-          const imageUrls = Array.isArray(product.image_urls)
-            ? product.image_urls.filter(url => typeof url === 'string' && url.trim())
-            : [];
-
-          if (product.image_url && !imageUrls.includes(product.image_url)) {
-            imageUrls.unshift(product.image_url);
-          }
-
-          return {
-            id: product.id,
-            name: product.name,
-            type: product.category || 'Unstitched',
-            season: '4 Season',
-            price: Number(product.price),
-            originalPrice: null,
-            fabric: product.description || '',
-            images: imageUrls,
-            image_url: imageUrls[0] || null,
-            image_urls: imageUrls,
-            colors: [],
-            isNew: false,
-            featured: false,
-            in_stock: product.in_stock !== false,
-          };
-        });
-
-        // Keep the existing static catalog and merge live products without duplicate IDs.
-        const mergedProducts = new Map(PRODUCTS.map(product => [String(product.id), product]));
-        formattedSupabaseProducts.forEach(product => mergedProducts.set(String(product.id), product));
-        setAllProducts(Array.from(mergedProducts.values()));
-      }
-    }
-
-    fetchSupabaseProducts();
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data.products && data.products.length > 0) {
+          setAllProducts(data.products);
+        }
+      })
+      .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [typeFilter, bandFilter, seasonFilter, searchQuery]);
 
   const filtered = useMemo(() => {
     return allProducts.filter((p) => {
-      // Fabric Filter
       if (typeFilter !== 'all' && p.type !== typeFilter) return false;
-
-      // Season Filter
       if (seasonFilter !== 'all' && p.season !== seasonFilter) return false;
 
-      // Price Filter
       if (bandFilter !== 'all') {
         const band = PRICE_BANDS.find((b) => b.id === bandFilter);
         if (band && (p.price < band.min || p.price > band.max)) return false;
       }
 
-      // Smart Color Search Filter
-      if (searchQuery) {
+      if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
         const searchTerms = colorSynonyms[query] || [query];
-
         const nameStr = (p.name || '').toLowerCase();
         const colorsStr = p.colors ? p.colors.map(c => (c.name || '').toLowerCase()).join(" ") : "";
-
         const matchesSearch = searchTerms.some(term => nameStr.includes(term) || colorsStr.includes(term));
         if (!matchesSearch) return false;
       }
@@ -124,8 +80,30 @@ export default function ShopPage() {
     });
   }, [allProducts, typeFilter, bandFilter, seasonFilter, searchQuery]);
 
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentProducts = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 250, behavior: 'smooth' });
+  };
+
+  const getPaginationGroup = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (currentPage <= 3) {
+      return [1, 2, 3, 4, '...', totalPages];
+    }
+    if (currentPage >= totalPages - 2) {
+      return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+  };
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground font-sans">
       <Helmet>
         <title>Shop Mens Premium Unstitched Suits | AT Brand Sargodha</title>
         <meta
@@ -135,100 +113,131 @@ export default function ShopPage() {
       </Helmet>
 
       <Header />
-      <main className="pt-16">
-        <section className="border-b border-border/60 bg-secondary/40 py-14">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Reveal>
-              <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-accent">
-                <span className="h-px w-10 bg-accent" />
-                AT Brand Sargodha Collection
-              </p>
-              <h1 className="mt-4 font-display text-4xl text-foreground sm:text-5xl">
-                Mens Premium Unstitched Suits
-              </h1>
-              <p className="mt-4 max-w-xl text-muted-foreground">
-                Explore our exclusive collection of mens unstitched shalwar kameez. Filter by fabric, season, or price to find your perfect suit. Tap Buy Now to order on WhatsApp with cash on delivery.
-              </p>
-            </Reveal>
+      <main className="py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#C5A880]">Complete Unstitched Store</p>
+            <h1 className="mt-2 font-serif text-3xl font-extrabold text-[#1C3A2B] sm:text-5xl">
+              All Collections & Fabrics
+            </h1>
+            <p className="mx-auto mt-3 max-w-2xl text-sm font-medium text-slate-600 sm:text-base">
+              Find the perfect suit cut from Pakistan's most revered mills. Delivered to your doorstep with Cash on Delivery.
+            </p>
           </div>
-        </section>
 
-        <section className="py-14 sm:py-16">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="space-y-4">
-
-              {/* --- SEARCH BAR --- */}
-              <div className="flex w-full max-w-md items-center mb-6">
-                <input
-                  type="text"
-                  placeholder="Search colors (e.g. blue, brown, red)..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-full border border-border bg-card px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition"
-                />
-              </div>
-
-              {/* Fabric Filter */}
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="mr-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                  Fabric
-                </span>
-                <Chip active={typeFilter === 'all'} onClick={() => setTypeFilter('all')}>All</Chip>
-                {TYPES.map((t) => (
-                  <Chip key={t} active={typeFilter === t} onClick={() => setTypeFilter(t)}>{t}</Chip>
-                ))}
-              </div>
-
-              {/* Season Filter */}
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="mr-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                  Season
-                </span>
-                <Chip active={seasonFilter === 'all'} onClick={() => setSeasonFilter('all')}>All</Chip>
-                {SEASONS.map((s) => (
-                  <Chip key={s} active={seasonFilter === s} onClick={() => setSeasonFilter(s)}>{s}</Chip>
-                ))}
-              </div>
-
-              {/* Price Filter */}
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="mr-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                  Price
-                </span>
-                <Chip active={bandFilter === 'all'} onClick={() => setBandFilter('all')}>All Prices</Chip>
-                {PRICE_BANDS.map((b) => (
-                  <Chip key={b.id} active={bandFilter === b.id} onClick={() => setBandFilter(b.id)}>
-                    PKR {b.label}
-                  </Chip>
-                ))}
-              </div>
+          {/* Filter Bar */}
+          <div className="rounded-2xl border border-slate-300 bg-white p-6 shadow-sm mb-8 space-y-4">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search shades & colors (e.g. blue, brown, red)..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-full border border-slate-300 bg-white py-2 pl-10 pr-4 text-xs font-medium text-slate-900 focus:border-[#1C3A2B] focus:outline-none"
+              />
             </div>
 
-            <p className="mt-8 text-sm text-muted-foreground">
-              Showing <span className="font-semibold text-foreground">{filtered.length}</span>{' '}
-              {filtered.length === 1 ? 'piece' : 'pieces'}
-            </p>
+            {/* Fabric */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200">
+              <span className="mr-2 text-xs font-extrabold uppercase tracking-wider text-slate-500">Fabric:</span>
+              <Chip active={typeFilter === 'all'} onClick={() => setTypeFilter('all')}>All Fabrics</Chip>
+              {TYPES.map((t) => (
+                <Chip key={t} active={typeFilter === t} onClick={() => setTypeFilter(t)}>{t}</Chip>
+              ))}
+            </div>
 
-            {filtered.length > 0 ? (
-              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {filtered.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
-            ) : (
-              <div className="mt-6 rounded-2xl border border-dashed border-border bg-card/50 px-6 py-16 text-center">
-                <p className="font-display text-2xl text-foreground">No pieces in this combination</p>
-                <p className="mt-2 text-sm text-muted-foreground">Try a different fabric, season, price range or color.</p>
-                <button
-                  onClick={() => { setTypeFilter('all'); setSeasonFilter('all'); setBandFilter('all'); setSearchQuery(''); }}
-                  className="mt-6 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 active:scale-[0.98]"
-                >
-                  Reset Filters
-                </button>
-              </div>
-            )}
+            {/* Season */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200">
+              <span className="mr-2 text-xs font-extrabold uppercase tracking-wider text-slate-500">Season:</span>
+              <Chip active={seasonFilter === 'all'} onClick={() => setSeasonFilter('all')}>All Seasons</Chip>
+              {SEASONS.map((s) => (
+                <Chip key={s} active={seasonFilter === s} onClick={() => setSeasonFilter(s)}>{s}</Chip>
+              ))}
+            </div>
+
+            {/* Price */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200">
+              <span className="mr-2 text-xs font-extrabold uppercase tracking-wider text-slate-500">Price:</span>
+              <Chip active={bandFilter === 'all'} onClick={() => setBandFilter('all')}>All Prices</Chip>
+              {PRICE_BANDS.map((b) => (
+                <Chip key={b.id} active={bandFilter === b.id} onClick={() => setBandFilter(b.id)}>
+                  PKR {b.label}
+                </Chip>
+              ))}
+            </div>
           </div>
-        </section>
+
+          <div className="mb-6 flex items-center justify-between text-xs font-semibold text-slate-600 border-b border-slate-200 pb-2">
+            <span>Showing <b>{currentProducts.length}</b> of <b>{filtered.length}</b> pieces</span>
+            {totalPages > 1 && <span>Page <b>{currentPage}</b> of <b>{totalPages}</b></span>}
+          </div>
+
+          {currentProducts.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {currentProducts.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+              <p className="font-serif text-2xl font-bold text-slate-900">No pieces match this combination</p>
+              <p className="mt-2 text-xs font-medium text-slate-600">Try a different fabric, season, price range or color.</p>
+              <button
+                onClick={() => { setTypeFilter('all'); setSeasonFilter('all'); setBandFilter('all'); setSearchQuery(''); }}
+                className="mt-6 rounded-full bg-[#1C3A2B] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow"
+              >
+                Reset Filters
+              </button>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-14 flex items-center justify-center gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="inline-flex h-10 items-center justify-center gap-1 rounded-xl border border-slate-300 bg-white px-3.5 text-xs font-bold text-slate-800 shadow-sm transition hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span>Prev</span>
+              </button>
+
+              {getPaginationGroup().map((item, idx) => {
+                if (item === '...') {
+                  return (
+                    <span key={`dots-${idx}`} className="px-2 text-xs font-bold text-slate-400">
+                      ...
+                    </span>
+                  );
+                }
+                return (
+                  <button
+                    key={item}
+                    onClick={() => handlePageChange(item)}
+                    className={`h-10 w-10 rounded-xl text-xs font-bold transition shadow-sm ${
+                      currentPage === item
+                        ? 'bg-[#1C3A2B] text-white'
+                        : 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    {item}
+                  </button>
+                );
+              })}
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="inline-flex h-10 items-center justify-center gap-1 rounded-xl border border-slate-300 bg-white px-3.5 text-xs font-bold text-slate-800 shadow-sm transition hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none"
+              >
+                <span>Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+        </div>
       </main>
       <Footer />
     </div>

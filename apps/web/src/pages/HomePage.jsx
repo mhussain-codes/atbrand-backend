@@ -12,13 +12,6 @@ import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import Reveal from '@/components/Reveal';
 import { PRODUCTS, PRICE_BANDS } from '@/data/products';
-import { createClient } from '@supabase/supabase-js';
-
-// 1. Supabase Connection
-const supabase = createClient(
-  'https://mgolzolmhfqsjziuuauq.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nb2x6b2xtaGZxc2p6aXV1YXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNDc3NjUsImV4cCI6MjEwNzgyMzc2NX0.vjYe2I5X6cmVuLy7R5q4ibIi_MDi-xurympVa8ikhMY'
-);
 
 const HERO_IMAGE = 'https://images.hostinger.com/b3da7f12-753f-4d7f-b0c2-c61996be718d.png';
 
@@ -26,39 +19,17 @@ export default function HomePage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [bandFilter, setBandFilter] = useState('all');
   const [seasonFilter, setSeasonFilter] = useState('all'); 
-  
-  // 2. State jismein purane + naye dono products honge
   const [allProducts, setAllProducts] = useState(PRODUCTS);
 
   useEffect(() => {
-    async function fetchSupabaseProducts() {
-      const { data, error } = await supabase
-        .from('storefront_products')
-        .select('*');
-
-      if (data && !error) {
-        // Naye products ko aapke purane format mein dhalna
-        const formattedSupabaseProducts = data.map(p => ({
-          id: p.id,
-          name: p.name,
-          type: p.category || 'Unstitched',
-          season: '4 Season', 
-          price: Number(p.price),
-          originalPrice: null,
-          fabric: p.description || '',
-          images: p.image_url ? [p.image_url] : ['https://via.placeholder.com/400'],
-          colors: [],
-          in_stock: p.in_stock !== false,
-          isNew: true, // Naye add hone wale products automatically New Arrivals mein aayenge
-          featured: true // Inko Featured section mein bhi show karega
-        }));
-
-        // Purane aur naye products ko merge karna
-        setAllProducts([...PRODUCTS, ...formattedSupabaseProducts]);
-      }
-    }
-
-    fetchSupabaseProducts();
+    fetch('/api/products')
+      .then(r => r.json())
+      .then(d => {
+        if (d.products && d.products.length > 0) {
+          setAllProducts(d.products);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   // 3. PRODUCTS ki jagah allProducts use kiya gaya hai
