@@ -25,6 +25,8 @@ import { ShippingPolicyPage, ReturnPolicyPage, PrivacyPolicyPage, TermsPage } fr
 // Admin Portal
 import AdminDashboardPage from './pages/AdminDashboardPage';
 
+import WhatsAppFloatingButton from './components/WhatsAppFloatingButton';
+
 function App() {
   return (
     <Router>
@@ -63,6 +65,7 @@ function App() {
             {/* Catch-all Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          <WhatsAppFloatingButton />
         </BuyProvider>
       </AuthProvider>
       <Toaster richColors position="top-center" />

@@ -363,12 +363,12 @@ export default function AdminDashboardPage() {
 
           {/* User Badge */}
           <div className="px-6 py-4 border-b border-slate-200 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-[#E0533C]/15 text-[#E0533C] flex items-center justify-center font-black text-sm">
-              SH
+            <div className="h-10 w-10 rounded-full bg-[#1C3A2B]/15 text-[#1C3A2B] flex items-center justify-center font-black text-sm">
+              AT
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-900">{adminUser?.name || 'Shashwat'}</p>
-              <span className="text-[11px] uppercase font-extrabold text-[#E0533C] bg-[#E0533C]/15 px-2 py-0.5 rounded">ADMIN</span>
+              <p className="text-sm font-extrabold text-slate-900">{adminUser?.name || 'ARSALAN TARIQ'}</p>
+              <span className="text-[11px] uppercase font-extrabold text-[#1C3A2B] bg-[#1C3A2B]/10 px-2 py-0.5 rounded">ADMIN</span>
             </div>
           </div>
 
@@ -467,7 +467,7 @@ export default function AdminDashboardPage() {
               {/* Welcome Message */}
               <div className="mb-8">
                 <h2 className="text-3xl font-extrabold text-slate-900">
-                  👋 Good morning, {adminUser?.name || 'Shashwat'}!
+                  👋 Good morning, {adminUser?.name || 'ARSALAN TARIQ'}!
                 </h2>
                 <p className="text-sm font-semibold text-slate-600 mt-1">
                   {new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
