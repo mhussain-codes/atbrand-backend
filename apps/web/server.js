@@ -5,9 +5,43 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
+import path from 'path';
+import fs from 'fs';
+import multer from 'multer';
+
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Ensure uploads folder exists
+const uploadsDir = path.resolve('public/uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+app.use('/uploads', express.static(uploadsDir));
+
+// Multer Storage Configuration
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const cleanName = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9]/g, '-');
+    cb(null, `${cleanName}-${Date.now()}${ext}`);
+  }
+});
+const upload = multer({ storage, limits: { fileSize: 15 * 1024 * 1024 } }); // 15MB limit
+
+// Multiple Image Upload Endpoint
+app.post('/api/upload', upload.array('images', 20), (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ error: 'No image files uploaded' });
+  }
+  const urls = req.files.map(f => `/uploads/${f.filename}`);
+  res.json({ success: true, urls });
+});
 
 const JWT_SECRET = process.env.JWT_SECRET || 'atbrand_secure_admin_jwt_secret_key_2026';
 const ADMIN_PASSWORD_HASH = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'atbrandAdmin2026!', 10);
