@@ -2,7 +2,10 @@
   RewriteEngine On
   RewriteBase /
 
-  # Handle React Router dynamic URLs (redirect all routes to index.html)
+  # 1. Route /api/* requests to api/index.php
+  RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+  # 2. Handle React Router dynamic URLs (redirect all non-file non-dir requests to index.html)
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
