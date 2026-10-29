@@ -69,7 +69,7 @@ app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
   if ((username === 'admin' || username === 'atbrand00@gmail.com') && bcrypt.compareSync(password, ADMIN_PASSWORD_HASH)) {
     const token = jwt.sign({ username: 'admin', role: 'superadmin' }, JWT_SECRET, { expiresIn: '7d' });
-    return res.json({ success: true, token, user: { name: 'Arsalan Tariq', email: 'atbrand00@gmail.com', role: 'ADMIN' } });
+    return res.json({ success: true, token, user: { name: 'ARSLAN TARIQ', email: 'atbrand00@gmail.com', role: 'ADMIN' } });
   }
   return res.status(401).json({ error: 'Invalid username or password' });
 });

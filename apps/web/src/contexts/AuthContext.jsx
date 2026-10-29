@@ -6,9 +6,17 @@ export function AuthProvider({ children }) {
   const [adminUser, setAdminUser] = useState(() => {
     try {
       const saved = localStorage.getItem('atbrand_admin_user');
-      return saved ? JSON.parse(saved) : null;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.name && parsed.name.toLowerCase().includes('shashwat')) {
+          parsed.name = 'ARSLAN TARIQ';
+          localStorage.setItem('atbrand_admin_user', JSON.stringify(parsed));
+        }
+        return parsed;
+      }
+      return { name: 'ARSLAN TARIQ', email: 'atbrand00@gmail.com', role: 'ADMIN' };
     } catch {
-      return null;
+      return { name: 'ARSLAN TARIQ', email: 'atbrand00@gmail.com', role: 'ADMIN' };
     }
   });
 
