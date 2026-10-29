@@ -75,11 +75,16 @@ export default function MensPage() {
   return (
     <div className="min-h-screen bg-background text-foreground font-sans">
       <Helmet>
-        <title>Men's Premium Unstitched Suits & Shalwar Kameez | AT BRAND Sargodha</title>
+        <title>Men's Premium Unstitched Suits & Shalwar Kameez in Pakistan | AT BRAND Sargodha</title>
         <meta
           name="description"
-          content="Explore the finest Men's unstitched suits in Pakistan. Wash & Wear, Ahmad Cotton, Rashid Cotton, Boski, and Lattha delivered nationwide."
+          content="Buy premium men's unstitched suits online in Pakistan at AT BRAND Sargodha. Original Rashid Cotton, Ahmad Cotton, Wash & Wear, Boski, and Lattha fabrics with Cash on Delivery."
         />
+        <meta name="keywords" content="mens unstitched suits Pakistan, unstitched shalwar kameez, Wash and Wear fabric Pakistan, Ahmad cotton Sargodha, Rashid cotton suits, Boski suits Pakistan, mens clothing Sargodha, unstitched suit box price" />
+        <link rel="canonical" href="https://atbrand.store/men" />
+        <meta property="og:title" content="Men's Premium Unstitched Suits | AT BRAND Sargodha" />
+        <meta property="og:description" content="Shop 100% genuine unstitched fabrics for modern Pakistani gentlemen. Nationwide cash on delivery." />
+        <meta property="og:url" content="https://atbrand.store/men" />
       </Helmet>
 
       <Header />

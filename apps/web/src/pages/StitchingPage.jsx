@@ -127,11 +127,15 @@ export default function StitchingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
-        <title>Master Custom Tailoring & Stitching | AT BRAND Sargodha</title>
+        <title>Master Custom Tailoring & Men's Kurta Shalwar Stitching in Pakistan | AT BRAND</title>
         <meta
           name="description"
-          content="Premium bespoke men's kurta shalwar stitching in Sargodha, Pakistan. Exact custom measurements, collar options, cuff styles, and flawless fitting."
+          content="Order custom tailored men's kurta shalwar and unstitched suit stitching online in Pakistan. Sherwani ban, collar designs, cuff options, and master tailoring by AT BRAND Sargodha."
         />
+        <meta name="keywords" content="custom stitching Pakistan, mens kurta shalwar stitching, online tailor Pakistan, bespoke tailoring Sargodha, kurta measurement guide, Pakistani tailoring rates" />
+        <link rel="canonical" href="https://atbrand.store/stitching" />
+        <meta property="og:title" content="Custom Kurta Shalwar Stitching | AT BRAND Sargodha" />
+        <meta property="og:description" content="Precision Pakistani tailoring for unstitched suits. Save measurements, choose ban/cuffs, and order with Cash on Delivery." />
       </Helmet>
 
       <Header />

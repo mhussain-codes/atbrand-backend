@@ -16,12 +16,21 @@ export default function PerfumesPage() {
     fetch('/api/products?category=Perfumes')
       .then(res => res.json())
       .then(data => {
-        if (data.products && data.products.length > 0) {
-          setProducts(data.products);
-          setIsComingSoon(false);
+        if (data.products && Array.isArray(data.products)) {
+          const perfumesOnly = data.products.filter(p => (p.category || '').toLowerCase() === 'perfumes');
+          if (perfumesOnly.length > 0) {
+            setProducts(perfumesOnly);
+            setIsComingSoon(false);
+          } else {
+            setProducts([]);
+            setIsComingSoon(true);
+          }
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        setProducts([]);
+        setIsComingSoon(true);
+      })
       .finally(() => setLoading(false));
   }, []);
 

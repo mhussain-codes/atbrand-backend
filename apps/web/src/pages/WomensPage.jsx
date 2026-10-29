@@ -15,7 +15,11 @@ export default function WomensPage() {
     fetch('/api/products?category=Women')
       .then(res => res.json())
       .then(data => {
-        if (data.products) setProducts(data.products);
+        if (data.products && Array.isArray(data.products)) {
+          // Filter strictly for women products
+          const womenOnly = data.products.filter(p => (p.category || '').toLowerCase() === 'women');
+          setProducts(womenOnly);
+        }
       })
       .catch(() => setProducts([]))
       .finally(() => setLoading(false));

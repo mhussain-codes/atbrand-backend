@@ -143,7 +143,24 @@ if ($path === 'admin/dashboard-stats' && $method === 'GET') {
 // 3. GET / ADD PRODUCTS
 if ($path === 'products') {
     if ($method === 'GET') {
-        $stmt = $db->query("SELECT * FROM products ORDER BY created_at DESC");
+        $category = $_GET['category'] ?? null;
+        $type = $_GET['type'] ?? null;
+        $sql = "SELECT * FROM products WHERE 1=1";
+        $params = [];
+
+        if ($category && $category !== 'all') {
+            $sql .= " AND LOWER(category) = LOWER(?)";
+            $params[] = $category;
+        }
+        if ($type && $type !== 'all') {
+            $sql .= " AND LOWER(type) = LOWER(?)";
+            $params[] = $type;
+        }
+
+        $sql .= " ORDER BY created_at DESC";
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+
         $prods = [];
         while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $r['images'] = json_decode($r['images'] ?? '[]', true);
