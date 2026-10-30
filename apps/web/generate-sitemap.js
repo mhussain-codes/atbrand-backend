@@ -15,6 +15,8 @@ const staticRoutes = [
   '/men/lattha',
   '/men/karandi',
   '/stitching',
+  '/women',
+  '/perfumes',
   '/new-arrivals',
   '/about',
   '/contact',
