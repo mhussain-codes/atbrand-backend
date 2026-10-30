@@ -126,6 +126,44 @@ export default function MensPage() {
     ? `https://atbrand.store/men/${currentSlug}`
     : `https://atbrand.store/men`;
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': 'https://atbrand.store/'
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'Men Collection',
+        'item': 'https://atbrand.store/men'
+      },
+      ...(currentSlug ? [{
+        '@type': 'ListItem',
+        'position': 3,
+        'name': activeTypeFromUrl,
+        'item': canonicalUrl
+      }] : [])
+    ]
+  };
+
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    'name': pageTitle,
+    'description': pageDescription,
+    'url': canonicalUrl,
+    'publisher': {
+      '@type': 'Organization',
+      'name': 'AT BRAND Sargodha',
+      'url': 'https://atbrand.store'
+    }
+  };
+
   if (loading) return <BrandLoader message="Loading Men's Collection..." />;
 
   return (
@@ -138,6 +176,12 @@ export default function MensPage() {
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonicalUrl} />
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbJsonLd)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(collectionJsonLd)}
+        </script>
       </Helmet>
 
       <Header />
@@ -305,6 +349,21 @@ export default function MensPage() {
             </button>
           </div>
         )}
+        {/* Educational SEO & Fabric Guide Section */}
+        <div className="mt-16 rounded-2xl border border-slate-200 bg-slate-50/50 p-6 sm:p-8">
+          <h2 className="font-serif text-lg font-bold text-[#1C3A2B] sm:text-xl">
+            Why Buy Men's Unstitched Fabric from AT BRAND Sargodha?
+          </h2>
+          <p className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600">
+            At <strong>AT BRAND</strong>, we curate premier Pakistani unstitched fabrics directly from renowned mills and master weavers across Kamalia, Faisalabad, and Karachi. Whether you are looking for crisp Ahmad Cotton with stiff collar fall, everyday wash-and-wear for work, luxurious executive Boski for wedding ceremonies, or warm winter khaddar, every 4-meter / 4.25-meter suit piece comes with our 100% color and fabric guarantee, custom tailoring add-ons, and nationwide cash on delivery across Pakistan.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-[#1C3A2B]">
+            <span className="rounded-lg bg-white px-2.5 py-1 border border-slate-200">✓ 4.0 - 4.5 Meter Standard Cutting</span>
+            <span className="rounded-lg bg-white px-2.5 py-1 border border-slate-200">✓ 100% Color & Shrinkage Guarantee</span>
+            <span className="rounded-lg bg-white px-2.5 py-1 border border-slate-200">✓ Luxury Packaging with Original Bag</span>
+            <span className="rounded-lg bg-white px-2.5 py-1 border border-slate-200">✓ Sargodha Master Tailoring Available</span>
+          </div>
+        </div>
       </main>
 
       <Footer />

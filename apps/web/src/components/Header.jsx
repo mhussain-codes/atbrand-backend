@@ -1,14 +1,25 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, MessageCircle, ShoppingCart, Plus, Minus, Trash2, Search, Scissors } from 'lucide-react';
+import { Menu, X, MessageCircle, ShoppingCart, Plus, Minus, Trash2, Search, Scissors, ChevronDown } from 'lucide-react';
 import { openWhatsApp, buildCartMessage, formatPKR } from '@/lib/whatsapp';
 import { useBuy } from '@/contexts/BuyContext';
 import ProductCard from '@/components/ProductCard';
 import { PRODUCTS } from '@/data/products';
 
+const MEN_SUB_PAGES = [
+  { label: 'All Men Fabrics', to: '/men', desc: 'Complete unstitched collection' },
+  { label: 'Rashid Cotton', to: '/men/rashid-cotton', desc: 'Winter warm & soft cotton finish' },
+  { label: 'Ahmad Cotton', to: '/men/ahmad-cotton', desc: 'Royal crisp feel for casual & events' },
+  { label: 'Wash & Wear', to: '/men/wash-and-wear', desc: 'Wrinkle-resistant daily luxury' },
+  { label: 'Pure Boski', to: '/men/boski', desc: 'Traditional spun silk drape & shine' },
+  { label: 'Winter Khaddar', to: '/men/khaddar', desc: 'Pure warm textured handloom weave' },
+  { label: 'Egyptian Lattha', to: '/men/lattha', desc: 'Pristine white & off-white heritage' },
+  { label: 'Kamalia Karandi', to: '/men/karandi', desc: 'Rich authentic Pakistani texture' },
+];
+
 const NAV = [
   { label: 'Home', to: '/' },
-  { label: 'Men', to: '/men' },
+  { label: 'Men', to: '/men', hasSub: true },
   { label: 'Women', to: '/women' },
   { label: 'Perfumes', to: '/perfumes' },
   { label: 'Custom Stitching', to: '/stitching' },
@@ -19,6 +30,7 @@ const NAV = [
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const [mobileMenOpen, setMobileMenOpen] = useState(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   
@@ -73,17 +85,55 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-6 md:flex lg:gap-8">
-          {NAV.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`text-xs font-semibold uppercase tracking-[0.14em] transition hover:text-primary ${
-                isActive(item.to) ? 'text-primary border-b-2 border-accent pb-1' : 'text-foreground/75'
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {NAV.map((item) => {
+            if (item.hasSub) {
+              return (
+                <div key={item.to} className="relative group py-6">
+                  <Link
+                    to={item.to}
+                    className={`inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.14em] transition hover:text-primary ${
+                      isActive(item.to) ? 'text-primary border-b-2 border-accent pb-1' : 'text-foreground/75'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 group-hover:rotate-180" />
+                  </Link>
+
+                  {/* Dropdown Menu */}
+                  <div className="absolute left-1/2 top-full -translate-x-1/2 w-80 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
+                    <div className="px-3 py-2 border-b border-slate-100 mb-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-[#C5A880]">Men's Sub-Categories</p>
+                      <p className="text-xs font-bold text-slate-800">Shop by Master Fabric</p>
+                    </div>
+                    <div className="space-y-1">
+                      {MEN_SUB_PAGES.map((sub) => (
+                        <Link
+                          key={sub.to}
+                          to={sub.to}
+                          className="flex flex-col rounded-xl px-3 py-2 text-left hover:bg-slate-50 transition"
+                        >
+                          <span className="text-xs font-extrabold text-slate-900 group-hover/sub:text-[#1C3A2B]">{sub.label}</span>
+                          <span className="text-[10px] font-medium text-slate-500 leading-tight">{sub.desc}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`text-xs font-semibold uppercase tracking-[0.14em] transition hover:text-primary ${
+                  isActive(item.to) ? 'text-primary border-b-2 border-accent pb-1' : 'text-foreground/75'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Action Controls */}
@@ -169,20 +219,62 @@ export default function Header() {
 
       {/* Mobile Drawer Navigation */}
       {open && (
-        <div className="border-t border-border bg-background p-6 md:hidden">
-          <nav className="flex flex-col gap-4">
-            {NAV.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={() => setOpen(false)}
-                className={`text-sm font-semibold uppercase tracking-wider ${
-                  isActive(item.to) ? 'text-primary font-bold' : 'text-foreground/80'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+        <div className="border-t border-border bg-background p-6 md:hidden max-h-[80vh] overflow-y-auto">
+          <nav className="flex flex-col gap-3">
+            {NAV.map((item) => {
+              if (item.hasSub) {
+                return (
+                  <div key={item.to} className="flex flex-col border-b border-border/50 pb-2">
+                    <div className="flex items-center justify-between py-1">
+                      <Link
+                        to={item.to}
+                        onClick={() => setOpen(false)}
+                        className={`text-sm font-bold uppercase tracking-wider ${
+                          isActive(item.to) ? 'text-primary' : 'text-foreground'
+                        }`}
+                      >
+                        {item.label} Collection
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => setMobileMenOpen(!mobileMenOpen)}
+                        className="p-1 text-slate-500"
+                      >
+                        <ChevronDown className={`h-4 w-4 transition-transform ${mobileMenOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                    </div>
+
+                    {mobileMenOpen && (
+                      <div className="mt-2 ml-3 flex flex-col gap-2 border-l-2 border-[#1C3A2B]/20 pl-3">
+                        {MEN_SUB_PAGES.map((sub) => (
+                          <Link
+                            key={sub.to}
+                            to={sub.to}
+                            onClick={() => setOpen(false)}
+                            className="text-xs font-semibold text-slate-700 hover:text-primary py-0.5"
+                          >
+                            {sub.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setOpen(false)}
+                  className={`text-sm font-semibold uppercase tracking-wider py-1 ${
+                    isActive(item.to) ? 'text-primary font-bold' : 'text-foreground/80'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
         </div>
       )}

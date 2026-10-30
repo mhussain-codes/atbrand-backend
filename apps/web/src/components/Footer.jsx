@@ -12,7 +12,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-primary text-primary-foreground">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-3">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 md:grid-cols-4">
         <div>
           {/* SEO Updated Brand Name */}
           <p className="font-display text-3xl tracking-[0.18em]">AT BRAND</p>
@@ -20,22 +20,22 @@ export default function Footer() {
             Menswear · Sargodha
           </p>
           {/* SEO Updated Footer Description */}
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-primary-foreground/75">
+          <p className="mt-4 max-w-xs text-xs leading-relaxed text-primary-foreground/75">
             Shop the finest mens premium unstitched suits and shalwar kameez at AT Brand Sargodha. Offering Ahmad Cotton, Wash &amp; Wear, Boski, and Khaddar — delivered nationwide across Pakistan with cash on delivery.
           </p>
           
-          <div className="mt-8 flex gap-3">
+          <div className="mt-6 flex gap-3">
             <a
               href="https://www.tiktok.com/@atbrand06?_r=1&_t=ZS-99DAyxqRZ6A"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-primary-foreground/20 text-primary-foreground/80 transition hover:bg-primary-foreground/10 hover:border-primary-foreground hover:text-primary-foreground"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/20 text-primary-foreground/80 transition hover:bg-primary-foreground/10 hover:border-primary-foreground hover:text-primary-foreground"
               aria-label="TikTok"
             >
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
-                width="18" 
-                height="18" 
+                width="16" 
+                height="16" 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 stroke="currentColor" 
@@ -50,34 +50,52 @@ export default function Footer() {
               href="https://www.facebook.com/share/1DDvx5oVCs/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-primary-foreground/20 text-primary-foreground/80 transition hover:bg-primary-foreground/10 hover:border-primary-foreground hover:text-primary-foreground"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/20 text-primary-foreground/80 transition hover:bg-primary-foreground/10 hover:border-primary-foreground hover:text-primary-foreground"
               aria-label="Facebook"
             >
-              <Facebook className="h-5 w-5" />
+              <Facebook className="h-4 w-4" />
             </a>
           </div>
         </div>
 
+        {/* Men's Sub-Pages Column for High SEO Ranking */}
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-accent">Explore</p>
-          <nav className="mt-4 flex flex-col gap-2.5 text-sm">
-            <Link to="/" className="text-primary-foreground/80 transition hover:text-primary-foreground">Home</Link>
-            <Link to="/shop" className="text-primary-foreground/80 transition hover:text-primary-foreground">Shop</Link>
-            <Link to="/new-arrivals" className="text-primary-foreground/80 transition hover:text-primary-foreground">New Arrivals</Link>
-            <Link to="/track-order" className="text-primary-foreground/80 transition hover:text-primary-foreground">Track Order</Link>
-            <Link to="/contact" className="text-primary-foreground/80 transition hover:text-primary-foreground">Contact</Link>
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-accent">Men's Fabrics</p>
+          <nav className="mt-4 flex flex-col gap-2 text-xs">
+            <Link to="/men" className="text-primary-foreground/80 transition hover:text-primary-foreground font-semibold">All Men's Suits</Link>
+            <Link to="/men/rashid-cotton" className="text-primary-foreground/80 transition hover:text-primary-foreground">Rashid Cotton Suits</Link>
+            <Link to="/men/ahmad-cotton" className="text-primary-foreground/80 transition hover:text-primary-foreground">Ahmad Cotton Collection</Link>
+            <Link to="/men/wash-and-wear" className="text-primary-foreground/80 transition hover:text-primary-foreground">Premium Wash & Wear</Link>
+            <Link to="/men/boski" className="text-primary-foreground/80 transition hover:text-primary-foreground">Executive Pure Boski</Link>
+            <Link to="/men/khaddar" className="text-primary-foreground/80 transition hover:text-primary-foreground">Winter Warm Khaddar</Link>
+            <Link to="/men/lattha" className="text-primary-foreground/80 transition hover:text-primary-foreground">Egyptian Cotton Lattha</Link>
+            <Link to="/men/karandi" className="text-primary-foreground/80 transition hover:text-primary-foreground">Kamalia Karandi</Link>
           </nav>
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-accent">Contact</p>
-          <div className="mt-4 flex flex-col gap-3 text-sm text-primary-foreground/80">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-accent">Quick Links</p>
+          <nav className="mt-4 flex flex-col gap-2 text-xs">
+            <Link to="/" className="text-primary-foreground/80 transition hover:text-primary-foreground">Home</Link>
+            <Link to="/shop" className="text-primary-foreground/80 transition hover:text-primary-foreground">Shop All</Link>
+            <Link to="/stitching" className="text-primary-foreground/80 transition hover:text-primary-foreground">Custom Tailoring</Link>
+            <Link to="/new-arrivals" className="text-primary-foreground/80 transition hover:text-primary-foreground">New Arrivals</Link>
+            <Link to="/track-order" className="text-primary-foreground/80 transition hover:text-primary-foreground">Track Order</Link>
+            <Link to="/size-guide" className="text-primary-foreground/80 transition hover:text-primary-foreground">Size Guide</Link>
+            <Link to="/shipping-policy" className="text-primary-foreground/80 transition hover:text-primary-foreground">Shipping Policy</Link>
+            <Link to="/return-policy" className="text-primary-foreground/80 transition hover:text-primary-foreground">Return & Refund Policy</Link>
+          </nav>
+        </div>
+
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-accent">Store & Contact</p>
+          <div className="mt-4 flex flex-col gap-3 text-xs text-primary-foreground/80">
             <button
               onClick={() => openWhatsApp('Assalam-o-Alaikum! I would like to place an order from AT Brand Sargodha.')}
               className="flex items-center gap-2 text-left transition hover:text-primary-foreground"
             >
               <MessageCircle className="h-4 w-4 shrink-0 text-accent" />
-              WhatsApp {WHATSAPP_NUMBER_DISPLAY}
+              WhatsApp: {WHATSAPP_NUMBER_DISPLAY}
             </button>
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
@@ -92,7 +110,7 @@ export default function Footer() {
             </p>
             <p className="flex items-center gap-2">
               <Clock className="h-4 w-4 shrink-0 text-accent" />
-              Mon – Sun, 10am – 9pm
+              Mon – Sun, 10:00 AM – 9:00 PM
             </p>
           </div>
         </div>

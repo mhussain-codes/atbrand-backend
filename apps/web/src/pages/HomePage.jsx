@@ -75,6 +75,59 @@ export default function HomePage() {
         <Hero image={HERO_IMAGE} />
         <Marquee />
 
+        {/* Men's Master Fabrics Grid - Instant Sub-Page Navigation & High SEO */}
+        <section className="bg-slate-50/70 py-14 sm:py-18 border-b border-border/40">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <Reveal>
+              <div className="text-center max-w-2xl mx-auto mb-10">
+                <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#C5A880]">
+                  Authentic Unstitched Shalwar Kameez
+                </p>
+                <h2 className="mt-2 font-serif text-3xl font-extrabold text-[#1C3A2B] sm:text-4xl">
+                  Shop Men's Master Fabrics
+                </h2>
+                <p className="mt-2 text-xs sm:text-sm text-slate-600">
+                  Select your fabric weave directly — pure combed cottons, executive pure boski, soft wash &amp; wear, and authentic winter khaddar.
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+              {[
+                { name: 'Rashid Cotton', slug: 'rashid-cotton', tag: 'Crisp Cotton', desc: 'Combed yarn daily luxury' },
+                { name: 'Ahmad Cotton', slug: 'ahmad-cotton', tag: 'Royal Finish', desc: 'Structured drape & fall' },
+                { name: 'Wash & Wear', slug: 'wash-and-wear', tag: 'Wrinkle-Free', desc: 'Low maintenance grace' },
+                { name: 'Pure Boski', slug: 'boski', tag: 'Executive Silk', desc: 'Ceremonial & formal wear' },
+                { name: 'Winter Khaddar', slug: 'khaddar', tag: 'Kamalia Weave', desc: 'Warm texture comfort' },
+                { name: 'Egyptian Lattha', slug: 'lattha', tag: 'Pristine White', desc: 'Crisp ceremonial classic' },
+              ].map((cat, idx) => (
+                <Reveal key={cat.slug} delay={idx * 0.04}>
+                  <Link
+                    to={`/men/${cat.slug}`}
+                    className="group flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 text-center transition hover:border-[#1C3A2B] hover:shadow-md hover:-translate-y-0.5 duration-200"
+                  >
+                    <div>
+                      <span className="inline-block rounded-full bg-[#1C3A2B]/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#1C3A2B] mb-2.5">
+                        {cat.tag}
+                      </span>
+                      <h3 className="font-serif text-sm font-bold text-slate-900 group-hover:text-[#1C3A2B]">
+                        {cat.name}
+                      </h3>
+                      <p className="mt-1 text-[11px] text-slate-500 leading-tight">
+                        {cat.desc}
+                      </p>
+                    </div>
+                    <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[11px] font-bold text-[#1C3A2B] group-hover:gap-1.5 transition-all">
+                      <span>Explore</span>
+                      <ArrowRight className="h-3 w-3" />
+                    </div>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Featured products */}
         <section id="featured" className="scroll-mt-20 py-20 sm:py-24">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
