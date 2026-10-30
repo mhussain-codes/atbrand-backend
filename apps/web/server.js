@@ -9,6 +9,9 @@ import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
 import { fileURLToPath } from 'url';
+import { getSeoPage, NOINDEX_PATHS } from './src/data/seoPages.js';
+import { PRODUCTS } from './src/data/products.js';
+import { getProductSeo } from './src/data/productSeo.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -441,11 +444,56 @@ const possibleDistPaths = [
 ];
 
 let distDir = possibleDistPaths.find(p => fs.existsSync(p));
+const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
+app.get('/sitemap.xml', (_req, res, next) => {
+  if (fs.existsSync(sitemapPath)) return res.sendFile(sitemapPath);
+  next();
+});
+
 if (distDir) {
+  // Keep crawler-facing metadata and sitemap aligned with the source of truth,
+  // even when Hostinger serves the checked-in frontend shell from `dist`.
   app.use(express.static(distDir));
   app.use((req, res, next) => {
     if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/uploads')) {
-      return res.sendFile(path.join(distDir, 'index.html'));
+      const shellPath = path.join(distDir, 'index.html');
+      if (!fs.existsSync(shellPath)) return next();
+
+      const requestPath = req.path.replace(/\/+$/, '') || '/';
+      const productMatch = requestPath.match(/^\/product\/([^/]+)$/);
+      const product = productMatch && PRODUCTS.find(item => item.id === productMatch[1]);
+      const productSeo = product ? getProductSeo(product) : null;
+      const metadata = productSeo
+        ? { title: productSeo.title, description: productSeo.description }
+        : getSeoPage(requestPath);
+      const canonicalPath = requestPath.startsWith('/categories/')
+        ? requestPath.replace('/categories/', '/men/')
+        : requestPath === '/home' ? '/' : requestPath;
+      const canonical = canonicalPath === '/' ? 'https://atbrand.store/' : `https://atbrand.store${canonicalPath}`;
+      const escapeHtml = value => String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('"', '&quot;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+      const replaceTag = (html, pattern, replacement) => pattern.test(html)
+        ? html.replace(pattern, replacement)
+        : html.replace('</head>', `  ${replacement}\n</head>`);
+
+      let html = fs.readFileSync(shellPath, 'utf8');
+      const title = escapeHtml(metadata.title);
+      const description = escapeHtml(metadata.description);
+      html = replaceTag(html, /<title[^>]*>[\s\S]*?<\/title>/i, `<title>${title}</title>`);
+      html = replaceTag(html, /<meta\s+name=["']description["'][^>]*>/i, `<meta name="description" content="${description}" />`);
+      html = replaceTag(html, /<link\s+rel=["']canonical["'][^>]*>/i, `<link rel="canonical" href="${canonical}" />`);
+      html = replaceTag(html, /<meta\s+property=["']og:title["'][^>]*>/i, `<meta property="og:title" content="${title}" />`);
+      html = replaceTag(html, /<meta\s+property=["']og:description["'][^>]*>/i, `<meta property="og:description" content="${description}" />`);
+      html = replaceTag(html, /<meta\s+property=["']og:url["'][^>]*>/i, `<meta property="og:url" content="${canonical}" />`);
+      html = replaceTag(html, /<meta\s+name=["']twitter:title["'][^>]*>/i, `<meta name="twitter:title" content="${title}" />`);
+      html = replaceTag(html, /<meta\s+name=["']twitter:description["'][^>]*>/i, `<meta name="twitter:description" content="${description}" />`);
+      if (NOINDEX_PATHS.includes(requestPath)) {
+        html = replaceTag(html, /<meta\s+name=["']robots["'][^>]*>/i, '<meta name="robots" content="noindex,follow" />');
+      }
+      return res.status(200).type('html').send(html);
     }
     next();
   });
