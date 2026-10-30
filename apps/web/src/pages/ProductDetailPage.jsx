@@ -13,41 +13,58 @@ import { PRODUCTS } from '@/data/products';
 export default function ProductDetailPage() {
   const { slug } = useParams();
   const { openBuy, addToCart } = useBuy();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+
+  const cleanSlug = String(slug || '').toLowerCase();
+  
+  // Instant synchronous lookup from PRODUCTS memory for 0ms load time
+  const initialProduct = useMemo(() => {
+    return PRODUCTS.find(p => 
+      String(p.id).toLowerCase() === cleanSlug || 
+      (p.name && p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') === cleanSlug) ||
+      (p.slug && p.slug.toLowerCase() === cleanSlug)
+    ) || null;
+  }, [cleanSlug]);
+
+  const [product, setProduct] = useState(initialProduct);
   const [selectedImage, setSelectedImage] = useState(0);
 
+  // Sync state and fetch background live updates without blocking UI
   useEffect(() => {
-    // Try matching by slug/id in backend, fallback to PRODUCTS
+    if (initialProduct) {
+      setProduct(initialProduct);
+    }
+    setSelectedImage(0);
+
     fetch(`/api/products/${slug}`)
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) return null;
+        return r.json();
+      })
       .then(d => {
-        if (d.product) {
+        if (d && d.product) {
           setProduct(d.product);
-        } else {
-          findFallback();
         }
       })
-      .catch(() => findFallback())
-      .finally(() => setLoading(false));
+      .catch(() => {});
+  }, [slug, initialProduct]);
 
-    function findFallback() {
-      const match = PRODUCTS.find(p => p.id === slug || p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') === slug);
-      if (match) setProduct(match);
-    }
-  }, [slug]);
-
-  if (loading) return <BrandLoader message="Loading Product Details..." />;
+  // ALL HOOKS DECLARED BEFORE ANY CONDITIONAL RETURNS (Rules of Hooks Compliance)
+  const relatedProducts = useMemo(() => {
+    if (!product) return [];
+    return PRODUCTS
+      .filter(p => p.id !== product.id && (p.type === product.type || p.category === product.category))
+      .slice(0, 4);
+  }, [product]);
 
   if (!product) {
     return (
       <div className="min-h-screen bg-background text-foreground">
         <Header />
-        <div className="mx-auto max-w-2xl py-24 text-center">
-          <h2 className="text-2xl font-bold text-primary">Product Not Found</h2>
-          <p className="mt-2 text-sm text-muted-foreground">The requested product could not be located or has moved.</p>
-          <Link to="/shop" className="mt-6 inline-block rounded-full bg-primary px-6 py-2.5 text-xs font-semibold text-primary-foreground">
-            Return to Shop
+        <div className="mx-auto max-w-2xl py-24 text-center px-4">
+          <h2 className="text-2xl font-serif font-bold text-primary">Product Not Found</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Yeh product filhal dastyab nahi hai ya moved ho gaya hai.</p>
+          <Link to="/shop" className="mt-6 inline-block rounded-full bg-primary px-6 py-2.5 text-xs font-semibold text-primary-foreground shadow">
+            Dukaan (Shop) Par Wapis Jayein
           </Link>
         </div>
         <Footer />
@@ -60,12 +77,6 @@ export default function ProductDetailPage() {
     : [product.image || 'https://via.placeholder.com/600'];
 
   const canonicalUrl = `https://atbrand.store/product/${slug}`;
-
-  const relatedProducts = useMemo(() => {
-    return PRODUCTS
-      .filter(p => p.id !== product?.id && (p.category === product?.category || p.type === product?.type))
-      .slice(0, 4);
-  }, [product]);
 
   const breadcrumbSchema = {
     '@context': 'https://schema.org',

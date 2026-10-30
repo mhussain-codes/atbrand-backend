@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import GarmentPreview3D from '@/components/GarmentPreview3D';
 import GarmentPreview2D from '@/components/GarmentPreview2D';
+const GarmentPreview3D = lazy(() => import('@/components/GarmentPreview3D'));
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
 import { Scissors, CheckCircle, Ruler, ShoppingBag, X, Sparkles, ChevronDown, HelpCircle, Layers } from 'lucide-react';
@@ -385,17 +385,28 @@ export default function StitchingPage() {
             </div>
 
             {viewMode === '3d' ? (
-              <GarmentPreview3D
-                collar={styles.collar}
-                neckline={styles.neckline}
-                sleeves={styles.sleeves}
-                daman={styles.daman}
-                buttons={styles.buttons}
-                color={styles.color}
-                measurements={measurements}
-                unit={unit}
-                onColorChange={(newCol) => handleStyleChange('color', newCol)}
-              />
+              <Suspense fallback={
+                <GarmentPreview2D
+                  collar={styles.collar}
+                  neckline={styles.neckline}
+                  sleeves={styles.sleeves}
+                  daman={styles.daman}
+                  buttons={styles.buttons}
+                  color={styles.color}
+                />
+              }>
+                <GarmentPreview3D
+                  collar={styles.collar}
+                  neckline={styles.neckline}
+                  sleeves={styles.sleeves}
+                  daman={styles.daman}
+                  buttons={styles.buttons}
+                  color={styles.color}
+                  measurements={measurements}
+                  unit={unit}
+                  onColorChange={(newCol) => handleStyleChange('color', newCol)}
+                />
+              </Suspense>
             ) : (
               <GarmentPreview2D
                 collar={styles.collar}
