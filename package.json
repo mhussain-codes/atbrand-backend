@@ -8,6 +8,7 @@
     "dev:web": "npm run dev --prefix apps/web",
     "dev:server": "node apps/web/server.js",
     "build": "cd apps/web && npx vite build --outDir dist",
+    "deploy": "cd apps/web && npx vite build --outDir dist && cd ../.. && node deploy-branch.js",
     "start": "node apps/web/server.js",
     "lint": "concurrently --raw \"npm run lint --prefix apps/web\""
   },
