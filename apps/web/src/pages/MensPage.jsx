@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import BrandLoader from '@/components/BrandLoader';
 import { Helmet } from 'react-helmet';
-import { Search, ChevronLeft, ChevronRight, Sparkles, BellRing, Filter } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Sparkles, BellRing, Filter, ChevronDown } from 'lucide-react';
 import { PRODUCTS } from '@/data/products';
 import { openWhatsApp } from '@/lib/whatsapp';
 
