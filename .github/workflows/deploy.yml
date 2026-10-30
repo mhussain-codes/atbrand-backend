@@ -25,9 +25,12 @@ jobs:
           node-version: 20
           cache: 'npm'
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
       - name: Install Dependencies
         run: |
-          npm install --legacy-peer-deps
+          bun install --frozen-lockfile
 
       - name: Build Production Frontend
         run: |
