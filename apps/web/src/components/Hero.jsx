@@ -2,7 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MessageCircle, Truck, Banknote, Scissors } from 'lucide-react';
 import Reveal from '@/components/Reveal';
-import { openWhatsApp } from '@/lib/whatsapp';
+import { PRODUCTS } from '@/data/products';
+import { formatPKR, openWhatsApp } from '@/lib/whatsapp';
+
+const listedPrices = PRODUCTS.map((product) => Number(product.price)).filter((price) => Number.isFinite(price) && price > 0);
+const startingPrice = listedPrices.length > 0 ? Math.min(...listedPrices) : null;
 
 const TRUST = [
   { icon: Banknote, label: 'Cash on Delivery' },
@@ -32,14 +36,14 @@ export default function Hero({ image }) {
           <Reveal delay={0.08}>
             {/* SEO Updated H1 Heading */}
             <h1 className="mt-5 font-display text-5xl leading-[1.05] text-foreground sm:text-6xl lg:text-7xl">
-              Mens Premium Unstitched Suits,{' '}
-              <span className="text-primary">crafted for the modern gentleman.</span>
+              Men's Unstitched Suits{' '}
+              <span className="text-primary">in Sargodha, Pakistan.</span>
             </h1>
           </Reveal>
           <Reveal delay={0.16}>
             {/* SEO Updated Description */}
             <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Shop the finest mens unstitched shalwar kameez at AT Brand Sargodha. Ahmad Cotton, Wash &amp; Wear, Boski and Khaddar — from PKR 1,500. Choose your piece, tap Buy Now, and order via WhatsApp.
+              Shop men's unstitched shalwar kameez at AT BRAND Sargodha. Browse Ahmad Cotton, Rashid Cotton, Wash &amp; Wear, Boski and Khaddar, with custom stitching and online ordering.
             </p>
           </Reveal>
           <Reveal delay={0.24}>
@@ -88,7 +92,7 @@ export default function Hero({ image }) {
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                 Starting from
               </p>
-              <p className="font-display text-2xl text-primary">PKR 1,500</p>
+              <p className="font-display text-2xl text-primary">{startingPrice === null ? 'View prices' : formatPKR(startingPrice)}</p>
             </div>
           </div>
         </Reveal>

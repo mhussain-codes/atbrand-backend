@@ -35,9 +35,9 @@ export function ReturnPolicyPage() {
   return (
     <PolicyLayout
       title="Return & Exchange Policy"
-      description="Easy 7-day return and exchange policy for unstitched suits. Guaranteed fabric quality."
+      description="How to request a return or exchange within 7 days for an eligible unstitched suit with a defect, colour discrepancy or transit damage."
     >
-      <h2 className="text-xl font-bold text-primary mb-3">1. 7-Day Hassle-Free Returns</h2>
+      <h2 className="text-xl font-bold text-primary mb-3">1. Requests Within 7 Days</h2>
       <p className="text-sm text-muted-foreground mb-4">
         We take great pride in our fabric standards. If your unstitched suit has any manufacturing defect, color discrepancy, or damage in transit, you can request an exchange or refund within 7 days of delivery.
       </p>

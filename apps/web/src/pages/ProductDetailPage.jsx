@@ -9,6 +9,7 @@ import { Helmet } from 'react-helmet';
 import { formatPKR, openWhatsApp, buildInquiryMessage } from '@/lib/whatsapp';
 import { ShieldCheck, Truck, RefreshCw, Scissors, ShoppingCart, MessageCircle, ChevronRight, ArrowRight } from 'lucide-react';
 import { PRODUCTS } from '@/data/products';
+import { getProductSeo } from '@/data/productSeo';
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
@@ -59,6 +60,10 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="min-h-screen bg-background text-foreground">
+        <Helmet>
+          <title>Product Not Found | AT BRAND</title>
+          <meta name="robots" content="noindex,follow" />
+        </Helmet>
         <Header />
         <div className="mx-auto max-w-2xl py-24 text-center px-4">
           <h2 className="text-2xl font-serif font-bold text-primary">Product Not Found</h2>
@@ -76,7 +81,9 @@ export default function ProductDetailPage() {
     ? product.images
     : [product.image || 'https://via.placeholder.com/600'];
 
-  const canonicalUrl = `https://atbrand.store/product/${slug}`;
+  const seoProduct = getProductSeo(product);
+  // Product IDs are the stable URLs used by the sitemap and product cards.
+  const canonicalUrl = `https://atbrand.store/product/${product.id}`;
 
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
@@ -107,7 +114,7 @@ export default function ProductDetailPage() {
   const jsonLd = {
     '@context': 'https://schema.org/',
     '@type': 'Product',
-    'name': product.name,
+    'name': seoProduct.displayName,
     'image': images,
     'description': product.fabric || `${product.name} unstitched men's suit by AT BRAND Sargodha.`,
     'sku': product.sku || `AT-${product.id}`,
@@ -132,11 +139,11 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
-        <title>{`${product.name} | ${product.type} Unstitched Suit | AT BRAND Sargodha`}</title>
-        <meta name="description" content={`Browse ${product.name}, a ${product.type} men's unstitched suit from AT BRAND Sargodha. See current product details, available colours and delivery options across Pakistan.`} />
+        <title>{seoProduct.title}</title>
+        <meta name="description" content={seoProduct.description} />
         <link rel="canonical" href={canonicalUrl} />
-        <meta property="og:title" content={`${product.name} | AT BRAND Sargodha`} />
-        <meta property="og:description" content={`Buy ${product.name} for ${formatPKR(product.price)}. Cash on Delivery nationwide in Pakistan.`} />
+        <meta property="og:title" content={seoProduct.title} />
+        <meta property="og:description" content={seoProduct.description} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:image" content={images[0]} />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
@@ -168,7 +175,7 @@ export default function ProductDetailPage() {
                     onClick={() => setSelectedImage(idx)}
                     className={`h-20 w-16 flex-shrink-0 overflow-hidden rounded-xl border-2 transition ${selectedImage === idx ? 'border-primary ring-2 ring-accent' : 'border-border'}`}
                   >
-                    <img src={img} alt={`Preview ${idx + 1}`} className="h-full w-full object-cover" />
+                    <img src={img} alt={`${product.name} product view ${idx + 1}`} className="h-full w-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -194,6 +201,11 @@ export default function ProductDetailPage() {
             <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-primary sm:text-4xl">
               {product.name}
             </h1>
+            {seoProduct.colorSummary && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                This colour selection includes {seoProduct.colorSummary}.
+              </p>
+            )}
 
             <div className="mt-4 flex items-baseline gap-4">
               <span className="text-2xl font-bold text-primary sm:text-3xl">
@@ -283,11 +295,11 @@ export default function ProductDetailPage() {
               </div>
               <div className="flex flex-col items-center">
                 <ShieldCheck className="h-5 w-5 text-accent mb-1" />
-                <span>100% Guaranteed Fabric</span>
+                <span>Product Details Listed</span>
               </div>
               <div className="flex flex-col items-center">
                 <RefreshCw className="h-5 w-5 text-accent mb-1" />
-                <span>7-Day Easy Returns</span>
+                <Link to="/return-policy" className="hover:underline">7-Day Returns for Eligible Issues</Link>
               </div>
             </div>
           </div>

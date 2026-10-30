@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Helmet } from 'react-helmet';
@@ -12,7 +13,7 @@ export default function AboutPage() {
         <title>About Us | AT BRAND Sargodha</title>
         <meta
           name="description"
-          content="Learn about AT BRAND Sargodha. Pakistan's trusted destination for unstitched menswear, premium cottons, and master tailoring."
+          content="Learn about AT BRAND, a Sargodha store for men's unstitched suits and custom stitching. Find store contact details and delivery information."
         />
       </Helmet>
 
@@ -33,7 +34,7 @@ export default function AboutPage() {
           <section className="rounded-2xl border border-border bg-card p-8 shadow-sm">
             <h2 className="font-serif text-2xl font-bold text-primary mb-4">Our Craft & Philosophy</h2>
             <p className="text-muted-foreground mb-4">
-              AT BRAND was established with a singular mission: to supply Pakistani gentlemen with genuine, high-grade unstitched fabrics without compromise. From pure Egyptian-feel cottons and wrinkle-resistant Wash & Wear to authentic Boski and seasonal Khaddar, each fabric roll is individually inspected for thread count, drape, and colorfastness.
+              AT BRAND is a Sargodha menswear store offering unstitched shalwar kameez fabrics such as Ahmad Cotton, Rashid Cotton, Wash &amp; Wear, Boski and Khaddar, together with custom stitching. Product pages list the current item's photos, fabric notes and price so shoppers can compare the available selection before ordering.
             </p>
             <p className="text-muted-foreground">
               Based in New Satellite Town, Sargodha, our physical showroom and digital store welcome patrons seeking traditional shalwar kameez tailored to perfection.
@@ -43,18 +44,18 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
             <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
               <Award className="mx-auto h-8 w-8 text-accent mb-3" />
-              <h3 className="font-bold text-primary mb-1">Authentic Mill Fabrics</h3>
-              <p className="text-xs text-muted-foreground">Sourced directly from Pakistan's most revered textile houses including Rashid & Ahmad Cotton.</p>
+              <h3 className="font-bold text-primary mb-1">Men’s Fabric Selection</h3>
+              <p className="text-xs text-muted-foreground">Browse available Ahmad Cotton, Rashid Cotton, Wash &amp; Wear, Boski and seasonal fabrics.</p>
             </div>
             <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
               <ShieldCheck className="mx-auto h-8 w-8 text-accent mb-3" />
-              <h3 className="font-bold text-primary mb-1">Guaranteed Quality</h3>
-              <p className="text-xs text-muted-foreground">Full color and burr warranty. If fabric shrinks or fades unexpectedly, we replace it.</p>
+              <h3 className="font-bold text-primary mb-1">Returns for Eligible Issues</h3>
+              <p className="text-xs text-muted-foreground">Review the <Link to="/return-policy" className="font-semibold underline underline-offset-2">return and exchange policy</Link> for the 7-day request window and item conditions.</p>
             </div>
             <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
               <HeartHandshake className="mx-auto h-8 w-8 text-accent mb-3" />
               <h3 className="font-bold text-primary mb-1">Nationwide COD</h3>
-              <p className="text-xs text-muted-foreground">Reliable delivery to your doorstep across all four provinces and territories.</p>
+              <p className="text-xs text-muted-foreground">Cash on Delivery is available for orders across Pakistan. Delivery timelines depend on the destination.</p>
             </div>
           </div>
 

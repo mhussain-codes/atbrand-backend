@@ -119,7 +119,6 @@ export default function ShopPage() {
           name="description"
           content="Browse AT BRAND's men's unstitched suit collection online. Compare available fabrics, colours and current prices, then order from Sargodha with delivery options across Pakistan."
         />
-        <meta name="keywords" content="Men unstitched suits Pakistan, Wash and Wear fabric Sargodha, Boski suits, Ahmad Cotton, AT BRAND, womens pret, perfumes Sargodha" />
       </Helmet>
 
       <Header />

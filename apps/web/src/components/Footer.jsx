@@ -5,6 +5,7 @@ import {
   openWhatsApp,
   WHATSAPP_NUMBER_DISPLAY,
   SUPPORT_EMAIL,
+  STORE_LOCATION,
 } from '@/lib/whatsapp';
 
 export default function Footer() {
@@ -21,7 +22,7 @@ export default function Footer() {
           </p>
           {/* SEO Updated Footer Description */}
           <p className="mt-4 max-w-xs text-xs leading-relaxed text-primary-foreground/75">
-            Shop the finest mens premium unstitched suits and shalwar kameez at AT Brand Sargodha. Offering Ahmad Cotton, Wash &amp; Wear, Boski, and Khaddar — delivered nationwide across Pakistan with cash on delivery.
+            Shop men's unstitched suits and shalwar kameez at AT BRAND Sargodha. Browse Ahmad Cotton, Wash &amp; Wear, Boski and Khaddar, with cash on delivery across Pakistan.
           </p>
           
           <div className="mt-6 flex gap-3">
@@ -106,11 +107,11 @@ export default function Footer() {
             </a>
             <p className="flex items-start gap-2">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-              Street 17, Y Block, Near Baba Heer Masjid, New Satellite Town, Sargodha, Pakistan.
+              {STORE_LOCATION}
             </p>
             <p className="flex items-center gap-2">
               <Clock className="h-4 w-4 shrink-0 text-accent" />
-              Mon – Sun, 10:00 AM – 9:00 PM
+              Mon – Sat, 10:00 AM – 9:00 PM
             </p>
           </div>
         </div>

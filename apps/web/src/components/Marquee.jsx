@@ -8,7 +8,7 @@ const ITEMS = [
   'AT BRAND · Sargodha',
   'Cash on Delivery',
   'Nationwide Shipping',
-  'From PKR 1,500',
+  'From PKR 1,350',
 ];
 
 export default function Marquee() {

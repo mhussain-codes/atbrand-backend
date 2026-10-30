@@ -230,37 +230,6 @@ export default function StitchingPage() {
     'description': "Precision Pakistani master tailoring for men's unstitched suits. Sherwani ban, shirt collars, French cuffs, round and square daman with nationwide cash on delivery."
   };
 
-  const stitchingFaqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    'mainEntity': [
-      {
-        '@type': 'Question',
-        'name': "How does 3D Custom Stitching work at AT BRAND Sargodha?",
-        'acceptedAnswer': {
-          '@type': 'Answer',
-          'text': "You can enter your exact kurta length, chest, waist, shoulder, sleeve length, and shalwar measurements. Our interactive 3D mannequin immediately visualizes the fit and silhouette. Our master tailors in Sargodha cut and stitch the suit exactly to your submitted dimensions."
-        }
-      },
-      {
-        '@type': 'Question',
-        'name': "What is the fee for custom men's suit stitching?",
-        'acceptedAnswer': {
-          '@type': 'Answer',
-          'text': "Our master tailoring fee is flat PKR 1,500 per suit. You can bundle it directly with any unstitched fabric from our store or send your own fabric."
-        }
-      },
-      {
-        '@type': 'Question',
-        'name': "What is the delivery time for stitched suits?",
-        'acceptedAnswer': {
-          '@type': 'Answer',
-          'text': "Custom stitched suits are crafted and dispatched within 5 to 7 working days with nationwide cash on delivery across Pakistan."
-        }
-      }
-    ]
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
@@ -269,7 +238,6 @@ export default function StitchingPage() {
           name="description"
           content="Order custom tailored men's kurta shalwar with 3D interactive fit preview. Sherwani ban, collar designs, cuff options, and master tailoring by AT BRAND Sargodha with Cash on Delivery."
         />
-        <meta name="keywords" content="custom stitching Pakistan, mens kurta shalwar stitching, online tailor Pakistan, bespoke tailoring Sargodha, 3D clothing visualizer, kurta measurement guide, Pakistani tailoring rates" />
         <link rel="canonical" href="https://atbrand.store/stitching" />
         <meta property="og:title" content="3D Custom Kurta Shalwar Stitching | AT BRAND Sargodha" />
         <meta property="og:description" content="Precision Pakistani tailoring for unstitched suits with interactive 3D silhouette preview. Cash on Delivery nationwide." />
@@ -278,9 +246,6 @@ export default function StitchingPage() {
         </script>
         <script type="application/ld+json">
           {JSON.stringify(stitchingServiceSchema)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(stitchingFaqSchema)}
         </script>
       </Helmet>
 
@@ -745,7 +710,7 @@ export default function StitchingPage() {
                     <ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" />
                   </summary>
                   <p className="mt-2.5 text-xs text-slate-600 leading-relaxed">
-                    Custom stitching takes 5 to 7 working days. Once tailored and steam pressed, it is securely packed and delivered with nationwide Cash on Delivery.
+                    Custom stitching requires an additional 4 to 6 business days before courier delivery. Delivery time depends on destination; see our <Link to="/shipping-policy" className="font-semibold text-[#1C3A2B] underline">shipping and delivery policy</Link> for the current estimates.
                   </p>
                 </details>
 

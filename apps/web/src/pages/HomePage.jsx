@@ -59,62 +59,18 @@ export default function HomePage() {
     document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const homeFaqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    'mainEntity': [
-      {
-        '@type': 'Question',
-        'name': "Where is AT BRAND located and do you deliver across Pakistan?",
-        'acceptedAnswer': {
-          '@type': 'Answer',
-          'text': "AT BRAND is proudly based in Sargodha, Punjab (New Satellite Town, Tali Chowk X-Block). We deliver men's premium unstitched suits and stitched garments nationwide across Pakistan with Cash on Delivery (COD) within 2 to 4 working days."
-        }
-      },
-      {
-        '@type': 'Question',
-        'name': "What men's unstitched fabrics do you offer?",
-        'acceptedAnswer': {
-          '@type': 'Answer',
-          'text': "We specialize in authentic Pakistani unstitched fabrics including Rashid Cotton, Ahmad Cotton, Wrinkle-Free Wash & Wear, Pure Executive Boski, Handloom Winter Khaddar, and Crisp Egyptian Lattha."
-        }
-      },
-      {
-        '@type': 'Question',
-        'name': "Can I order custom tailoring and stitching with my unstitched suit?",
-        'acceptedAnswer': {
-          '@type': 'Answer',
-          'text': "Yes! You can bundle our Master Custom Tailoring service for flat PKR 1,500. Use our interactive 3D tailoring mannequin to customize collar (sherwani ban / shirt collar), cuffs, and daman with your exact measurements."
-        }
-      },
-      {
-        '@type': 'Question',
-        'name': "What is your fabric cutting and quality guarantee?",
-        'acceptedAnswer': {
-          '@type': 'Answer',
-          'text': "All our unstitched suits feature generous 4.0 to 4.5-meter cutting suitable for tall and broad frames. Every suit comes with a 100% colorfastness and shrinkage guarantee."
-        }
-      }
-    ]
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Heavy SEO Meta & Structured Data */}
       <Helmet>
-        <title>AT BRAND Sargodha | Men's Premium Unstitched Suits & Shalwar Kameez Pakistan</title>
+        <title>AT BRAND Sargodha | Men's Unstitched Suits Online</title>
         <meta
           name="description"
           content="Shop men's unstitched shalwar kameez suits from AT BRAND in Sargodha. Browse Ahmad Cotton, Rashid Cotton, Wash & Wear, Boski and seasonal fabrics with nationwide delivery options."
         />
-        <meta name="keywords" content="AT Brand Sargodha, mens unstitched suits Pakistan, unstitched shalwar kameez, Ahmad Cotton Sargodha, Rashid Cotton suits, Wash and Wear fabric, Boski suits price Pakistan, Winter Khaddar Kamalia, custom stitching tailor online" />
         <link rel="canonical" href="https://atbrand.store/" />
-        <meta property="og:title" content="AT BRAND Sargodha | Men's Premium Unstitched Suits" />
+        <meta property="og:title" content="AT BRAND Sargodha | Men's Unstitched Suits Online" />
         <meta property="og:description" content="Shop Ahmad Cotton, Wash & Wear, Pure Boski, and Khaddar with 3D Tailoring & COD nationwide." />
         <meta property="og:url" content="https://atbrand.store/" />
-        <script type="application/ld+json">
-          {JSON.stringify(homeFaqSchema)}
-        </script>
       </Helmet>
 
       <Header />
@@ -313,7 +269,7 @@ export default function HomePage() {
                     </span>
                   </summary>
                   <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-                    You can pair any unstitched suit with our <Link to="/stitching" className="font-bold text-[#1C3A2B] underline">Bespoke Stitching Service</Link> for PKR 1,500. Enter your custom measurements and our live 3D tailoring silhouette visualizes your exact cut, collar (sherwani ban or collar), and sleeve cuffs before our master tailors stitch it.
+                    Pair an unstitched suit with our <Link to="/stitching" className="font-bold text-[#1C3A2B] underline">custom stitching service</Link> for PKR 1,500. Enter your measurements and preview the garment shape, collar and sleeve-cuff options in the 3D configurator.
                   </p>
                 </details>
               </Reveal>
@@ -327,7 +283,7 @@ export default function HomePage() {
                     </span>
                   </summary>
                   <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-                    Yes! We provide 100% Cash on Delivery across all cities of Pakistan including Lahore, Karachi, Islamabad, Rawalpindi, Faisalabad, Multan, and Peshawar. Standard delivery takes 2 to 4 working days.
+                    Cash on Delivery is available for orders across Pakistan. Delivery estimates vary by destination; see our <Link to="/shipping-policy" className="font-semibold text-[#1C3A2B] underline">shipping and delivery policy</Link> for current timelines.
                   </p>
                 </details>
               </Reveal>
@@ -344,7 +300,7 @@ export default function HomePage() {
               </h2>
               {/* SEO Updated Paragraph */}
               <p className="text-base leading-relaxed text-foreground/80 sm:text-lg sm:leading-8">
-                AT Brand Sargodha is your premier destination for mens premium unstitched suits. We specialize in high-quality fabrics, including Ahmad Cotton, Wash &amp; Wear, Boski, and Khaddar. Dedicated to elegance and quality, our mission is to provide meticulously selected mens unstitched shalwar kameez designed for the modern gentleman. Proudly based in Sargodha, we offer nationwide cash-on-delivery to bring the finest fabrics straight to your doorstep.
+                AT BRAND is a Sargodha menswear store offering unstitched shalwar kameez fabrics including Ahmad Cotton, Wash &amp; Wear, Boski and Khaddar, plus custom stitching. Browse current product details online, then review the <Link to="/shipping-policy" className="font-semibold text-[#1C3A2B] underline">delivery information</Link> for orders across Pakistan.
               </p>
             </Reveal>
           </div>

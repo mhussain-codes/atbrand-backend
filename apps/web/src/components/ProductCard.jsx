@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { MessageCircle, Sparkles, ChevronLeft, ChevronRight, ShoppingCart, Eye } from 'lucide-react';
 import { buildInquiryMessage, formatPKR, openWhatsApp } from '@/lib/whatsapp';
 import { useBuy } from '@/contexts/BuyContext';
 import { toast } from 'sonner';
 
 export default function ProductCard({ product }) {
-  const navigate = useNavigate();
   const { openBuy, addToCart } = useBuy();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [imageFailed, setImageFailed] = useState(false);
@@ -57,19 +56,15 @@ export default function ProductCard({ product }) {
 
   const productSlug = product.id || (product.name || 'suit').toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-  const goToDetailPage = () => {
-    navigate(`/product/${productSlug}`);
-  };
-
   return (
     <article 
-      onClick={goToDetailPage}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 transform-gpu will-change-transform cursor-pointer relative"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 transform-gpu will-change-transform relative"
     >
 
       {/* Image Section */}
       <div className="relative overflow-hidden bg-muted">
         {images.length > 0 && !imageFailed ? (
+          <Link to={`/product/${productSlug}`} aria-label={`View ${product.name || 'men’s unstitched suit'}`} className="block">
           <img
             src={images[currentIndex]}
             alt={`${product.name || "Mens Premium Unstitched Suit"} - ${product.type || "Shalwar Kameez"} by AT Brand Sargodha`}
@@ -78,6 +73,7 @@ export default function ProductCard({ product }) {
             onError={() => setImageFailed(true)}
             className="aspect-[3/4] w-full object-cover transition duration-500 group-hover:scale-105 transform-gpu will-change-transform"
           />
+          </Link>
         ) : (
           <div className="flex aspect-[3/4] w-full items-center justify-center bg-muted px-4 text-center text-sm text-muted-foreground">
             Image unavailable
@@ -137,7 +133,9 @@ export default function ProductCard({ product }) {
 
       <div className="flex flex-1 flex-col p-4">
         <h3 className="font-display text-xl text-foreground group-hover:text-primary transition-colors">
-          {product.name || "Mens Premium Unstitched Suit"}
+          <Link to={`/product/${productSlug}`}>
+            {product.name || "Mens Premium Unstitched Suit"}
+          </Link>
         </h3>
         <p className="mt-0.5 text-sm text-muted-foreground line-clamp-1">
           {product.fabric || "Premium Unstitched Shalwar Kameez"}

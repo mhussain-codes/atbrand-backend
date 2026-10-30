@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { PRODUCTS } from '../src/data/products.js';
+import { getProductSeo } from '../src/data/productSeo.js';
 import { getSeoPage, NOINDEX_PATHS } from '../src/data/seoPages.js';
 
 const outDir = path.resolve('dist');
@@ -78,10 +79,8 @@ for (const route of staticRoutes) {
 
 for (const product of PRODUCTS) {
   const route = `/product/${product.id}`;
-  writeRoute(route, {
-    title: `${product.name} Online | ${product.type} Unstitched Suit | AT BRAND`,
-    description: `Browse ${product.name} from AT BRAND Sargodha. See current product details, available colours and ordering options for delivery across Pakistan.`,
-  });
+  const seoProduct = getProductSeo(product);
+  writeRoute(route, { title: seoProduct.title, description: seoProduct.description });
 }
 
 console.log(`Generated route-specific HTML metadata for ${staticRoutes.length + PRODUCTS.length} routes.`);

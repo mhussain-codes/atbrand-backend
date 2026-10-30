@@ -171,7 +171,6 @@ export default function MensPage() {
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
-        <meta name="keywords" content={`${activeTypeFromUrl !== 'all' ? `${activeTypeFromUrl} men's unstitched suits, ` : ''}men's unstitched suits Pakistan, unstitched shalwar kameez, men's clothing Sargodha`} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
@@ -353,19 +352,20 @@ export default function MensPage() {
             </button>
           </div>
         )}
-        {/* Educational SEO & Fabric Guide Section */}
+        {/* Product and service guidance */}
         <div className="mt-16 rounded-2xl border border-slate-200 bg-slate-50/50 p-6 sm:p-8">
           <h2 className="font-serif text-lg font-bold text-[#1C3A2B] sm:text-xl">
-            Why Buy Men's Unstitched Fabric from AT BRAND Sargodha?
+            {activeTypeFromUrl === 'all' ? 'Choosing a Men’s Unstitched Suit' : `About ${activeTypeFromUrl} Suits`}
           </h2>
           <p className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600">
-            At <strong>AT BRAND</strong>, we curate premier Pakistani unstitched fabrics directly from renowned mills and master weavers across Kamalia, Faisalabad, and Karachi. Whether you are looking for crisp Ahmad Cotton with stiff collar fall, everyday wash-and-wear for work, luxurious executive Boski for wedding ceremonies, or warm winter khaddar, every 4-meter / 4.25-meter suit piece comes with our 100% color and fabric guarantee, custom tailoring add-ons, and nationwide cash on delivery across Pakistan.
+            {activeTypeFromUrl === 'all'
+              ? 'Compare the current fabric types, seasons and prices using the filters above. Each product page shows its available photos, listed fabric details and current price. Review those details before ordering, and contact AT BRAND if you need a measurement or fabric-length detail confirmed.'
+              : `Browse the current ${activeTypeFromUrl} listings and compare the photos, fabric notes and prices shown on each product page. Product details can differ by item; contact AT BRAND if you need a measurement or fabric-length detail confirmed before ordering.`}
           </p>
-          <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-[#1C3A2B]">
-            <span className="rounded-lg bg-white px-2.5 py-1 border border-slate-200">✓ 4.0 - 4.5 Meter Standard Cutting</span>
-            <span className="rounded-lg bg-white px-2.5 py-1 border border-slate-200">✓ 100% Color & Shrinkage Guarantee</span>
-            <span className="rounded-lg bg-white px-2.5 py-1 border border-slate-200">✓ Luxury Packaging with Original Bag</span>
-            <span className="rounded-lg bg-white px-2.5 py-1 border border-slate-200">✓ Sargodha Master Tailoring Available</span>
+          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-[#1C3A2B]">
+            <Link to="/size-guide" className="underline underline-offset-2 hover:text-[#7A6548]">Men’s size and measurement guide</Link>
+            <Link to="/stitching" className="underline underline-offset-2 hover:text-[#7A6548]">Custom stitching options</Link>
+            <Link to="/shipping-policy" className="underline underline-offset-2 hover:text-[#7A6548]">Shipping times and COD</Link>
           </div>
         </div>
       </main>

@@ -72,7 +72,7 @@ export default function ContactPage() {
               {/* SEO Updated Paragraph */}
               <p className="mt-4 max-w-xl text-muted-foreground">
                 Questions about our mens premium unstitched suits, sizing, or your order? We're here to help — reach us
-                on WhatsApp, email, or visit our store for the finest mens unstitched shalwar kameez in Sargodha.
+                on WhatsApp or email, or visit our Sargodha store for help with product details, sizing, stitching or an order.
               </p>
             </Reveal>
           </div>

@@ -38,7 +38,6 @@ export default function NewArrivalsPage() {
           name="description"
           content="See the latest additions to AT BRAND's men's unstitched collection, including current fabrics and colours. Browse product details and order online in Pakistan."
         />
-        <meta name="keywords" content="new arrivals menswear Pakistan, latest unstitched suits 2026, new shalwar kameez designs, winter cotton suits, AT BRAND new collection" />
         <link rel="canonical" href="https://atbrand.store/new-arrivals" />
       </Helmet>
 

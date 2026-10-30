@@ -1,7 +1,7 @@
 export const SEO_PAGES = {
   '/': {
-    title: "Men's Unstitched Suits & Shalwar Kameez Online | AT BRAND Pakistan",
-    description: "Shop men's unstitched shalwar kameez suits from AT BRAND in Sargodha. Browse Ahmad Cotton, Rashid Cotton, Wash & Wear, Boski and seasonal fabrics with nationwide delivery options.",
+    title: "AT BRAND Sargodha | Men's Unstitched Suits Online",
+    description: "Shop men's unstitched shalwar kameez suits at AT BRAND Sargodha. Browse Ahmad Cotton, Rashid Cotton, Wash & Wear, Boski and Khaddar, with custom stitching and delivery across Pakistan.",
   },
   '/shop': {
     title: "Men's Unstitched Suits Online in Pakistan | AT BRAND Shop",
