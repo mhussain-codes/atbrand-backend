@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import GarmentPreview3D from '@/components/GarmentPreview3D';
 import GarmentPreview2D from '@/components/GarmentPreview2D';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
-import { Scissors, CheckCircle, Ruler, ShoppingBag, X } from 'lucide-react';
+import { Scissors, CheckCircle, Ruler, ShoppingBag, X, Sparkles, ChevronDown, HelpCircle, Layers } from 'lucide-react';
 import { openWhatsApp, formatPKR } from '@/lib/whatsapp';
 
 export default function StitchingPage() {
@@ -19,6 +20,7 @@ export default function StitchingPage() {
   const totalCombinedPrice = suitId ? suitPrice + stitchingFee : stitchingFee;
 
   const [unit, setUnit] = useState('inches'); // 'inches' or 'cm'
+  const [viewMode, setViewMode] = useState('3d'); // '3d' or '2d'
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedData, setSubmittedData] = useState(null);
 
@@ -186,18 +188,100 @@ export default function StitchingPage() {
     }
   };
 
+  const stitchingBreadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': 'https://atbrand.store/'
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'Bespoke Custom Stitching',
+        'item': 'https://atbrand.store/stitching'
+      }
+    ]
+  };
+
+  const stitchingServiceSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    'name': "Bespoke Men's Kurta Shalwar Tailoring Service",
+    'serviceType': 'Custom Tailoring & Stitching',
+    'provider': {
+      '@type': 'ClothingStore',
+      'name': 'AT BRAND Sargodha',
+      'url': 'https://atbrand.store/'
+    },
+    'areaServed': {
+      '@type': 'Country',
+      'name': 'Pakistan'
+    },
+    'offers': {
+      '@type': 'Offer',
+      'price': '1500',
+      'priceCurrency': 'PKR',
+      'availability': 'https://schema.org/InStock'
+    },
+    'description': "Precision Pakistani master tailoring for men's unstitched suits. Sherwani ban, shirt collars, French cuffs, round and square daman with nationwide cash on delivery."
+  };
+
+  const stitchingFaqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': [
+      {
+        '@type': 'Question',
+        'name': "How does 3D Custom Stitching work at AT BRAND Sargodha?",
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': "You can enter your exact kurta length, chest, waist, shoulder, sleeve length, and shalwar measurements. Our interactive 3D mannequin immediately visualizes the fit and silhouette. Our master tailors in Sargodha cut and stitch the suit exactly to your submitted dimensions."
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': "What is the fee for custom men's suit stitching?",
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': "Our master tailoring fee is flat PKR 1,500 per suit. You can bundle it directly with any unstitched fabric from our store or send your own fabric."
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': "What is the delivery time for stitched suits?",
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': "Custom stitched suits are crafted and dispatched within 5 to 7 working days with nationwide cash on delivery across Pakistan."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
         <title>Master Custom Tailoring & Men's Kurta Shalwar Stitching in Pakistan | AT BRAND</title>
         <meta
           name="description"
-          content="Order custom tailored men's kurta shalwar and unstitched suit stitching online in Pakistan. Sherwani ban, collar designs, cuff options, and master tailoring by AT BRAND Sargodha."
+          content="Order custom tailored men's kurta shalwar with 3D interactive fit preview. Sherwani ban, collar designs, cuff options, and master tailoring by AT BRAND Sargodha with Cash on Delivery."
         />
-        <meta name="keywords" content="custom stitching Pakistan, mens kurta shalwar stitching, online tailor Pakistan, bespoke tailoring Sargodha, kurta measurement guide, Pakistani tailoring rates" />
+        <meta name="keywords" content="custom stitching Pakistan, mens kurta shalwar stitching, online tailor Pakistan, bespoke tailoring Sargodha, 3D clothing visualizer, kurta measurement guide, Pakistani tailoring rates" />
         <link rel="canonical" href="https://atbrand.store/stitching" />
-        <meta property="og:title" content="Custom Kurta Shalwar Stitching | AT BRAND Sargodha" />
-        <meta property="og:description" content="Precision Pakistani tailoring for unstitched suits. Save measurements, choose ban/cuffs, and order with Cash on Delivery." />
+        <meta property="og:title" content="3D Custom Kurta Shalwar Stitching | AT BRAND Sargodha" />
+        <meta property="og:description" content="Precision Pakistani tailoring for unstitched suits with interactive 3D silhouette preview. Cash on Delivery nationwide." />
+        <script type="application/ld+json">
+          {JSON.stringify(stitchingBreadcrumbSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(stitchingServiceSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(stitchingFaqSchema)}
+        </script>
       </Helmet>
 
       <Header />
@@ -269,16 +353,59 @@ export default function StitchingPage() {
         )}
 
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-          {/* Left: 2D Interactive Preview & Style Selectors */}
+          {/* Left: 3D/2D Interactive Preview & Style Selectors */}
           <div className="lg:col-span-5 flex flex-col gap-6">
-            <GarmentPreview2D
-              collar={styles.collar}
-              neckline={styles.neckline}
-              sleeves={styles.sleeves}
-              daman={styles.daman}
-              buttons={styles.buttons}
-              color={styles.color}
-            />
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-1.5 rounded-full bg-muted p-1 border border-border">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('3d')}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition ${
+                    viewMode === '3d'
+                      ? 'bg-[#1C3A2B] text-white shadow'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-[#C5A880]" />
+                  <span>3D Mannequin Fit</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('2d')}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition ${
+                    viewMode === '2d'
+                      ? 'bg-[#1C3A2B] text-white shadow'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Layers className="h-3.5 w-3.5" />
+                  <span>2D Blueprint</span>
+                </button>
+              </div>
+            </div>
+
+            {viewMode === '3d' ? (
+              <GarmentPreview3D
+                collar={styles.collar}
+                neckline={styles.neckline}
+                sleeves={styles.sleeves}
+                daman={styles.daman}
+                buttons={styles.buttons}
+                color={styles.color}
+                measurements={measurements}
+                unit={unit}
+                onColorChange={(newCol) => handleStyleChange('color', newCol)}
+              />
+            ) : (
+              <GarmentPreview2D
+                collar={styles.collar}
+                neckline={styles.neckline}
+                sleeves={styles.sleeves}
+                daman={styles.daman}
+                buttons={styles.buttons}
+                color={styles.color}
+              />
+            )}
 
             <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
               <h3 className="font-serif text-lg font-bold text-primary mb-4">Design Customization</h3>
@@ -558,6 +685,72 @@ export default function StitchingPage() {
             </form>
           </div>
         </div>
+
+        {/* SEO Tailoring Guide & Internal Linking Section */}
+        <section className="mt-16 border-t border-border/60 pt-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#C5A880]">Pakistani Bespoke Craft</span>
+              <h2 className="mt-2 font-serif text-2xl font-bold text-[#1C3A2B]">
+                How Our Sargodha Master Tailoring Works
+              </h2>
+              <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Every stitch at AT BRAND represents authentic Pakistani bespoke tradition. When you order custom stitching, our master ustad personally reviews your submitted dimensions (kameez length, chest, waist, shoulder, ghera, and paincha) to ensure perfect collar fall and zero fabric wrinkling. We use premium interlining (bukram) that maintains crispness even after repeated washing.
+              </p>
+
+              <div className="mt-6 border-t border-slate-100 pt-4">
+                <p className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">Pair With Our Unstitched Fabrics:</p>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  <Link to="/men/ahmad-cotton" className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 font-semibold text-slate-700 hover:text-primary hover:border-primary transition">Ahmad Cotton</Link>
+                  <Link to="/men/rashid-cotton" className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 font-semibold text-slate-700 hover:text-primary hover:border-primary transition">Rashid Cotton</Link>
+                  <Link to="/men/wash-and-wear" className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 font-semibold text-slate-700 hover:text-primary hover:border-primary transition">Wash & Wear</Link>
+                  <Link to="/men/boski" className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 font-semibold text-slate-700 hover:text-primary hover:border-primary transition">Pure Boski</Link>
+                  <Link to="/men/khaddar" className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 font-semibold text-slate-700 hover:text-primary hover:border-primary transition">Winter Khaddar</Link>
+                  <Link to="/men/lattha" className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 font-semibold text-slate-700 hover:text-primary hover:border-primary transition">Egyptian Lattha</Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#C5A880]">Frequently Asked Questions</span>
+              <h2 className="mt-2 font-serif text-2xl font-bold text-[#1C3A2B]">
+                Tailoring &amp; Fit FAQs
+              </h2>
+
+              <div className="mt-5 space-y-3">
+                <details className="group rounded-2xl border border-slate-200 p-4 transition open:bg-slate-50/50">
+                  <summary className="flex cursor-pointer items-center justify-between font-semibold text-xs sm:text-sm text-slate-800">
+                    <span>How accurate is the 3D Silhouette preview?</span>
+                    <ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <p className="mt-2.5 text-xs text-slate-600 leading-relaxed">
+                    The 3D mannequin scales dynamically according to your chest, waist, length, and daman width inputs so you can visualize the garment proportions, collar style, and cuff shape before our tailors cut the fabric.
+                  </p>
+                </details>
+
+                <details className="group rounded-2xl border border-slate-200 p-4 transition open:bg-slate-50/50">
+                  <summary className="flex cursor-pointer items-center justify-between font-semibold text-xs sm:text-sm text-slate-800">
+                    <span>What is the standard turnaround time?</span>
+                    <ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <p className="mt-2.5 text-xs text-slate-600 leading-relaxed">
+                    Custom stitching takes 5 to 7 working days. Once tailored and steam pressed, it is securely packed and delivered with nationwide Cash on Delivery.
+                  </p>
+                </details>
+
+                <details className="group rounded-2xl border border-slate-200 p-4 transition open:bg-slate-50/50">
+                  <summary className="flex cursor-pointer items-center justify-between font-semibold text-xs sm:text-sm text-slate-800">
+                    <span>Can I request extra pockets or custom styling?</span>
+                    <ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <p className="mt-2.5 text-xs text-slate-600 leading-relaxed">
+                    Yes! You can specify hidden zipper pockets, double chest pockets, or custom button spacing in the "Special Instructions / Tailoring Notes" field above.
+                  </p>
+                </details>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />

@@ -59,15 +59,62 @@ export default function HomePage() {
     document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const homeFaqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': [
+      {
+        '@type': 'Question',
+        'name': "Where is AT BRAND located and do you deliver across Pakistan?",
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': "AT BRAND is proudly based in Sargodha, Punjab (New Satellite Town, Tali Chowk X-Block). We deliver men's premium unstitched suits and stitched garments nationwide across Pakistan with Cash on Delivery (COD) within 2 to 4 working days."
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': "What men's unstitched fabrics do you offer?",
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': "We specialize in authentic Pakistani unstitched fabrics including Rashid Cotton, Ahmad Cotton, Wrinkle-Free Wash & Wear, Pure Executive Boski, Handloom Winter Khaddar, and Crisp Egyptian Lattha."
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': "Can I order custom tailoring and stitching with my unstitched suit?",
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': "Yes! You can bundle our Master Custom Tailoring service for flat PKR 1,500. Use our interactive 3D tailoring mannequin to customize collar (sherwani ban / shirt collar), cuffs, and daman with your exact measurements."
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': "What is your fabric cutting and quality guarantee?",
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': "All our unstitched suits feature generous 4.0 to 4.5-meter cutting suitable for tall and broad frames. Every suit comes with a 100% colorfastness and shrinkage guarantee."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* SEO Updated Meta Tags */}
+      {/* Heavy SEO Meta & Structured Data */}
       <Helmet>
-        <title>AT Brand Sargodha | Mens Premium Unstitched Suits</title>
+        <title>AT BRAND Sargodha | Men's Premium Unstitched Suits & Shalwar Kameez Pakistan</title>
         <meta
           name="description"
-          content="Shop mens premium unstitched suits and shalwar kameez at AT Brand Sargodha. Buy the best Wash & Wear, Ahmad Cotton, Boski, and Khaddar online in Pakistan."
+          content="Shop authentic men's premium unstitched suits, Ahmad Cotton, Rashid Cotton, Wash & Wear, Pure Boski, and Winter Khaddar at AT BRAND Sargodha. 3D bespoke tailoring & nationwide Cash on Delivery."
         />
+        <meta name="keywords" content="AT Brand Sargodha, mens unstitched suits Pakistan, unstitched shalwar kameez, Ahmad Cotton Sargodha, Rashid Cotton suits, Wash and Wear fabric, Boski suits price Pakistan, Winter Khaddar Kamalia, custom stitching tailor online" />
+        <link rel="canonical" href="https://atbrand.store/" />
+        <meta property="og:title" content="AT BRAND Sargodha | Men's Premium Unstitched Suits" />
+        <meta property="og:description" content="Shop Ahmad Cotton, Wash & Wear, Pure Boski, and Khaddar with 3D Tailoring & COD nationwide." />
+        <meta property="og:url" content="https://atbrand.store/" />
+        <script type="application/ld+json">
+          {JSON.stringify(homeFaqSchema)}
+        </script>
       </Helmet>
 
       <Header />
@@ -216,6 +263,77 @@ export default function HomePage() {
         <PriceBands onSelect={handleBandSelect} />
         <TestimonialsSection />
         <HowToOrder />
+
+        {/* Enterprise SEO FAQ Section with Rich Answers & Deep Internal Linking */}
+        <section className="bg-slate-50/80 py-20 border-y border-border/40">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6">
+            <Reveal>
+              <div className="text-center mb-12">
+                <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#C5A880]">
+                  Got Questions?
+                </p>
+                <h2 className="mt-2 font-serif text-3xl font-extrabold text-[#1C3A2B] sm:text-4xl">
+                  Frequently Asked Questions
+                </h2>
+                <p className="mt-3 text-sm text-slate-600">
+                  Everything you need to know about our fabrics, custom stitching, and nationwide delivery.
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="space-y-4">
+              <Reveal delay={0.05}>
+                <details className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition open:border-[#1C3A2B] open:shadow-md">
+                  <summary className="flex cursor-pointer items-center justify-between font-serif text-base font-bold text-slate-900">
+                    <span>What premium fabrics does AT BRAND Sargodha offer?</span>
+                    <span className="ml-4 rounded-full bg-slate-100 p-1 text-slate-500 group-open:rotate-180 transition-transform">
+                      ▼
+                    </span>
+                  </summary>
+                  <div className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                    We offer an extensive range of master-crafted unstitched fabrics:
+                    <div className="mt-2.5 flex flex-wrap gap-2 font-semibold text-[#1C3A2B]">
+                      <Link to="/men/ahmad-cotton" className="hover:underline">Ahmad Cotton</Link> •
+                      <Link to="/men/rashid-cotton" className="hover:underline">Rashid Cotton</Link> •
+                      <Link to="/men/wash-and-wear" className="hover:underline">Wash &amp; Wear</Link> •
+                      <Link to="/men/boski" className="hover:underline">Pure Boski</Link> •
+                      <Link to="/men/khaddar" className="hover:underline">Winter Khaddar</Link> •
+                      <Link to="/men/lattha" className="hover:underline">Egyptian Lattha</Link>
+                    </div>
+                  </div>
+                </details>
+              </Reveal>
+
+              <Reveal delay={0.1}>
+                <details className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition open:border-[#1C3A2B] open:shadow-md">
+                  <summary className="flex cursor-pointer items-center justify-between font-serif text-base font-bold text-slate-900">
+                    <span>How does the 3D Custom Tailoring &amp; Stitching work?</span>
+                    <span className="ml-4 rounded-full bg-slate-100 p-1 text-slate-500 group-open:rotate-180 transition-transform">
+                      ▼
+                    </span>
+                  </summary>
+                  <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                    You can pair any unstitched suit with our <Link to="/stitching" className="font-bold text-[#1C3A2B] underline">Bespoke Stitching Service</Link> for PKR 1,500. Enter your custom measurements and our live 3D tailoring silhouette visualizes your exact cut, collar (sherwani ban or collar), and sleeve cuffs before our master tailors stitch it.
+                  </p>
+                </details>
+              </Reveal>
+
+              <Reveal delay={0.15}>
+                <details className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition open:border-[#1C3A2B] open:shadow-md">
+                  <summary className="flex cursor-pointer items-center justify-between font-serif text-base font-bold text-slate-900">
+                    <span>Do you offer Cash on Delivery across Pakistan?</span>
+                    <span className="ml-4 rounded-full bg-slate-100 p-1 text-slate-500 group-open:rotate-180 transition-transform">
+                      ▼
+                    </span>
+                  </summary>
+                  <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                    Yes! We provide 100% Cash on Delivery across all cities of Pakistan including Lahore, Karachi, Islamabad, Rawalpindi, Faisalabad, Multan, and Peshawar. Standard delivery takes 2 to 4 working days.
+                  </p>
+                </details>
+              </Reveal>
+            </div>
+          </div>
+        </section>
 
         {/* About Us Section */}
         <section className="bg-secondary/20 px-4 py-16 sm:px-6">

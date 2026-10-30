@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BrandLoader from '@/components/BrandLoader';
+import ProductCard from '@/components/ProductCard';
 import { useBuy } from '@/contexts/BuyContext';
 import { Helmet } from 'react-helmet';
 import { formatPKR, openWhatsApp, buildInquiryMessage } from '@/lib/whatsapp';
-import { ShieldCheck, Truck, RefreshCw, Scissors, ShoppingCart, MessageCircle, ChevronRight } from 'lucide-react';
+import { ShieldCheck, Truck, RefreshCw, Scissors, ShoppingCart, MessageCircle, ChevronRight, ArrowRight } from 'lucide-react';
 import { PRODUCTS } from '@/data/products';
 
 export default function ProductDetailPage() {
@@ -58,6 +59,39 @@ export default function ProductDetailPage() {
     ? product.images
     : [product.image || 'https://via.placeholder.com/600'];
 
+  const canonicalUrl = `https://atbrand.store/product/${slug}`;
+
+  const relatedProducts = useMemo(() => {
+    return PRODUCTS
+      .filter(p => p.id !== product?.id && (p.category === product?.category || p.type === product?.type))
+      .slice(0, 4);
+  }, [product]);
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': 'https://atbrand.store/'
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': product?.category === 'Men' ? "Men's Collection" : 'Shop',
+        'item': product?.category === 'Men' ? 'https://atbrand.store/men' : 'https://atbrand.store/shop'
+      },
+      {
+        '@type': 'ListItem',
+        'position': 3,
+        'name': product?.name,
+        'item': canonicalUrl
+      }
+    ]
+  };
+
   // Dynamic JSON-LD Structured Data for Technical SEO
   const jsonLd = {
     '@context': 'https://schema.org/',
@@ -72,7 +106,7 @@ export default function ProductDetailPage() {
     },
     'offers': {
       '@type': 'Offer',
-      'url': window.location.href,
+      'url': canonicalUrl,
       'priceCurrency': 'PKR',
       'price': product.price,
       'availability': product.in_stock !== false ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
@@ -87,9 +121,15 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
-        <title>{`${product.name} | AT BRAND Sargodha`}</title>
-        <meta name="description" content={`Buy ${product.name} (${product.type}). Premium unstitched suit fabric in Pakistan. Cash on delivery nationwide.`} />
+        <title>{`${product.name} | Mens Premium Unstitched Suits | AT BRAND Sargodha`}</title>
+        <meta name="description" content={`Buy authentic ${product.name} (${product.type}) by AT BRAND Sargodha. 100% guaranteed fabric, generous 4.25m cutting, custom tailoring bundle and Cash on Delivery.`} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={`${product.name} | AT BRAND Sargodha`} />
+        <meta property="og:description" content={`Buy ${product.name} for ${formatPKR(product.price)}. Cash on Delivery nationwide in Pakistan.`} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={images[0]} />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
 
       <Header />
@@ -99,9 +139,11 @@ export default function ProductDetailPage() {
         <nav className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
           <Link to="/" className="hover:text-primary">Home</Link>
           <ChevronRight className="h-3 w-3" />
-          <Link to="/shop" className="hover:text-primary">Shop</Link>
+          <Link to={product.category === 'Men' ? '/men' : '/shop'} className="hover:text-primary">
+            {product.category === 'Men' ? "Men's Collection" : "Shop"}
+          </Link>
           <ChevronRight className="h-3 w-3" />
-          <span className="text-foreground font-medium truncate">{product.name}</span>
+          <span className="text-foreground font-semibold truncate">{product.name}</span>
         </nav>
 
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
@@ -239,6 +281,31 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Related Premium Fabrics - Continuous Internal Linking for High SEO */}
+        {relatedProducts.length > 0 && (
+          <section className="mt-20 border-t border-border pt-12">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#C5A880]">Complete Your Collection</p>
+                <h2 className="font-serif text-2xl font-bold text-[#1C3A2B]">Related Premium Fabrics</h2>
+              </div>
+              <Link
+                to={product.category === 'Men' ? '/men' : '/shop'}
+                className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:gap-2 transition-all"
+              >
+                <span>Explore More</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {relatedProducts.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       <Footer />
