@@ -102,8 +102,8 @@ export default function Header() {
                   {/* Dropdown Menu */}
                   <div className="absolute left-1/2 top-full -translate-x-1/2 w-80 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
                     <div className="px-3 py-2 border-b border-slate-100 mb-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-[#C5A880]">Men's Sub-Categories</p>
-                      <p className="text-xs font-bold text-slate-800">Shop by Master Fabric</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-[#C5A880]">Mardana Fabric Variety</p>
+                      <p className="text-xs font-bold text-slate-800">Kapray Ki Type Pasand Karein</p>
                     </div>
                     <div className="space-y-1">
                       {MEN_SUB_PAGES.map((sub) => (

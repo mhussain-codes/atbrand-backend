@@ -128,13 +128,13 @@ export default function HomePage() {
             <Reveal>
               <div className="text-center max-w-2xl mx-auto mb-10">
                 <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#C5A880]">
-                  Authentic Unstitched Shalwar Kameez
+                  Mardana Unstitched Suits
                 </p>
                 <h2 className="mt-2 font-serif text-3xl font-extrabold text-[#1C3A2B] sm:text-4xl">
-                  Shop Men's Master Fabrics
+                  Mardana Kapra (Fabric Collection)
                 </h2>
                 <p className="mt-2 text-xs sm:text-sm text-slate-600">
-                  Select your fabric weave directly — pure combed cottons, executive pure boski, soft wash &amp; wear, and authentic winter khaddar.
+                  Ahmad Cotton, Rashid Cotton, Wash &amp; Wear, Pure Boski, aur Winter Khaddar — seedha Sargodha se poore Pakistan mein Cash on Delivery.
                 </p>
               </div>
             </Reveal>

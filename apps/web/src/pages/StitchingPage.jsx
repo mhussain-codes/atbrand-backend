@@ -288,12 +288,12 @@ export default function StitchingPage() {
 
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent">Bespoke Master Tailoring</p>
-          <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-primary sm:text-5xl">
-            Custom Stitching Service
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#C5A880]">Custom Suit Silai (Tailoring)</p>
+          <h1 className="mt-2 font-serif text-3xl font-extrabold tracking-tight text-primary sm:text-5xl">
+            Apne Naap Ke Mutabiq Suit Silwayein
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground sm:text-base">
-            Flawless cuts and traditional Pakistani craftsmanship for your unstitched suits. Customized to your exact fit.
+          <p className="mx-auto mt-3 max-w-2xl text-xs sm:text-sm text-muted-foreground font-medium">
+            Sargodha ke experienced master darzi se perfect fit kurta shalwar silwayein. Apna naap likhein, 3D mein design check karein, aur nationwide Cash on Delivery par hasil karein.
           </p>
         </div>
 
@@ -367,7 +367,7 @@ export default function StitchingPage() {
                   }`}
                 >
                   <Sparkles className="h-3.5 w-3.5 text-[#C5A880]" />
-                  <span>3D Mannequin Fit</span>
+                  <span>3D Suit Model</span>
                 </button>
                 <button
                   type="button"
@@ -379,7 +379,7 @@ export default function StitchingPage() {
                   }`}
                 >
                   <Layers className="h-3.5 w-3.5" />
-                  <span>2D Blueprint</span>
+                  <span>2D Pattern</span>
                 </button>
               </div>
             </div>
@@ -408,43 +408,43 @@ export default function StitchingPage() {
             )}
 
             <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-              <h3 className="font-serif text-lg font-bold text-primary mb-4">Design Customization</h3>
+              <h3 className="font-serif text-base font-bold text-primary mb-3">Suit Ka Style Pasand Karein</h3>
               
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div>
-                  <label className="font-semibold block mb-1">Collar / Ban</label>
+                  <label className="font-semibold block mb-1">Collar / Ban Style</label>
                   <select
                     value={styles.collar}
                     onChange={(e) => handleStyleChange('collar', e.target.value)}
                     className="w-full rounded-lg border border-input bg-background p-2"
                   >
-                    <option value="sherwani">Sherwani Collar</option>
-                    <option value="mandarin">Mandarin (Round Ban)</option>
-                    <option value="shirt">Shirt Collar</option>
+                    <option value="sherwani">Sherwani Ban (Khara Ban)</option>
+                    <option value="mandarin">Gool Ban (Soft Mandarin)</option>
+                    <option value="shirt">Shirt Collar (Fold Collar)</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="font-semibold block mb-1">Sleeves & Cuffs</label>
+                  <label className="font-semibold block mb-1">Bazu &amp; Cuffs Style</label>
                   <select
                     value={styles.sleeves}
                     onChange={(e) => handleStyleChange('sleeves', e.target.value)}
                     className="w-full rounded-lg border border-input bg-background p-2"
                   >
-                    <option value="cuff">French Cuffs with Button</option>
-                    <option value="straight">Open Straight Sleeves</option>
+                    <option value="cuff">Cuff with Button (Kaf Bazu)</option>
+                    <option value="straight">Seedha Bazu (Open Straight)</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="font-semibold block mb-1">Daman (Ghera)</label>
+                  <label className="font-semibold block mb-1">Daman (Ghera) Cut</label>
                   <select
                     value={styles.daman}
                     onChange={(e) => handleStyleChange('daman', e.target.value)}
                     className="w-full rounded-lg border border-input bg-background p-2"
                   >
-                    <option value="round">Round Daman (Gol)</option>
-                    <option value="straight">Square Daman (Chakor)</option>
+                    <option value="round">Gool Daman (Round Cut)</option>
+                    <option value="straight">Chakor Daman (Straight Cut)</option>
                   </select>
                 </div>
 
@@ -455,8 +455,8 @@ export default function StitchingPage() {
                     onChange={(e) => handleStyleChange('buttons', e.target.value)}
                     className="w-full rounded-lg border border-input bg-background p-2"
                   >
-                    <option value="metal">Antique Brass Metal</option>
-                    <option value="fabric">Fabric Wrapped (Same Color)</option>
+                    <option value="metal">Golden Metal Buttons</option>
+                    <option value="fabric">Matching Fabric Buttons</option>
                   </select>
                 </div>
               </div>
@@ -492,7 +492,7 @@ export default function StitchingPage() {
               <div className="flex items-center justify-between border-b border-border pb-4 mb-6">
                 <div className="flex items-center gap-2">
                   <Scissors className="h-5 w-5 text-accent" />
-                  <h2 className="font-serif text-xl font-bold text-primary">Measurements Form</h2>
+                  <h2 className="font-serif text-lg font-bold text-primary">Apna Naap Likhein (Measurements)</h2>
                 </div>
 
                 {/* Unit Switcher */}
@@ -516,10 +516,10 @@ export default function StitchingPage() {
 
               {/* Contact Information */}
               <div className="mb-6">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">1. Contact & Delivery</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">1. Delivery Info (Naam aur Pata)</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-semibold block mb-1">Full Name *</label>
+                    <label className="text-xs font-semibold block mb-1">Poora Naam (Full Name) *</label>
                     <input
                       required
                       type="text"
@@ -530,7 +530,7 @@ export default function StitchingPage() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold block mb-1">Phone / WhatsApp *</label>
+                    <label className="text-xs font-semibold block mb-1">WhatsApp / Phone Number *</label>
                     <input
                       required
                       type="tel"
@@ -541,11 +541,11 @@ export default function StitchingPage() {
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="text-xs font-semibold block mb-1">Delivery Address *</label>
+                    <label className="text-xs font-semibold block mb-1">Ghar Ka Pata (Delivery Address) *</label>
                     <input
                       required
                       type="text"
-                      placeholder="House, Street, Sector / Area"
+                      placeholder="Makaan no, Gali, Mohalla / Sector, Shehr"
                       value={contact.address}
                       onChange={(e) => handleContactChange('address', e.target.value)}
                       className="w-full rounded-lg border border-input bg-background p-2.5 text-sm"
@@ -557,11 +557,11 @@ export default function StitchingPage() {
               {/* Measurements Inputs */}
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
-                  2. Tailoring Specifications ({unit})
+                  2. Kameez Shalwar Ka Naap ({unit})
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
                   <div>
-                    <label className="font-semibold block mb-1">Kurta Length (Lambai)</label>
+                    <label className="font-semibold block mb-1">Kameez Lambai (Length)</label>
                     <input
                       type="number"
                       step="0.25"
@@ -571,7 +571,7 @@ export default function StitchingPage() {
                     />
                   </div>
                   <div>
-                    <label className="font-semibold block mb-1">Chest (Chhati)</label>
+                    <label className="font-semibold block mb-1">Chhati (Chest)</label>
                     <input
                       type="number"
                       step="0.25"
@@ -581,7 +581,7 @@ export default function StitchingPage() {
                     />
                   </div>
                   <div>
-                    <label className="font-semibold block mb-1">Shoulder (Teera)</label>
+                    <label className="font-semibold block mb-1">Teera (Shoulder)</label>
                     <input
                       type="number"
                       step="0.25"
@@ -591,7 +591,7 @@ export default function StitchingPage() {
                     />
                   </div>
                   <div>
-                    <label className="font-semibold block mb-1">Sleeves (Bazu)</label>
+                    <label className="font-semibold block mb-1">Bazu (Sleeves)</label>
                     <input
                       type="number"
                       step="0.25"
@@ -601,7 +601,7 @@ export default function StitchingPage() {
                     />
                   </div>
                   <div>
-                    <label className="font-semibold block mb-1">Collar Size (Gala)</label>
+                    <label className="font-semibold block mb-1">Gala / Collar Size</label>
                     <input
                       type="number"
                       step="0.25"
@@ -611,7 +611,7 @@ export default function StitchingPage() {
                     />
                   </div>
                   <div>
-                    <label className="font-semibold block mb-1">Daman Width (Ghera)</label>
+                    <label className="font-semibold block mb-1">Ghera / Daman</label>
                     <input
                       type="number"
                       step="0.25"
@@ -621,7 +621,7 @@ export default function StitchingPage() {
                     />
                   </div>
                   <div>
-                    <label className="font-semibold block mb-1">Shalwar Length</label>
+                    <label className="font-semibold block mb-1">Shalwar Lambai</label>
                     <input
                       type="number"
                       step="0.25"
@@ -631,7 +631,7 @@ export default function StitchingPage() {
                     />
                   </div>
                   <div>
-                    <label className="font-semibold block mb-1">Bottom (Paincha)</label>
+                    <label className="font-semibold block mb-1">Paincha (Bottom)</label>
                     <input
                       type="number"
                       step="0.25"
@@ -641,24 +641,24 @@ export default function StitchingPage() {
                     />
                   </div>
                   <div>
-                    <label className="font-semibold block mb-1">Fitting Preference</label>
+                    <label className="font-semibold block mb-1">Fitting Style</label>
                     <select
                       value={measurements.fittingPreference}
                       onChange={(e) => handleMeasurementChange('fittingPreference', e.target.value)}
                       className="w-full rounded-lg border border-input bg-background p-2 text-sm"
                     >
-                      <option value="Regular Fit">Regular Fit</option>
+                      <option value="Regular Fit">Normal / Regular Fit</option>
                       <option value="Slim Fit">Smart / Slim Fit</option>
-                      <option value="Comfort / Loose">Loose Traditional</option>
+                      <option value="Comfort / Loose">Khula (Loose Fit)</option>
                     </select>
                   </div>
                 </div>
 
                 <div className="mt-4">
-                  <label className="text-xs font-semibold block mb-1">Special Instructions / Tailoring Notes</label>
+                  <label className="text-xs font-semibold block mb-1">Koi Khas Hidayat (Special Tailoring Notes)</label>
                   <textarea
                     rows={2}
-                    placeholder="e.g. Single pocket on chest, double stitch on sides, soft collar padding..."
+                    placeholder="Maslan: Single front pocket, side pocket mein zip, soft bukram..."
                     value={measurements.specialInstructions}
                     onChange={(e) => handleMeasurementChange('specialInstructions', e.target.value)}
                     className="w-full rounded-lg border border-input bg-background p-2.5 text-xs"
@@ -673,13 +673,13 @@ export default function StitchingPage() {
                   className="w-full rounded-xl bg-primary py-4 text-center text-xs font-bold uppercase tracking-widest text-primary-foreground shadow transition hover:opacity-90 disabled:opacity-50"
                 >
                   {isSubmitting
-                    ? 'Saving Order & Generating WhatsApp...'
+                    ? 'Order Save Ho Raha Hai...'
                     : suitId
-                    ? `Confirm Suit + Stitching Order (${formatPKR(totalCombinedPrice)})`
-                    : `Submit Stitching Request (${formatPKR(stitchingFee)})`}
+                    ? `Suit + Silai Order Confirm Karein (${formatPKR(totalCombinedPrice)})`
+                    : `Silai Ka Order Dein (${formatPKR(stitchingFee)})`}
                 </button>
                 <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                  Our master tailor will review your measurements before cutting. Cash on delivery accepted nationwide.
+                  Kapra kaatne se pehle hamare master tailor aapke diye gaye naap ko check karenge. Poore Pakistan mein Cash on Delivery.
                 </p>
               </div>
             </form>
