@@ -132,8 +132,8 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
-        <title>{`${product.name} | Mens Premium Unstitched Suits | AT BRAND Sargodha`}</title>
-        <meta name="description" content={`Buy authentic ${product.name} (${product.type}) by AT BRAND Sargodha. 100% guaranteed fabric, generous 4.25m cutting, custom tailoring bundle and Cash on Delivery.`} />
+        <title>{`${product.name} | ${product.type} Unstitched Suit | AT BRAND Sargodha`}</title>
+        <meta name="description" content={`Browse ${product.name}, a ${product.type} men's unstitched suit from AT BRAND Sargodha. See current product details, available colours and delivery options across Pakistan.`} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={`${product.name} | AT BRAND Sargodha`} />
         <meta property="og:description" content={`Buy ${product.name} for ${formatPKR(product.price)}. Cash on Delivery nationwide in Pakistan.`} />

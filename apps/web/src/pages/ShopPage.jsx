@@ -114,10 +114,10 @@ export default function ShopPage() {
   return (
     <div className="min-h-screen bg-background text-foreground font-sans">
       <Helmet>
-        <title>Shop All Collections: Men, Women & Perfumes | AT BRAND Sargodha</title>
+        <title>Men's Unstitched Suits Online in Pakistan | AT BRAND Shop</title>
         <meta
           name="description"
-          content="Shop the complete AT BRAND catalog across Men's unstitched fabrics, Women's collection, and luxury Perfumes in Sargodha, Pakistan. Cash on delivery nationwide."
+          content="Browse AT BRAND's men's unstitched suit collection online. Compare available fabrics, colours and current prices, then order from Sargodha with delivery options across Pakistan."
         />
         <meta name="keywords" content="Men unstitched suits Pakistan, Wash and Wear fabric Sargodha, Boski suits, Ahmad Cotton, AT BRAND, womens pret, perfumes Sargodha" />
       </Helmet>

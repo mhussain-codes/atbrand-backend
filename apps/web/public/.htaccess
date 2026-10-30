@@ -2,8 +2,18 @@
   RewriteEngine On
   RewriteBase /
 
+  # Preserve indexed legacy URLs while consolidating them onto clean routes.
+  RewriteRule ^home/?$ / [R=301,L]
+  RewriteRule ^shop\.html$ /shop [R=301,QSD,L]
+
   # 1. Route /api/* requests to api/index.php
   RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+  # Serve a route-specific HTML head while retaining the clean public URL.
+  RewriteRule ^(shop|men|women|perfumes|new-arrivals|stitching|about|contact|size-guide|shipping-policy|return-policy|privacy-policy|terms|cart|checkout|track-order)/?$ __seo/$1.html [L]
+  RewriteRule ^men/(ahmad-cotton|rashid-cotton|wash-and-wear|boski|khaddar|lattha|karandi)/?$ __seo/men/$1.html [L]
+  RewriteRule ^categories/(ahmad-cotton|rashid-cotton|wash-and-wear|boski|khaddar|lattha|karandi)/?$ __seo/categories/$1.html [L]
+  RewriteRule ^product/([a-z0-9-]+)/?$ __seo/product/$1.html [L]
 
   # 2. Handle React Router dynamic URLs (redirect all non-file non-dir requests to index.html)
   RewriteRule ^index\.html$ - [L]

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Route, Routes, BrowserRouter as Router, Navigate } from 'react-router-dom';
+import { Route, Routes, BrowserRouter as Router, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { Helmet } from 'react-helmet';
 import ScrollToTop from './components/ScrollToTop';
 import { BuyProvider } from './contexts/BuyContext';
 import { AuthProvider } from './contexts/AuthContext';
@@ -27,10 +28,32 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 
 import WhatsAppFloatingButton from './components/WhatsAppFloatingButton';
 
+function RouteMetadata() {
+  const { pathname } = useLocation();
+  const normalizedPath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
+  const canonicalPath = normalizedPath === '/home'
+    ? '/'
+    : normalizedPath.startsWith('/categories/')
+      ? normalizedPath.replace('/categories/', '/men/')
+      : normalizedPath;
+  const noindex = /^\/(cart|checkout|track-order)(\/|$)/i.test(normalizedPath)
+    || /^\/admin(\/|$)/i.test(normalizedPath)
+    || normalizedPath === '/women'
+    || normalizedPath === '/perfumes';
+
+  return (
+    <Helmet>
+      <link rel="canonical" href={`https://atbrand.store${canonicalPath}`} />
+      {noindex && <meta name="robots" content="noindex,follow" />}
+    </Helmet>
+  );
+}
+
 function App() {
   return (
     <Router>
       <ScrollToTop />
+      <RouteMetadata />
       <AuthProvider>
         <BuyProvider>
           <Routes>

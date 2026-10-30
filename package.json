@@ -8,7 +8,7 @@
     "dev": "concurrently --kill-others --raw \"node apps/web/server.js\" \"npm run dev --prefix apps/web\"",
     "dev:web": "npm run dev --prefix apps/web",
     "dev:server": "node apps/web/server.js",
-    "build:local": "cd apps/web && npx vite build --outDir dist",
+    "build:local": "node apps/web/generate-sitemap.js && cd apps/web && npx vite build --outDir dist && node scripts/generate-route-html.js",
     "build": "node -e \"console.log('Production assets ready')\"",
     "deploy": "npm run build:local && node deploy-branch.js",
     "start": "node apps/web/server.js",

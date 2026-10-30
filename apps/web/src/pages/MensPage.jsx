@@ -119,7 +119,7 @@ export default function MensPage() {
     : `Men's Premium Unstitched Suits & Shalwar Kameez | AT BRAND Sargodha`;
 
   const pageDescription = activeTypeFromUrl !== 'all'
-    ? `Buy authentic ${activeTypeFromUrl} unstitched suit fabric in Sargodha, Pakistan. 100% guarantee, fall, and nationwide cash on delivery by AT BRAND.`
+    ? `Browse available ${activeTypeFromUrl} men's unstitched shalwar kameez suits at AT BRAND Sargodha. See current colours and product details, with delivery options across Pakistan.`
     : `Explore premium men's unstitched suits: Ahmad Cotton, Rashid Cotton, Wash & Wear, Boski, and Khaddar at AT BRAND Sargodha. Cash on Delivery nationwide.`;
 
   const canonicalUrl = currentSlug
@@ -171,7 +171,7 @@ export default function MensPage() {
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
-        <meta name="keywords" content="mens unstitched suits Pakistan, unstitched shalwar kameez, Wash and Wear fabric Pakistan, Ahmad cotton Sargodha, Rashid cotton suits, Boski suits Pakistan, mens clothing Sargodha, unstitched suit box price" />
+        <meta name="keywords" content={`${activeTypeFromUrl !== 'all' ? `${activeTypeFromUrl} men's unstitched suits, ` : ''}men's unstitched suits Pakistan, unstitched shalwar kameez, men's clothing Sargodha`} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
@@ -191,10 +191,14 @@ export default function MensPage() {
         <div className="mb-10 text-center">
           <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#C5A880]">Men's Exclusive Collection</p>
           <h1 className="mt-2 font-serif text-3xl font-extrabold tracking-tight text-[#1C3A2B] sm:text-5xl">
-            {activeTypeFromUrl !== 'all' ? `${activeTypeFromUrl} Collection` : 'Premium Unstitched Fabrics'}
+            {activeTypeFromUrl !== 'all'
+              ? `${activeTypeFromUrl} Men's Unstitched Suits`
+              : "Men's Unstitched Shalwar Kameez Suits"}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm font-medium text-slate-700 sm:text-base">
-            Crafted for the modern Pakistani gentleman. Superior drape, breathable pure cottons, and rich seasonal fabrics.
+            {activeTypeFromUrl !== 'all'
+              ? `Browse the current ${activeTypeFromUrl} men's unstitched suit colours and product details below. Check each listing for its latest price and availability, then choose an ordering option for delivery across Pakistan.`
+              : 'Browse current fabric collections, available colours and product details. Check each listing for its latest price and availability, then choose an ordering option for delivery across Pakistan.'}
           </p>
         </div>
 

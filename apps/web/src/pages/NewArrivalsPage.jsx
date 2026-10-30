@@ -33,10 +33,10 @@ export default function NewArrivalsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
-        <title>New Arrivals: Latest Men's Unstitched Shalwar Kameez 2026 | AT BRAND Sargodha</title>
+        <title>New Men's Unstitched Suit Arrivals | AT BRAND Sargodha</title>
         <meta
           name="description"
-          content="Discover new season arrivals in men's unstitched fabrics at AT BRAND. New Rashid Cotton, soft summer wash & wear, and winter cotton collections in Pakistan."
+          content="See the latest additions to AT BRAND's men's unstitched collection, including current fabrics and colours. Browse product details and order online in Pakistan."
         />
         <meta name="keywords" content="new arrivals menswear Pakistan, latest unstitched suits 2026, new shalwar kameez designs, winter cotton suits, AT BRAND new collection" />
         <link rel="canonical" href="https://atbrand.store/new-arrivals" />

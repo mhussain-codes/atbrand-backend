@@ -105,7 +105,7 @@ export default function HomePage() {
         <title>AT BRAND Sargodha | Men's Premium Unstitched Suits & Shalwar Kameez Pakistan</title>
         <meta
           name="description"
-          content="Shop authentic men's premium unstitched suits, Ahmad Cotton, Rashid Cotton, Wash & Wear, Pure Boski, and Winter Khaddar at AT BRAND Sargodha. 3D bespoke tailoring & nationwide Cash on Delivery."
+          content="Shop men's unstitched shalwar kameez suits from AT BRAND in Sargodha. Browse Ahmad Cotton, Rashid Cotton, Wash & Wear, Boski and seasonal fabrics with nationwide delivery options."
         />
         <meta name="keywords" content="AT Brand Sargodha, mens unstitched suits Pakistan, unstitched shalwar kameez, Ahmad Cotton Sargodha, Rashid Cotton suits, Wash and Wear fabric, Boski suits price Pakistan, Winter Khaddar Kamalia, custom stitching tailor online" />
         <link rel="canonical" href="https://atbrand.store/" />

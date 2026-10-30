@@ -14,29 +14,24 @@ const staticRoutes = [
   '/men/khaddar',
   '/men/lattha',
   '/men/karandi',
-  '/women',
-  '/perfumes',
   '/stitching',
   '/new-arrivals',
-  '/track-order',
   '/about',
   '/contact',
   '/size-guide',
   '/shipping-policy',
-  '/return-policy',
-  '/privacy-policy',
-  '/terms'
+  '/return-policy'
 ];
 
+const escapeXml = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
 staticRoutes.forEach(r => {
-  const priority = r === '' ? '1.0' : r.startsWith('/men') || r === '/shop' ? '0.9' : '0.7';
-  xml += `  <url>\n    <loc>${base}${r}</loc>\n    <changefreq>daily</changefreq>\n    <priority>${priority}</priority>\n  </url>\n`;
+  xml += `  <url>\n    <loc>${escapeXml(`${base}${r}`)}</loc>\n  </url>\n`;
 });
 
 PRODUCTS.forEach(p => {
-  xml += `  <url>\n    <loc>${base}/product/${p.id}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+  xml += `  <url>\n    <loc>${escapeXml(`${base}/product/${p.id}`)}</loc>\n  </url>\n`;
 });
 
 xml += '</urlset>\n';

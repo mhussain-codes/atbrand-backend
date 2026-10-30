@@ -31,8 +31,10 @@ jobs:
 
       - name: Build Production Frontend
         run: |
+          node apps/web/generate-sitemap.js
           cd apps/web
           npx vite build --outDir dist
+          node scripts/generate-route-html.js
 
       - name: Deploy to 'deploy' Branch for Hostinger Git
         uses: peaceiris/actions-gh-pages@v4
