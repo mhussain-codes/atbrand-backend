@@ -44,8 +44,8 @@ export const SEO_PAGES = {
     description: "See the latest additions to AT BRAND's men's unstitched collection, including current fabrics and colours. Browse product details and order online in Pakistan.",
   },
   '/stitching': {
-    title: "Custom Shalwar Kameez Stitching in Pakistan | AT BRAND",
-    description: "Explore AT BRAND's custom stitching options for men's shalwar kameez, with an interactive 3D design preview and order details from Sargodha, Pakistan.",
+    title: "Custom Shalwar Kameez Stitching & Online Darzi in Pakistan | AT BRAND",
+    description: "Order custom tailored men's kurta shalwar with interactive design preview. Sherwani ban, cuffs, daman cuts, and master tailoring by AT BRAND Sargodha with Cash on Delivery across Pakistan.",
   },
   '/about': {
     title: "About AT BRAND | Men's Clothing Store in Sargodha",
@@ -68,12 +68,12 @@ export const SEO_PAGES = {
     description: "Review AT BRAND's current return and exchange terms before placing an online order.",
   },
   '/women': {
-    title: "Women's Collection Coming Soon | AT BRAND Sargodha",
-    description: "AT BRAND's women's collection is not available yet. Browse the current men's unstitched suit collection while new products are being prepared.",
+    title: "Women's Unstitched Lawn, Luxury Pret & Traditional Suits | AT BRAND",
+    description: "Discover AT BRAND Women's Collection. Premium unstitched summer lawn, luxury pret, winter khaddar, and festive embroidered suits with Cash on Delivery across Pakistan.",
   },
   '/perfumes': {
-    title: "AT BRAND Perfumes | Coming Soon",
-    description: "AT BRAND perfumes are not available yet. Check back for launch information or browse the current men's unstitched suit collection.",
+    title: "Luxury Perfumes, Attars & Long-Lasting Fragrances in Pakistan | AT BRAND",
+    description: "Explore artisanal non-alcoholic attars, French perfumes, and royal Oud fragrances by AT BRAND Sargodha. Long-lasting scent projection with Cash on Delivery across Pakistan.",
   },
   '/cart': {
     title: "Shopping Cart | AT BRAND",

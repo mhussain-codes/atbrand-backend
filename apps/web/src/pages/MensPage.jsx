@@ -126,6 +126,120 @@ export default function MensPage() {
     ? `https://atbrand.store/men/${currentSlug}`
     : `https://atbrand.store/men`;
 
+  const fabricFaqs = useMemo(() => {
+    if (activeTypeFromUrl === 'Ahmad Cotton') {
+      return [
+        {
+          q: "What makes Ahmad Cotton the best choice for men's unstitched suits in Pakistan?",
+          a: "Ahmad Cotton is woven from fine-count combed cotton yarn that provides crisp collar fall (kadak istari), maximum breathability in summer heat, and natural colorfastness without pilling or burr."
+        },
+        {
+          q: "Which season is Ahmad Cotton ideal for?",
+          a: "Ahmad Cotton is specifically engineered for Pakistani spring, summer, and humid weather due to its lightweight, moisture-wicking natural cotton weave."
+        },
+        {
+          q: "How should I wash and shrink Ahmad Cotton before tailoring?",
+          a: "Always soak the unstitched suit fabric in plain cold water for 2 hours before giving it to your tailor for stitching. Avoid chemical bleach and dry in shaded air."
+        },
+        {
+          q: "Can I get custom tailoring and stitching bundled with Ahmad Cotton?",
+          a: "Yes! AT BRAND provides bespoke custom stitching by master tailors with an interactive 3D fit visualizer for a flat fee of PKR 1,500."
+        }
+      ];
+    }
+    if (activeTypeFromUrl === 'Rashid Cotton') {
+      return [
+        {
+          q: "What is the difference between Rashid Winter Cotton and regular cotton?",
+          a: "Rashid Winter Cotton features a denser, heavier yarn structure that retains body warmth during cold months while maintaining a smooth, structured drape."
+        },
+        {
+          q: "Does Rashid Cotton require starch (Kalaf)?",
+          a: "Rashid Cotton possesses an inherent crisp fall. It holds its collar shape, cuffs, and trouser crease naturally with medium steam ironing."
+        },
+        {
+          q: "How long does delivery take for Rashid Cotton suits across Pakistan?",
+          a: "Orders are dispatched directly from our Sargodha store and delivered within 2 to 4 working days with 100% Cash on Delivery nationwide."
+        }
+      ];
+    }
+    if (activeTypeFromUrl === 'Wash & Wear') {
+      return [
+        {
+          q: "Why is Wash & Wear fabric the most popular men's fabric in Pakistan?",
+          a: "Wash & Wear resists wrinkles throughout the day, requires minimal pressing, dries quickly, and maintains an executive graceful fall through long office and travel hours."
+        },
+        {
+          q: "Can Wash & Wear suits be worn in all 4 seasons?",
+          a: "Yes, AT BRAND's four-season Wash & Wear balances breathable poly-viscose microfibers with soft skin-friendly texture suitable throughout the year."
+        },
+        {
+          q: "Is Wash & Wear suitable for custom sherwani ban and cuff tailoring?",
+          a: "Yes! Wash & Wear holds stiff collar interlining (bukram) cleanly with sharp cuffs and straight paincha fall."
+        }
+      ];
+    }
+    if (activeTypeFromUrl === 'Boski') {
+      return [
+        {
+          q: "What is pure executive Boski fabric?",
+          a: "Boski is a prestigious spun-silk weave revered across Pakistan for wedding ceremonies, Eid, and formal gatherings, offering featherweight softness and creamy ivory luster."
+        },
+        {
+          q: "How to identify original Boski from synthetic copies?",
+          a: "Original Boski features a distinct cool silk touch, natural fluid drape without stiffness, and a rich matte sheen without synthetic shine."
+        },
+        {
+          q: "How should Boski suits be washed and maintained?",
+          a: "Dry cleaning or gentle hand wash with mild silk detergent is recommended. Always iron slightly damp on a silk/low temperature setting."
+        }
+      ];
+    }
+    if (activeTypeFromUrl === 'Khaddar') {
+      return [
+        {
+          q: "What makes Kamalia Winter Khaddar unique?",
+          a: "Woven on traditional looms from thick-twist natural cotton yarn, genuine Khaddar offers unmatched heritage texture, wind resistance, and winter warmth."
+        },
+        {
+          q: "Does winter Khaddar shrink after washing?",
+          a: "Yes, natural handloom khaddar can shrink 1 to 2 inches; always soak and shrink thoroughly in water prior to cutting and stitching."
+        }
+      ];
+    }
+    return [
+      {
+        q: "What is the standard cutting size for AT BRAND men's unstitched suits?",
+        a: "Every men's unstitched suit comes in a generous 4.0 to 4.25-meter standard cutting with full 54-inch width (arzz), suitable for heights up to 6'2\" with ample cloth for shalwar kameez or kurta pajama."
+      },
+      {
+        q: "Which fabric is best for daily wear: Ahmad Cotton or Wash & Wear?",
+        a: "For hot summer days, pure Ahmad Cotton is unmatched for cooling breathability. For busy office and daily routines where wrinkle-resistance is needed, Wash & Wear is ideal."
+      },
+      {
+        q: "How does online custom tailoring work at AT BRAND?",
+        a: "You can enter your exact length, chest, shoulder, and shalwar dimensions into our interactive 3D tailoring visualizer; our Sargodha master tailors cut and stitch your suit for flat PKR 1,500."
+      },
+      {
+        q: "Does AT BRAND offer a 100% color and fabric guarantee?",
+        a: "Yes, every suit comes with a 100% genuine fabric guarantee, colorfastness warranty, and a 7-day easy return policy with Cash on Delivery across Pakistan."
+      }
+    ];
+  }, [activeTypeFromUrl]);
+
+  const faqJsonLd = useMemo(() => ({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': fabricFaqs.map(f => ({
+      '@type': 'Question',
+      'name': f.q,
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': f.a
+      }
+    }))
+  }), [fabricFaqs]);
+
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -180,6 +294,9 @@ export default function MensPage() {
         </script>
         <script type="application/ld+json">
           {JSON.stringify(collectionJsonLd)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(faqJsonLd)}
         </script>
       </Helmet>
 
@@ -352,6 +469,36 @@ export default function MensPage() {
             </button>
           </div>
         )}
+        {/* People Also Ask / High-Intent Q&A Section */}
+        {fabricFaqs && fabricFaqs.length > 0 && (
+          <div className="mt-12 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#C5A880]">
+              Sawal Jawab (Frequently Asked Questions)
+            </span>
+            <h2 className="mt-2 font-serif text-2xl font-bold text-[#1C3A2B]">
+              {activeTypeFromUrl !== 'all'
+                ? `${activeTypeFromUrl} Suits — Ahem Sawalat Aur Jawabat`
+                : "Men's Unstitched Fabrics — Essential Q&A"}
+            </h2>
+            <div className="mt-6 space-y-3.5">
+              {fabricFaqs.map((faq, idx) => (
+                <details
+                  key={idx}
+                  className="group rounded-2xl border border-slate-200/80 p-4 transition open:border-[#1C3A2B]/40 open:bg-slate-50/60"
+                >
+                  <summary className="flex cursor-pointer items-center justify-between font-semibold text-xs sm:text-sm text-slate-800">
+                    <span className="pr-4">{faq.q}</span>
+                    <ChevronDown className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <p className="mt-3 text-xs sm:text-sm leading-relaxed text-slate-600">
+                    {faq.a}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Product and service guidance */}
         <div className="mt-16 rounded-2xl border border-slate-200 bg-slate-50/50 p-6 sm:p-8">
           <h2 className="font-serif text-lg font-bold text-[#1C3A2B] sm:text-xl">

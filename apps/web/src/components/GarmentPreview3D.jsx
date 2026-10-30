@@ -24,8 +24,8 @@ export default function GarmentPreview3D({
   const [activeView, setActiveView] = useState('front');
   const [isDragging, setIsDragging] = useState(false);
 
-  const targetRotation = useRef({ x: 0.05, y: 0 });
-  const currentRotation = useRef({ x: 0.05, y: 0 });
+  const targetRotation = useRef({ x: 0.04, y: 0 });
+  const currentRotation = useRef({ x: 0.04, y: 0 });
   const pointerPos = useRef({ x: 0, y: 0 });
 
   // Measurement normalization
@@ -42,7 +42,6 @@ export default function GarmentPreview3D({
   const mSleeve = toInches(measurements.sleeveLength, 24);
   const mDaman = toInches(measurements.damanWidth, 23);
   const sLength = toInches(measurements.shalwarLength, 39);
-  const sBottom = toInches(measurements.shalwarBottom, 8.5);
 
   const PRESET_COLORS = [
     { label: 'Royal Green', hex: '#1C3A2B' },
@@ -57,10 +56,10 @@ export default function GarmentPreview3D({
   const setViewAngle = (view) => {
     setActiveView(view);
     setAutoRotate(false);
-    if (view === 'front') targetRotation.current = { x: 0.05, y: 0 };
-    else if (view === 'side') targetRotation.current = { x: 0.05, y: Math.PI / 2 };
-    else if (view === 'back') targetRotation.current = { x: 0.05, y: Math.PI };
-    else if (view === '3/4') targetRotation.current = { x: 0.12, y: Math.PI / 4 };
+    if (view === 'front') targetRotation.current = { x: 0.04, y: 0 };
+    else if (view === 'side') targetRotation.current = { x: 0.04, y: Math.PI / 2 };
+    else if (view === 'back') targetRotation.current = { x: 0.04, y: Math.PI };
+    else if (view === '3/4') targetRotation.current = { x: 0.08, y: Math.PI / 4 };
   };
 
   useEffect(() => {
@@ -73,8 +72,8 @@ export default function GarmentPreview3D({
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
-    camera.position.set(0, 0.35, 6.4);
+    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
+    camera.position.set(0, 0.2, 5.8);
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -83,41 +82,41 @@ export default function GarmentPreview3D({
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.toneMappingExposure = 1.1;
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Realistic Tailoring Studio Lighting
-    const ambientLight = new THREE.AmbientLight(0xfffbf5, 1.2);
+    // Realistic Atelier Lighting
+    const ambientLight = new THREE.AmbientLight(0xfffcf5, 1.3);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xfff8ee, 1.6);
-    keyLight.position.set(3.5, 5, 4.5);
+    const keyLight = new THREE.DirectionalLight(0xfff5e6, 1.8);
+    keyLight.position.set(3, 4, 4);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.width = 1024;
     keyLight.shadow.mapSize.height = 1024;
-    keyLight.shadow.bias = -0.0005;
+    keyLight.shadow.bias = -0.0004;
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xdbe8ff, 0.8);
-    fillLight.position.set(-3.5, 2.5, 2.5);
+    const fillLight = new THREE.DirectionalLight(0xdbe8ff, 0.9);
+    fillLight.position.set(-3, 2, 3);
     scene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0xffe8cf, 0.9);
+    const rimLight = new THREE.DirectionalLight(0xffe8cf, 1.0);
     rimLight.position.set(0, 3, -4);
     scene.add(rimLight);
 
     // Warm floor shadow disc
-    const shadowGeo = new THREE.CircleGeometry(1.6, 48);
+    const shadowGeo = new THREE.CircleGeometry(1.4, 48);
     const shadowMat = new THREE.MeshBasicMaterial({
       color: 0x000000,
       transparent: true,
-      opacity: 0.15
+      opacity: 0.14
     });
     const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
     shadowMesh.rotation.x = -Math.PI / 2;
-    shadowMesh.position.y = -2.68;
+    shadowMesh.position.y = -2.55;
     scene.add(shadowMesh);
 
     // Master Group
@@ -130,7 +129,7 @@ export default function GarmentPreview3D({
       animFrameIdRef.current = requestAnimationFrame(animate);
 
       if (autoRotate && !isDragging) {
-        targetRotation.current.y += 0.005;
+        targetRotation.current.y += 0.004;
       }
 
       currentRotation.current.x += (targetRotation.current.x - currentRotation.current.x) * 0.08;
@@ -210,94 +209,89 @@ export default function GarmentPreview3D({
       mannequinGroup.remove(obj);
     }
 
-    // High quality materials
+    // High quality bespoke materials
+    const fabricColor = new THREE.Color(color);
     const fabricMat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(color),
-      roughness: 0.72,
-      metalness: 0.04
+      color: fabricColor,
+      roughness: 0.76,
+      metalness: 0.05
     });
 
     const fabricBackMat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(color).clone().multiplyScalar(0.75),
+      color: fabricColor.clone().multiplyScalar(0.72),
       roughness: 0.85,
       side: THREE.BackSide
     });
 
-    const darkWalnutMat = new THREE.MeshStandardMaterial({
-      color: 0x24160e,
-      roughness: 0.45,
-      metalness: 0.15
-    });
-
-    const antiqueBrassMat = new THREE.MeshStandardMaterial({
-      color: 0xc5a880,
-      roughness: 0.3,
-      metalness: 0.85
-    });
-
-    const buttonMat = buttons === 'metal' ? antiqueBrassMat : new THREE.MeshStandardMaterial({
-      color: 0x1f1f1f,
-      roughness: 0.5,
+    const walnutWoodMat = new THREE.MeshStandardMaterial({
+      color: 0x2b1810,
+      roughness: 0.4,
       metalness: 0.1
     });
 
-    // Scaling ratios from human base
-    const chestScale = THREE.MathUtils.clamp(mChest / 42, 0.85, 1.25);
-    const waistScale = THREE.MathUtils.clamp(mWaist / 38, 0.85, 1.25);
-    const shoulderScale = THREE.MathUtils.clamp(mShoulder / 18, 0.85, 1.2);
-    const damanScale = THREE.MathUtils.clamp(mDaman / 23, 0.85, 1.25);
-    const lengthScale = THREE.MathUtils.clamp(kLength / 40, 0.88, 1.2);
-    const sleeveScale = THREE.MathUtils.clamp(mSleeve / 24, 0.85, 1.15);
-    const shalwarScale = THREE.MathUtils.clamp(sLength / 39, 0.85, 1.2);
+    const polishedBrassMat = new THREE.MeshStandardMaterial({
+      color: 0xd4af37,
+      roughness: 0.25,
+      metalness: 0.88
+    });
 
-    // 1. Classic Tailor's Wooden Stand (Ground to Bottom)
-    // Pedestal Base
-    const baseGeo = new THREE.CylinderGeometry(0.85, 0.95, 0.12, 36);
-    const baseMesh = new THREE.Mesh(baseGeo, darkWalnutMat);
-    baseMesh.position.y = -2.62;
+    const buttonMat = buttons === 'metal' ? polishedBrassMat : new THREE.MeshStandardMaterial({
+      color: 0x1a1a1a,
+      roughness: 0.5,
+      metalness: 0.05
+    });
+
+    // Scaling factors based on customer measurements
+    const chestScale = THREE.MathUtils.clamp(mChest / 42, 0.88, 1.2);
+    const waistScale = THREE.MathUtils.clamp(mWaist / 38, 0.88, 1.2);
+    const shoulderScale = THREE.MathUtils.clamp(mShoulder / 18, 0.88, 1.15);
+    const damanScale = THREE.MathUtils.clamp(mDaman / 23, 0.88, 1.2);
+    const lengthScale = THREE.MathUtils.clamp(kLength / 40, 0.9, 1.18);
+    const shalwarScale = THREE.MathUtils.clamp(sLength / 39, 0.9, 1.18);
+
+    // 1. Bespoke Atelier Stand (Turned Mahogany & Brushed Brass)
+    const baseGeo = new THREE.CylinderGeometry(0.75, 0.85, 0.1, 36);
+    const baseMesh = new THREE.Mesh(baseGeo, walnutWoodMat);
+    baseMesh.position.y = -2.5;
     mannequinGroup.add(baseMesh);
 
-    // Brass Base Collar
-    const baseCollarGeo = new THREE.CylinderGeometry(0.18, 0.28, 0.1, 24);
-    const baseCollar = new THREE.Mesh(baseCollarGeo, antiqueBrassMat);
-    baseCollar.position.y = -2.52;
-    mannequinGroup.add(baseCollar);
+    const brassCollarGeo = new THREE.CylinderGeometry(0.14, 0.22, 0.08, 24);
+    const brassCollar = new THREE.Mesh(brassCollarGeo, polishedBrassMat);
+    brassCollar.position.y = -2.42;
+    mannequinGroup.add(brassCollar);
 
-    // Turned Wooden Stand Pole
-    const poleGeo = new THREE.CylinderGeometry(0.065, 0.065, 2.5, 20);
-    const pole = new THREE.Mesh(poleGeo, darkWalnutMat);
+    const poleGeo = new THREE.CylinderGeometry(0.05, 0.05, 2.3, 20);
+    const pole = new THREE.Mesh(poleGeo, walnutWoodMat);
     pole.position.y = -1.25;
     mannequinGroup.add(pole);
 
-    // 2. Realistic Dress Form / Torso Mannequin (Inner Structure)
-    // Neck Cap Finial (Turned Walnut & Brass Crown)
-    const finialCrownGeo = new THREE.CylinderGeometry(0.24, 0.26, 0.18, 32);
-    const finialCrown = new THREE.Mesh(finialCrownGeo, antiqueBrassMat);
-    finialCrown.position.y = 1.82;
+    // 2. Tailor's Dress Form Finial & Neck (Savile Row Crown)
+    const finialCrownGeo = new THREE.CylinderGeometry(0.2, 0.23, 0.14, 32);
+    const finialCrown = new THREE.Mesh(finialCrownGeo, polishedBrassMat);
+    finialCrown.position.y = 1.76;
     mannequinGroup.add(finialCrown);
 
-    const finialKnobGeo = new THREE.SphereGeometry(0.12, 24, 24);
-    const finialKnob = new THREE.Mesh(finialKnobGeo, darkWalnutMat);
-    finialKnob.position.y = 1.95;
+    const finialKnobGeo = new THREE.SphereGeometry(0.1, 24, 24);
+    const finialKnob = new THREE.Mesh(finialKnobGeo, walnutWoodMat);
+    finialKnob.position.y = 1.88;
     mannequinGroup.add(finialKnob);
 
     // Mannequin Inner Neck
-    const innerNeckGeo = new THREE.CylinderGeometry(0.28 * shoulderScale, 0.32 * shoulderScale, 0.35, 32);
-    const innerNeck = new THREE.Mesh(innerNeckGeo, darkWalnutMat);
-    innerNeck.position.y = 1.62;
+    const innerNeckGeo = new THREE.CylinderGeometry(0.24 * shoulderScale, 0.28 * shoulderScale, 0.32, 32);
+    const innerNeck = new THREE.Mesh(innerNeckGeo, walnutWoodMat);
+    innerNeck.position.y = 1.58;
     mannequinGroup.add(innerNeck);
 
-    // 3. Anatomical Kurta Body (Realistic Tailored Cut)
-    const kurtaHeight = 2.4 * lengthScale;
-    const chestR = 0.68 * chestScale;
-    const waistR = 0.60 * waistScale;
-    const damanR = 0.76 * damanScale;
+    // 3. Tailored Kurta Torso with smooth natural shoulder contours
+    const kurtaHeight = 2.35 * lengthScale;
+    const chestR = 0.65 * chestScale;
+    const waistR = 0.58 * waistScale;
+    const damanR = 0.74 * damanScale;
 
-    // Build smooth contoured torso using tapered multi-segmented geometry
-    const bodySegments = 36;
-    const bodyHeightSegments = 24;
+    const bodySegments = 40;
+    const bodyHeightSegments = 28;
     const bodyGeo = new THREE.CylinderGeometry(
-      chestR * 0.94, // top neck opening
+      chestR * 0.92, // top neck opening
       damanR,        // bottom hem
       kurtaHeight,
       bodySegments,
@@ -308,40 +302,39 @@ export default function GarmentPreview3D({
     const pos = bodyGeo.attributes.position;
     for (let i = 0; i < pos.count; i++) {
       const y = pos.getY(i);
-      const normY = (y + kurtaHeight / 2) / kurtaHeight; // 0 = bottom hem, 1 = neck/shoulder
+      const normY = (y + kurtaHeight / 2) / kurtaHeight; // 0 = bottom hem, 1 = top
 
-      // Apply realistic torso shape: Broad chest -> Gentle waist curve -> Graceful A-line Daman flare
       let radiusMultiplier = 1.0;
-      if (normY > 0.65) {
+      if (normY > 0.68) {
         // Shoulder to Chest taper
-        const t = (normY - 0.65) / 0.35;
-        radiusMultiplier = THREE.MathUtils.lerp(chestR, chestR * 0.94, t) / chestR;
-      } else if (normY > 0.35) {
+        const t = (normY - 0.68) / 0.32;
+        radiusMultiplier = THREE.MathUtils.lerp(chestR, chestR * 0.92, t) / chestR;
+      } else if (normY > 0.38) {
         // Chest to Waist
-        const t = (normY - 0.35) / 0.30;
+        const t = (normY - 0.38) / 0.30;
         radiusMultiplier = THREE.MathUtils.lerp(waistR, chestR, t) / chestR;
       } else {
         // Waist to Daman flare
-        const t = normY / 0.35;
+        const t = normY / 0.38;
         radiusMultiplier = THREE.MathUtils.lerp(damanR, waistR, t) / chestR;
       }
 
       pos.setX(i, pos.getX(i) * radiusMultiplier);
 
-      // Anatomical body depth flattening: Men's bodies are wider across than front-to-back
-      pos.setZ(i, pos.getZ(i) * radiusMultiplier * 0.66);
+      // Anatomical depth flattening: chest is wider across than deep
+      pos.setZ(i, pos.getZ(i) * radiusMultiplier * 0.64);
 
-      // Natural Round Daman (Gool Daman) smooth curve
+      // Natural Round Daman (Gool Daman) curve
       if (daman === 'round' && normY < 0.12) {
         const xVal = pos.getX(i);
-        const curveArc = (1 - (xVal * xVal) / (damanR * damanR)) * 0.14;
+        const curveArc = (1 - (xVal * xVal) / (damanR * damanR)) * 0.13;
         pos.setY(i, y + Math.max(0, curveArc));
       }
     }
     bodyGeo.computeVertexNormals();
 
     const kurtaBody = new THREE.Mesh(bodyGeo, fabricMat);
-    kurtaBody.position.y = 0.42 - (kurtaHeight - 2.4) * 0.45;
+    kurtaBody.position.y = 0.38 - (kurtaHeight - 2.35) * 0.45;
     kurtaBody.castShadow = true;
     kurtaBody.receiveShadow = true;
     mannequinGroup.add(kurtaBody);
@@ -350,127 +343,128 @@ export default function GarmentPreview3D({
     kurtaInside.position.copy(kurtaBody.position);
     mannequinGroup.add(kurtaInside);
 
-    // 4. Natural Resting Sleeves (Draping naturally along body sides)
-    const sleeveLen = 1.65 * sleeveScale;
-    const sleeveTopR = 0.22 * chestScale;
-    const sleeveBottomR = 0.16;
+    // 4. Atelier Sartorial Shoulder Caps (Classic Bespoke Tailor Finish)
+    const capGeo = new THREE.SphereGeometry(0.24, 24, 16);
+    capGeo.scale(1, 0.45, 0.7);
 
-    const sleeveGeo = new THREE.CylinderGeometry(sleeveTopR, sleeveBottomR, sleeveLen, 24);
+    const leftCap = new THREE.Mesh(capGeo, walnutWoodMat);
+    leftCap.position.set(-0.74 * shoulderScale, 1.34, 0);
+    mannequinGroup.add(leftCap);
 
-    // Left Sleeve - Naturally hanging with slight relaxed bend
+    const rightCap = new THREE.Mesh(capGeo, walnutWoodMat);
+    rightCap.position.set(0.74 * shoulderScale, 1.34, 0);
+    mannequinGroup.add(rightCap);
+
+    // 5. Natural Draping Sleeves (Resting naturally downwards along sides)
+    const sleeveLen = 1.55;
+    const sleeveGeo = new THREE.CylinderGeometry(0.2, 0.15, sleeveLen, 24);
+
     const leftSleeve = new THREE.Mesh(sleeveGeo, fabricMat);
-    leftSleeve.position.set(-0.76 * shoulderScale, 0.62 - sleeveLen * 0.48, 0);
-    leftSleeve.rotation.z = 0.08; // Relaxed natural hang
-    leftSleeve.rotation.x = 0.04;
+    leftSleeve.position.set(-0.76 * shoulderScale, 1.25 - sleeveLen / 2, 0);
+    leftSleeve.rotation.z = 0.05;
     leftSleeve.castShadow = true;
     mannequinGroup.add(leftSleeve);
 
-    // Right Sleeve - Naturally hanging
     const rightSleeve = new THREE.Mesh(sleeveGeo, fabricMat);
-    rightSleeve.position.set(0.76 * shoulderScale, 0.62 - sleeveLen * 0.48, 0);
-    rightSleeve.rotation.z = -0.08;
-    rightSleeve.rotation.x = 0.04;
+    rightSleeve.position.set(0.76 * shoulderScale, 1.25 - sleeveLen / 2, 0);
+    rightSleeve.rotation.z = -0.05;
     rightSleeve.castShadow = true;
     mannequinGroup.add(rightSleeve);
 
-    // 5. Cuffs (If Cuff option chosen)
+    // 6. Cuffs (If Cuff option chosen)
     if (sleeves === 'cuff') {
-      const cuffGeo = new THREE.CylinderGeometry(sleeveBottomR + 0.015, sleeveBottomR + 0.015, 0.18, 24);
+      const cuffGeo = new THREE.CylinderGeometry(0.165, 0.165, 0.16, 24);
 
       const leftCuff = new THREE.Mesh(cuffGeo, fabricMat);
-      leftCuff.position.set(-0.81 * shoulderScale, 0.62 - sleeveLen * 0.96, 0);
-      leftCuff.rotation.z = 0.08;
+      leftCuff.position.set(-0.77 * shoulderScale, 1.25 - sleeveLen + 0.08, 0);
       mannequinGroup.add(leftCuff);
 
       const rightCuff = new THREE.Mesh(cuffGeo, fabricMat);
-      rightCuff.position.set(0.81 * shoulderScale, 0.62 - sleeveLen * 0.96, 0);
-      rightCuff.rotation.z = -0.08;
+      rightCuff.position.set(0.77 * shoulderScale, 1.25 - sleeveLen + 0.08, 0);
       mannequinGroup.add(rightCuff);
 
-      // Delicate Cuff Buttons
-      const cuffBtnGeo = new THREE.CylinderGeometry(0.024, 0.024, 0.02, 16);
+      // Small Cuff Buttons
+      const cuffBtnGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.02, 16);
       cuffBtnGeo.rotateX(Math.PI / 2);
 
       const leftBtn = new THREE.Mesh(cuffBtnGeo, buttonMat);
-      leftBtn.position.set(-0.81 * shoulderScale, 0.62 - sleeveLen * 0.96, 0.18);
+      leftBtn.position.set(-0.77 * shoulderScale, 1.25 - sleeveLen + 0.08, 0.17);
       mannequinGroup.add(leftBtn);
 
       const rightBtn = new THREE.Mesh(cuffBtnGeo, buttonMat);
-      rightBtn.position.set(0.81 * shoulderScale, 0.62 - sleeveLen * 0.96, 0.18);
+      rightBtn.position.set(0.77 * shoulderScale, 1.25 - sleeveLen + 0.08, 0.17);
       mannequinGroup.add(rightBtn);
     }
 
-    // 6. Realistic Collar / Ban
+    // 7. Ban / Collar
     if (collar === 'sherwani') {
-      // Elegant High Sherwani Ban Collar
-      const banGeo = new THREE.CylinderGeometry(0.31 * shoulderScale, 0.33 * shoulderScale, 0.24, 32, 1, true);
+      const banGeo = new THREE.CylinderGeometry(0.28 * shoulderScale, 0.30 * shoulderScale, 0.22, 32, 1, true);
       const ban = new THREE.Mesh(banGeo, fabricMat);
-      ban.position.y = 1.54;
+      ban.position.y = 1.50;
       mannequinGroup.add(ban);
     } else if (collar === 'shirt') {
-      // Classic Folded Collar
-      const bandGeo = new THREE.CylinderGeometry(0.31 * shoulderScale, 0.33 * shoulderScale, 0.18, 32, 1, true);
+      const bandGeo = new THREE.CylinderGeometry(0.28 * shoulderScale, 0.30 * shoulderScale, 0.16, 32, 1, true);
       const band = new THREE.Mesh(bandGeo, fabricMat);
-      band.position.y = 1.52;
+      band.position.y = 1.48;
       mannequinGroup.add(band);
 
-      // Folded Collar Leaves
-      const leafGeo = new THREE.BoxGeometry(0.22, 0.14, 0.03);
+      // Folded Collar Wings
+      const leafGeo = new THREE.BoxGeometry(0.2, 0.12, 0.025);
       const leftLeaf = new THREE.Mesh(leafGeo, fabricMat);
-      leftLeaf.position.set(-0.16, 1.44, 0.28);
+      leftLeaf.position.set(-0.14, 1.40, 0.26);
       leftLeaf.rotation.set(-0.25, 0.35, -0.3);
       mannequinGroup.add(leftLeaf);
 
       const rightLeaf = new THREE.Mesh(leafGeo, fabricMat);
-      rightLeaf.position.set(0.16, 1.44, 0.28);
+      rightLeaf.position.set(0.14, 1.40, 0.26);
       rightLeaf.rotation.set(-0.25, -0.35, 0.3);
       mannequinGroup.add(rightLeaf);
     } else {
       // Soft Mandarin Round Ban
-      const roundBanGeo = new THREE.TorusGeometry(0.32 * shoulderScale, 0.045, 16, 32);
+      const roundBanGeo = new THREE.TorusGeometry(0.29 * shoulderScale, 0.04, 16, 32);
       roundBanGeo.rotateX(Math.PI / 2);
       const roundBan = new THREE.Mesh(roundBanGeo, fabricMat);
-      roundBan.position.y = 1.51;
+      roundBan.position.y = 1.48;
       mannequinGroup.add(roundBan);
     }
 
-    // 7. Stitched Front Patti (Placket) & Luxury Buttons
-    const pattiLen = 1.05;
-    const pattiGeo = new THREE.BoxGeometry(0.09, pattiLen, 0.015);
+    // 8. Stitched Front Patti (Placket) & Luxury Buttons
+    const pattiLen = 0.98;
+    const pattiGeo = new THREE.BoxGeometry(0.08, pattiLen, 0.015);
     const patti = new THREE.Mesh(pattiGeo, fabricMat);
-    patti.position.set(0, 1.05, (chestR * 0.66) + 0.01);
+    patti.position.set(0, 1.02, (chestR * 0.64) + 0.01);
     mannequinGroup.add(patti);
 
     // Front Buttons
-    const btnGeo = new THREE.CylinderGeometry(0.024, 0.024, 0.02, 16);
+    const btnGeo = new THREE.CylinderGeometry(0.022, 0.022, 0.02, 16);
     btnGeo.rotateX(Math.PI / 2);
 
     for (let b = 0; b < 4; b++) {
       const btn = new THREE.Mesh(btnGeo, buttonMat);
-      const btnY = 1.42 - b * (pattiLen / 4.2);
-      btn.position.set(0, btnY, (chestR * 0.66) + 0.022);
+      const btnY = 1.36 - b * (pattiLen / 4.1);
+      btn.position.set(0, btnY, (chestR * 0.64) + 0.022);
       mannequinGroup.add(btn);
     }
 
-    // 8. Lower Shalwar (Matching Fall & Drape)
-    const legLen = 1.35 * shalwarScale;
-    const legGeo = new THREE.CylinderGeometry(0.32 * waistScale, 0.16 * (sBottom / 8.5), legLen, 24);
+    // 9. Lower Shalwar (Matching Fall)
+    const legLen = 1.25 * shalwarScale;
+    const legGeo = new THREE.CylinderGeometry(0.29 * waistScale, 0.15, legLen, 24);
 
     const leftLeg = new THREE.Mesh(legGeo, fabricMat);
-    leftLeg.position.set(-0.24, -0.88 - (kurtaHeight - 2.4) * 0.4 - legLen * 0.46, 0);
+    leftLeg.position.set(-0.22, -0.85 - (kurtaHeight - 2.35) * 0.4 - legLen * 0.45, 0);
     leftLeg.castShadow = true;
     mannequinGroup.add(leftLeg);
 
     const rightLeg = new THREE.Mesh(legGeo, fabricMat);
-    rightLeg.position.set(0.24, -0.88 - (kurtaHeight - 2.4) * 0.4 - legLen * 0.46, 0);
+    rightLeg.position.set(0.22, -0.85 - (kurtaHeight - 2.35) * 0.4 - legLen * 0.45, 0);
     rightLeg.castShadow = true;
     mannequinGroup.add(rightLeg);
 
-  }, [kLength, mChest, mWaist, mShoulder, mSleeve, mDaman, sLength, sBottom, collar, neckline, sleeves, daman, buttons, color]);
+  }, [kLength, mChest, mWaist, mShoulder, mSleeve, mDaman, sLength, collar, neckline, sleeves, daman, buttons, color]);
 
   return (
-    <div className="relative flex flex-col rounded-3xl border border-slate-200/80 bg-gradient-to-b from-[#FCFBF8] via-[#F7F4EE] to-[#EFEBE3] p-4 sm:p-5 shadow-lg overflow-hidden">
-      {/* Header Bar with Clear Plain Wording */}
+    <div className="relative flex flex-col rounded-3xl border border-slate-200/90 bg-gradient-to-b from-[#FCFBF8] via-[#F7F4EE] to-[#EFEBE3] p-4 sm:p-5 shadow-lg overflow-hidden">
+      {/* Header Bar with Simple, Natural Wording */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/70 pb-3 mb-2">
         <div className="flex items-center gap-2">
           <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-600 animate-pulse" />
@@ -506,10 +500,10 @@ export default function GarmentPreview3D({
       >
         <div ref={containerRef} className="h-full w-full" />
 
-        {/* Simple & Clean Measurement Box */}
+        {/* Simple & Clean Measurement Box in Plain Urdu/English */}
         <div className="absolute top-2 left-2 flex flex-col gap-1 pointer-events-none">
           <div className="rounded-2xl bg-black/80 backdrop-blur-md px-3.5 py-2 text-white shadow-xl border border-white/10">
-            <p className="text-[10px] font-black uppercase tracking-wider text-[#C5A880]">Aapka Size (Measurements)</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-[#C5A880]">Aapka Naap (Measurements)</p>
             <div className="mt-1 space-y-0.5 text-xs font-medium">
               <p>Lambai: <span className="font-bold text-emerald-400">{measurements.kurtaLength || 40} {unit}</span></p>
               <p>Chhati: <span className="font-bold text-emerald-400">{measurements.chest || 42} {unit}</span></p>
@@ -525,7 +519,7 @@ export default function GarmentPreview3D({
             {collar === 'sherwani' ? 'Sherwani Ban' : collar === 'shirt' ? 'Shirt Collar' : 'Gool Ban'}
           </span>
           <span className="rounded-xl bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm border border-slate-200">
-            {sleeves === 'cuff' ? 'Kaf Bazu (Cuffs)' : 'Seedha Bazu (Open)'}
+            {sleeves === 'cuff' ? 'Kaf Bazu' : 'Seedha Bazu'}
           </span>
           <span className="rounded-xl bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm border border-slate-200">
             {daman === 'round' ? 'Gool Daman' : 'Chakor Daman'}

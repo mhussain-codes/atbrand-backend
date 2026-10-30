@@ -230,6 +230,45 @@ export default function StitchingPage() {
     'description': "Precision Pakistani master tailoring for men's unstitched suits. Sherwani ban, shirt collars, French cuffs, round and square daman with nationwide cash on delivery."
   };
 
+  const stitchingFaqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': [
+      {
+        '@type': 'Question',
+        'name': 'How does online custom suit stitching work at AT BRAND?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': "You enter your personal measurements (length, chest, shoulder, bazu, ghera, and shalwar), select your ban, sleeve, and daman preferences, and our master tailors in Sargodha cut and stitch your suit with precision before dispatching via Cash on Delivery."
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'What is the stitching fee for men\'s unstitched suits?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': "AT BRAND charges a transparent flat fee of PKR 1,500 for master tailoring, including premium bukram interlining, stitching thread, and button accessories."
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'Can I send my own fabric or bundle stitching with an unstitched suit?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': "Yes! You can bundle custom stitching with any unstitched suit from our collection, or place a custom stitching request for your own fabric."
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'How long does delivery take for custom stitched suits in Pakistan?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': "Custom tailoring takes 4 to 6 business days for master cutting and finishing, followed by 2 to 3 days courier transit to any city in Pakistan with Cash on Delivery."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
@@ -246,6 +285,9 @@ export default function StitchingPage() {
         </script>
         <script type="application/ld+json">
           {JSON.stringify(stitchingServiceSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(stitchingFaqSchema)}
         </script>
       </Helmet>
 
@@ -324,18 +366,6 @@ export default function StitchingPage() {
               <div className="flex items-center gap-1.5 rounded-full bg-muted p-1 border border-border">
                 <button
                   type="button"
-                  onClick={() => setViewMode('3d')}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition ${
-                    viewMode === '3d'
-                      ? 'bg-[#1C3A2B] text-white shadow'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <Sparkles className="h-3.5 w-3.5 text-[#C5A880]" />
-                  <span>3D Suit Model</span>
-                </button>
-                <button
-                  type="button"
                   onClick={() => setViewMode('2d')}
                   className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition ${
                     viewMode === '2d'
@@ -344,7 +374,19 @@ export default function StitchingPage() {
                   }`}
                 >
                   <Layers className="h-3.5 w-3.5" />
-                  <span>2D Pattern</span>
+                  <span>Asli Suit Design</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('3d')}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition ${
+                    viewMode === '3d'
+                      ? 'bg-[#1C3A2B] text-white shadow'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-[#C5A880]" />
+                  <span>3D Model (360°)</span>
                 </button>
               </div>
             </div>
@@ -690,37 +732,47 @@ export default function StitchingPage() {
             <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
               <span className="text-[10px] font-black uppercase tracking-widest text-[#C5A880]">Frequently Asked Questions</span>
               <h2 className="mt-2 font-serif text-2xl font-bold text-[#1C3A2B]">
-                Tailoring &amp; Fit FAQs
+                Suit Silai Ke Ahem Sawalat (Tailoring FAQs)
               </h2>
 
               <div className="mt-5 space-y-3">
                 <details className="group rounded-2xl border border-slate-200 p-4 transition open:bg-slate-50/50">
                   <summary className="flex cursor-pointer items-center justify-between font-semibold text-xs sm:text-sm text-slate-800">
-                    <span>How accurate is the 3D Silhouette preview?</span>
+                    <span>How does online custom suit stitching work at AT BRAND?</span>
                     <ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" />
                   </summary>
                   <p className="mt-2.5 text-xs text-slate-600 leading-relaxed">
-                    The 3D mannequin scales dynamically according to your chest, waist, length, and daman width inputs so you can visualize the garment proportions, collar style, and cuff shape before our tailors cut the fabric.
+                    You enter your personal measurements (length, chest, shoulder, bazu, ghera, and shalwar), select your ban, sleeve, and daman preferences, and our master tailors in Sargodha cut and stitch your suit with precision before dispatching via Cash on Delivery.
                   </p>
                 </details>
 
                 <details className="group rounded-2xl border border-slate-200 p-4 transition open:bg-slate-50/50">
                   <summary className="flex cursor-pointer items-center justify-between font-semibold text-xs sm:text-sm text-slate-800">
-                    <span>What is the standard turnaround time?</span>
+                    <span>What is the stitching fee for men's unstitched suits?</span>
                     <ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" />
                   </summary>
                   <p className="mt-2.5 text-xs text-slate-600 leading-relaxed">
-                    Custom stitching requires an additional 4 to 6 business days before courier delivery. Delivery time depends on destination; see our <Link to="/shipping-policy" className="font-semibold text-[#1C3A2B] underline">shipping and delivery policy</Link> for the current estimates.
+                    AT BRAND charges a transparent flat fee of PKR 1,500 for master tailoring, including premium bukram interlining, stitching thread, and button accessories.
                   </p>
                 </details>
 
                 <details className="group rounded-2xl border border-slate-200 p-4 transition open:bg-slate-50/50">
                   <summary className="flex cursor-pointer items-center justify-between font-semibold text-xs sm:text-sm text-slate-800">
-                    <span>Can I request extra pockets or custom styling?</span>
+                    <span>Can I send my own fabric or bundle stitching with an unstitched suit?</span>
                     <ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" />
                   </summary>
                   <p className="mt-2.5 text-xs text-slate-600 leading-relaxed">
-                    Yes! You can specify hidden zipper pockets, double chest pockets, or custom button spacing in the "Special Instructions / Tailoring Notes" field above.
+                    Yes! You can bundle custom stitching with any unstitched suit from our collection, or place a custom stitching request for your own fabric.
+                  </p>
+                </details>
+
+                <details className="group rounded-2xl border border-slate-200 p-4 transition open:bg-slate-50/50">
+                  <summary className="flex cursor-pointer items-center justify-between font-semibold text-xs sm:text-sm text-slate-800">
+                    <span>How long does delivery take for custom stitched suits in Pakistan?</span>
+                    <ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <p className="mt-2.5 text-xs text-slate-600 leading-relaxed">
+                    Custom tailoring takes 4 to 6 business days for master cutting and finishing, followed by 2 to 3 days courier transit to any city in Pakistan with Cash on Delivery.
                   </p>
                 </details>
               </div>

@@ -7,7 +7,7 @@ import ProductCard from '@/components/ProductCard';
 import { useBuy } from '@/contexts/BuyContext';
 import { Helmet } from 'react-helmet';
 import { formatPKR, openWhatsApp, buildInquiryMessage } from '@/lib/whatsapp';
-import { ShieldCheck, Truck, RefreshCw, Scissors, ShoppingCart, MessageCircle, ChevronRight, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Truck, RefreshCw, Scissors, ShoppingCart, MessageCircle, ChevronRight, ArrowRight, ChevronDown } from 'lucide-react';
 import { PRODUCTS } from '@/data/products';
 import { getProductSeo } from '@/data/productSeo';
 
@@ -136,6 +136,38 @@ export default function ProductDetailPage() {
     }
   };
 
+  const productFaqs = [
+    {
+      q: `What is the standard cutting length of ${product.name}?`,
+      a: `${product.name} comes in a generous 4.0 to 4.25-meter standard cutting with full 54-inch width (arzz), providing ample fabric for traditional shalwar kameez or kurta pajama up to height 6'2".`
+    },
+    {
+      q: `Can I add custom master tailoring & stitching to this suit?`,
+      a: `Yes! You can bundle bespoke master tailoring by Sargodha ustads for a flat fee of PKR 1,500 by clicking "Silai Karwayein (Custom Stitching)". Select your collar, sleeves, and daman preference with live preview.`
+    },
+    {
+      q: `How should I wash and care for ${product.name}?`,
+      a: `Soak in cold water for 2 hours before the first cut. Avoid harsh chlorine bleach, dry in shaded air away from direct sunlight, and iron on medium heat to preserve the fabric luster and colorfastness.`
+    },
+    {
+      q: `How long does delivery take and is Cash on Delivery available?`,
+      a: `Delivery takes 2 to 4 business days across Pakistan. We deliver nationwide via trusted couriers with 100% Cash on Delivery and a 7-day easy return policy.`
+    }
+  ];
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': productFaqs.map(f => ({
+      '@type': 'Question',
+      'name': f.q,
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': f.a
+      }
+    }))
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Helmet>
@@ -148,6 +180,7 @@ export default function ProductDetailPage() {
         <meta property="og:image" content={images[0]} />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>
 
       <Header />
@@ -304,6 +337,36 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Frequently Asked Questions / Google PAA Optimization */}
+        <section className="mt-16 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#C5A880]">Product Q&amp;A</span>
+          </div>
+          <h2 className="font-serif text-2xl font-bold text-[#1C3A2B]">
+            {product.name} — Frequently Asked Questions
+          </h2>
+          <p className="mt-2 text-xs sm:text-sm text-slate-600">
+            Common questions about fabric length, stitching add-on, care instructions, and delivery.
+          </p>
+
+          <div className="mt-6 space-y-3">
+            {productFaqs.map((faq, idx) => (
+              <details
+                key={idx}
+                className="group rounded-2xl border border-slate-200/80 p-4 transition open:border-[#1C3A2B]/40 open:bg-slate-50/60"
+              >
+                <summary className="flex cursor-pointer items-center justify-between font-semibold text-xs sm:text-sm text-slate-800">
+                  <span className="pr-4">{faq.q}</span>
+                  <ChevronDown className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-180" />
+                </summary>
+                <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-slate-600">
+                  {faq.a}
+                </p>
+              </details>
+            ))}
+          </div>
+        </section>
 
         {/* Related Premium Fabrics - Continuous Internal Linking for High SEO */}
         {relatedProducts.length > 0 && (
