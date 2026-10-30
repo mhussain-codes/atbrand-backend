@@ -8,6 +8,10 @@ import bcrypt from 'bcryptjs';
 import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
@@ -428,6 +432,24 @@ app.get('/api/admin/dashboard-stats', requireAdmin, (req, res) => {
     }
   });
 });
+
+// Serve frontend static build if exists (for unified Node deployment)
+const possibleDistPaths = [
+  path.resolve('apps/web/dist'),
+  path.resolve('dist'),
+  path.join(__dirname, 'dist')
+];
+
+let distDir = possibleDistPaths.find(p => fs.existsSync(p));
+if (distDir) {
+  app.use(express.static(distDir));
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/uploads')) {
+      return res.sendFile(path.join(distDir, 'index.html'));
+    }
+    next();
+  });
+}
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

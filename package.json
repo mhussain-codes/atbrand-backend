@@ -7,13 +7,22 @@
     "dev": "concurrently --kill-others --raw \"node apps/web/server.js\" \"npm run dev --prefix apps/web\"",
     "dev:web": "npm run dev --prefix apps/web",
     "dev:server": "node apps/web/server.js",
-    "build": "concurrently --raw \"npm run build --prefix apps/web\"",
-    "start": "concurrently --kill-others --raw \"npm run start --prefix apps/pocketbase\"",
+    "build": "cd apps/web && npx vite build --outDir dist",
+    "start": "node apps/web/server.js",
     "lint": "concurrently --raw \"npm run lint --prefix apps/web\""
   },
   "devDependencies": {
     "concurrently": "^10.0.6",
     "knip": "^6.32.1"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1"
   },
   "workspaces": [
     "apps/*"
