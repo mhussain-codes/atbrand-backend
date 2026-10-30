@@ -160,6 +160,42 @@ export default function ProductDetailPage() {
               </div>
             )}
 
+            {/* Custom Stitching Decision Card */}
+            <div className="mt-6 rounded-2xl border-2 border-primary/25 bg-primary/5 p-5 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="rounded-xl bg-primary p-2.5 text-primary-foreground shrink-0 mt-0.5">
+                  <Scissors className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <span className="inline-block rounded-full bg-accent/20 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-accent-foreground mb-1">
+                    Bespoke Tailoring
+                  </span>
+                  <h3 className="font-serif text-base font-bold text-primary">
+                    Do you want custom stitching with this suit?
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                    Kya aap is suit ki master tailor se customized silai karwana chahte hain? Custom stitching fee <b>PKR 1,500</b> add hogi aur suit apke exact naap ke mutabiq silai hokar deliver hoga.
+                  </p>
+                  
+                  <div className="mt-4 flex flex-wrap gap-2.5">
+                    <Link
+                      to={`/stitching?suitId=${encodeURIComponent(product.id)}&suitName=${encodeURIComponent(product.name)}&suitPrice=${product.price}&suitImage=${encodeURIComponent(images[selectedImage] || images[0] || '')}`}
+                      className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-primary-foreground shadow hover:bg-primary/90 transition active:scale-95"
+                    >
+                      <Scissors className="h-3.5 w-3.5" />
+                      Yes, Add Stitching (+PKR 1,500)
+                    </Link>
+                    <button
+                      onClick={() => openBuy(product)}
+                      className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-white px-4 py-2.5 text-xs font-bold text-primary hover:bg-primary/5 transition"
+                    >
+                      No, Unstitched Fabric Only
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Action Buttons */}
             <div className="mt-8 flex flex-col gap-3">
               <button
@@ -184,14 +220,6 @@ export default function ProductDetailPage() {
                 <MessageCircle className="h-4 w-4" />
                 Inquire on WhatsApp
               </button>
-
-              <Link
-                to="/stitching"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent/20 py-3 text-xs font-semibold tracking-wider text-accent-foreground hover:bg-accent/30"
-              >
-                <Scissors className="h-4 w-4" />
-                Want it Stitched? Order Custom Tailoring
-              </Link>
             </div>
 
             {/* Trust Badges */}

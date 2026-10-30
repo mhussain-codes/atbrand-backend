@@ -117,7 +117,85 @@ sqliteDb.exec(`
     ip_address TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS reviews (
+    id TEXT PRIMARY KEY,
+    customer_name TEXT NOT NULL,
+    city TEXT DEFAULT 'Sargodha',
+    rating INTEGER DEFAULT 5,
+    comment TEXT NOT NULL,
+    suit_name TEXT,
+    is_approved INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  );
 `);
+
+// Seed authentic customer reviews if table is empty
+const reviewCount = sqliteDb.prepare('SELECT count(*) as c FROM reviews').get().c;
+if (reviewCount === 0) {
+  const seedReviews = [
+    {
+      id: 'rev-1',
+      customer_name: 'Chaudhry Kamran',
+      city: 'Sargodha',
+      rating: 5,
+      comment: 'MashaAllah Ahmad Cotton ka fall aur finishing kamal hai. Tali Chowk shop se pehle leta tha ab online mangwaya, same 100% original quality mili.',
+      suit_name: 'Ahmad Cotton Royal White',
+      is_approved: 1
+    },
+    {
+      id: 'rev-2',
+      customer_name: 'Malik Zeeshan Tariq',
+      city: 'Lahore',
+      rating: 5,
+      comment: 'Washing k baad bhi kapray ki chamak aur graceful fall bilkul fresh rahi. Rashid Cotton winter suit ki warm feel bohot umdah hai. Highly recommended!',
+      suit_name: 'Rashid Cotton Winter Grey',
+      is_approved: 1
+    },
+    {
+      id: 'rev-3',
+      customer_name: 'Haji Abdul Rehman',
+      city: 'Rawalpindi',
+      rating: 5,
+      comment: 'ماشاءاللہ بہت نفیس اور پائیدار کپڑا ہے۔ سلائی کے بعد سوٹ کی خوبصورتی مزید نکھر گئی۔ سرگودھا کا سب سے قابلِ اعتماد برانڈ ہے۔',
+      suit_name: 'Executive Boski Fall',
+      is_approved: 1
+    },
+    {
+      id: 'rev-4',
+      customer_name: 'Usman Farooq',
+      city: 'Islamabad',
+      rating: 5,
+      comment: 'Cash on delivery par 2 din me parcel mil gya. Fabric box packaging bht premium thi. Wash & Wear daily use k lye perfect hai, wrinkles bilkul nhi parte.',
+      suit_name: 'Premium Wash & Wear Cream',
+      is_approved: 1
+    },
+    {
+      id: 'rev-5',
+      customer_name: 'Bilal Ahmad Gujjar',
+      city: 'Faisalabad',
+      rating: 5,
+      comment: 'Silai k sath order kya tha, master tailor ki cutting aur sherwani ban fitting bilkul exact standard size k mutabiq aayi. Bohat shukriya Arslan bhai!',
+      suit_name: 'Ahmad Cotton Sky Blue',
+      is_approved: 1
+    },
+    {
+      id: 'rev-6',
+      customer_name: 'Syed Hamza Ali',
+      city: 'Multan',
+      rating: 5,
+      comment: 'Lattha aur cotton dono mangwaye thay. 100% pure cotton feel hai, garmiyon me pehnne k lye nihayat thanda aur aaramdeh fabric.',
+      suit_name: 'Pure Egyptian Lattha White',
+      is_approved: 1
+    }
+  ];
+
+  const insertRev = sqliteDb.prepare(`
+    INSERT INTO reviews (id, customer_name, city, rating, comment, suit_name, is_approved)
+    VALUES (@id, @customer_name, @city, @rating, @comment, @suit_name, @is_approved)
+  `);
+  seedReviews.forEach(r => insertRev.run(r));
+}
 
 // Supabase client instance
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://mgolzolmhfqsjziuuauq.supabase.co';

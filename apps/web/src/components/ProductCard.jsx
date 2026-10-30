@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, Sparkles, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { MessageCircle, Sparkles, ChevronLeft, ChevronRight, ShoppingCart, Eye } from 'lucide-react';
 import { buildInquiryMessage, formatPKR, openWhatsApp } from '@/lib/whatsapp';
 import { useBuy } from '@/contexts/BuyContext';
+import { toast } from 'sonner';
 
 export default function ProductCard({ product }) {
+  const navigate = useNavigate();
   const { openBuy, addToCart } = useBuy();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [imageFailed, setImageFailed] = useState(false);
@@ -52,8 +55,17 @@ export default function ProductCard({ product }) {
     };
   };
 
+  const productSlug = product.id || (product.name || 'suit').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+  const goToDetailPage = () => {
+    navigate(`/product/${productSlug}`);
+  };
+
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 transform-gpu will-change-transform">
+    <article 
+      onClick={goToDetailPage}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 transform-gpu will-change-transform cursor-pointer relative"
+    >
 
       {/* Image Section */}
       <div className="relative overflow-hidden bg-muted">
@@ -71,6 +83,14 @@ export default function ProductCard({ product }) {
             Image unavailable
           </div>
         )}
+
+        {/* View Details Hover Badge */}
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-primary shadow-lg backdrop-blur">
+            <Eye className="h-3.5 w-3.5" />
+            View Details
+          </span>
+        </div>
 
         {product.type && (
           <span className="absolute left-3 top-3 z-10 rounded-full bg-background/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
@@ -116,24 +136,27 @@ export default function ProductCard({ product }) {
       </div>
 
       <div className="flex flex-1 flex-col p-4">
-        <h3 className="font-display text-xl text-foreground">
+        <h3 className="font-display text-xl text-foreground group-hover:text-primary transition-colors">
           {product.name || "Mens Premium Unstitched Suit"}
         </h3>
-        <p className="mt-0.5 text-sm text-muted-foreground">
+        <p className="mt-0.5 text-sm text-muted-foreground line-clamp-1">
           {product.fabric || "Premium Unstitched Shalwar Kameez"}
         </p>
         <p className="mt-2 text-lg font-semibold text-primary">{product.price ? formatPKR(product.price) : "PKR 1,500"}</p>
 
         {isBudgetSection && availableColors.length > 0 && selectedColor && (
-          <div className="mt-3">
+          <div className="mt-3" onClick={(e) => e.stopPropagation()}>
             <p className="text-xs font-medium text-muted-foreground mb-2">
               Color: <span className="text-foreground font-semibold">{selectedColor.name}</span>
             </p>
             <div className="flex gap-2">
-              {availableColors.name && availableColors.map((color) => (
+              {availableColors.map((color) => (
                 <button
                   key={color.name}
-                  onClick={() => setSelectedColor(color)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedColor(color);
+                  }}
                   className={`h-6 w-6 rounded-full border-2 transition-all ${
                     selectedColor.name === color.name ? 'border-primary scale-110' : 'border-transparent shadow-sm'
                   }`}
@@ -146,11 +169,12 @@ export default function ProductCard({ product }) {
         )}
 
         {/* Order Buttons */}
-        <div className="mt-5 flex gap-2">
+        <div className="mt-5 flex gap-2" onClick={(e) => e.stopPropagation()}>
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               addToCart(getProductData());
-              alert(`${product.name || 'Mens Premium Unstitched Suit'} added to cart!`);
+              toast.success(`${product.name || 'Suit'} added to cart!`);
             }}
             className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-primary px-2 py-2.5 text-xs font-semibold text-primary transition hover:bg-primary/10 active:scale-[0.98]"
           >
@@ -159,15 +183,22 @@ export default function ProductCard({ product }) {
           </button>
 
           <button
-            onClick={() => openBuy(getProductData())}
+            onClick={(e) => {
+              e.stopPropagation();
+              openBuy(getProductData());
+            }}
             className="flex-1 rounded-full bg-primary px-2 py-2.5 text-xs font-semibold text-primary-foreground transition hover:bg-primary/90 active:scale-[0.98]"
           >
             Buy Now
           </button>
 
           <button
-            onClick={() => openWhatsApp(buildInquiryMessage(getProductData()))}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/30 text-primary transition hover:bg-primary hover:text-primary-foreground active:scale-[0.98]"
+            onClick={(e) => {
+              e.stopPropagation();
+              openWhatsApp(buildInquiryMessage(getProductData()));
+            }}
+            title="Chat on WhatsApp"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/30 text-[#25D366] hover:bg-[#25D366] hover:text-white transition active:scale-[0.98]"
           >
             <MessageCircle className="h-4 w-4" />
           </button>

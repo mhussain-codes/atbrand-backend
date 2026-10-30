@@ -39,6 +39,7 @@ function App() {
             <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="/shop" element={<ShopPage />} />
             <Route path="/men" element={<MensPage />} />
+            <Route path="/men/:fabricSlug" element={<MensPage />} />
             <Route path="/women" element={<WomensPage />} />
             <Route path="/perfumes" element={<PerfumesPage />} />
             <Route path="/new-arrivals" element={<NewArrivalsPage />} />

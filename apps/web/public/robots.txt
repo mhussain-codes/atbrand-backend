@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /checkout
 
-Sitemap: https://atbrand.pk/sitemap.xml
+Sitemap: https://atbrand.store/sitemap.xml

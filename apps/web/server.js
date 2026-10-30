@@ -353,6 +353,55 @@ app.get('/api/stitching', requireAdmin, (req, res) => {
 });
 
 // ----------------------------------------------------
+// REVIEWS ENDPOINTS
+// ----------------------------------------------------
+app.get('/api/reviews', (req, res) => {
+  const reviews = sqliteDb.prepare('SELECT * FROM reviews WHERE is_approved = 1 ORDER BY created_at DESC').all();
+  res.json({ success: true, count: reviews.length, reviews });
+});
+
+app.post('/api/reviews', (req, res) => {
+  const { customer_name, city, rating, comment, suit_name } = req.body;
+  if (!customer_name || !comment) {
+    return res.status(400).json({ error: 'Customer name and comment are required' });
+  }
+
+  const id = `rev-${Date.now()}`;
+  sqliteDb.prepare(`
+    INSERT INTO reviews (id, customer_name, city, rating, comment, suit_name, is_approved)
+    VALUES (?, ?, ?, ?, ?, ?, 0)
+  `).run(
+    id,
+    customer_name.trim(),
+    (city || 'Sargodha').trim(),
+    Number(rating) || 5,
+    comment.trim(),
+    (suit_name || '').trim()
+  );
+
+  res.json({ success: true, message: 'Review submitted for approval. Shukriya!', id });
+});
+
+app.get('/api/admin/reviews', requireAdmin, (req, res) => {
+  const reviews = sqliteDb.prepare('SELECT * FROM reviews ORDER BY created_at DESC').all();
+  res.json({ success: true, count: reviews.length, reviews });
+});
+
+app.patch('/api/admin/reviews/:id', requireAdmin, (req, res) => {
+  const { is_approved } = req.body;
+  sqliteDb.prepare('UPDATE reviews SET is_approved = ? WHERE id = ?').run(
+    is_approved ? 1 : 0,
+    req.params.id
+  );
+  res.json({ success: true, message: `Review ${is_approved ? 'approved' : 'rejected'}` });
+});
+
+app.delete('/api/admin/reviews/:id', requireAdmin, (req, res) => {
+  sqliteDb.prepare('DELETE FROM reviews WHERE id = ?').run(req.params.id);
+  res.json({ success: true, message: 'Review deleted' });
+});
+
+// ----------------------------------------------------
 // DASHBOARD ANALYTICS ENDPOINT
 // ----------------------------------------------------
 app.get('/api/admin/dashboard-stats', requireAdmin, (req, res) => {

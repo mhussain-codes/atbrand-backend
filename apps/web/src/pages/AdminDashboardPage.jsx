@@ -24,14 +24,47 @@ import {
   UploadCloud,
   X,
   Image as ImageIcon,
-  Link as LinkIcon
+  Link as LinkIcon,
+  MessageSquare,
+  Menu,
+  Check
 } from 'lucide-react';
 import { formatPKR } from '@/lib/whatsapp';
 import { toast } from 'sonner';
 
+export const CATEGORY_FABRICS = {
+  Men: [
+    'Rashid Cotton',
+    'Ahmad Cotton',
+    'Wash & Wear',
+    'Boski',
+    'Khaddar',
+    'Lattha',
+    'Karandi',
+    'Wool Blend'
+  ],
+  Women: [
+    'Lawn Unstitched',
+    'Luxury Pret',
+    'Chiffon',
+    'Organza',
+    'Silk',
+    'Velvet',
+    'Cotton Kurti'
+  ],
+  Perfumes: [
+    'Attar Oil (Ittar)',
+    'Eau De Parfum (EDP)',
+    'Royal Oudh',
+    'French Luxury Blend',
+    'Non-Alcoholic Perfume'
+  ]
+};
+
 export default function AdminDashboardPage() {
   const { adminUser, token, isAuthenticated, login, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [loggingIn, setLoggingIn] = useState(false);
 
@@ -49,6 +82,7 @@ export default function AdminDashboardPage() {
   const [productsList, setProductsList] = useState([]);
   const [ordersList, setOrdersList] = useState([]);
   const [stitchingList, setStitchingList] = useState([]);
+  const [reviewsList, setReviewsList] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
 
   // New Product Modal State
@@ -123,12 +157,74 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Fetch Reviews
+  const fetchReviews = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/admin/reviews', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const d = await res.json();
+      if (d.success) setReviewsList(d.reviews);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Toggle Review Approval
+  const handleToggleReviewApproval = async (reviewId, currentApproval) => {
+    try {
+      const res = await fetch(`/api/admin/reviews/${reviewId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ is_approved: !currentApproval })
+      });
+      if (res.ok) {
+        toast.success(`Review ${!currentApproval ? 'Approved & Published' : 'Moved to Pending'}`);
+        fetchReviews();
+      }
+    } catch (e) {
+      toast.error('Failed to update review status');
+    }
+  };
+
+  // Delete Review
+  const handleDeleteReview = async (reviewId) => {
+    if (!window.confirm('Are you sure you want to delete this review?')) return;
+    try {
+      const res = await fetch(`/api/admin/reviews/${reviewId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        toast.success('Review deleted permanently');
+        fetchReviews();
+      }
+    } catch (e) {
+      toast.error('Failed to delete review');
+    }
+  };
+
+  // Category change for new product
+  const handleCategoryChange = (newCat) => {
+    const fabrics = CATEGORY_FABRICS[newCat] || CATEGORY_FABRICS.Men;
+    setNewProd(prev => ({
+      ...prev,
+      category: newCat,
+      type: fabrics[0]
+    }));
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchDashboardStats();
       fetchProducts();
       fetchOrders();
       fetchStitching();
+      fetchReviews();
     }
   }, [isAuthenticated, activeTab]);
 
@@ -411,18 +507,30 @@ export default function AdminDashboardPage() {
               <p className="px-3 text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2.5">COMMERCE</p>
               <div className="space-y-1.5">
                 <button
-                  onClick={() => setActiveTab('orders')}
+                  onClick={() => { setActiveTab('orders'); setIsMobileMenuOpen(false); }}
                   className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 font-bold transition ${activeTab === 'orders' ? 'bg-[#E0533C] text-white shadow' : 'text-slate-700 hover:bg-slate-100'}`}
                 >
                   <ShoppingCart className="h-4 w-4" />
                   Orders ({ordersList.length})
                 </button>
                 <button
-                  onClick={() => setActiveTab('stitching')}
+                  onClick={() => { setActiveTab('stitching'); setIsMobileMenuOpen(false); }}
                   className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 font-bold transition ${activeTab === 'stitching' ? 'bg-[#E0533C] text-white shadow' : 'text-slate-700 hover:bg-slate-100'}`}
                 >
                   <Scissors className="h-4 w-4" />
                   Stitching Requests ({stitchingList.length})
+                </button>
+                <button
+                  onClick={() => { setActiveTab('reviews'); setIsMobileMenuOpen(false); }}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 font-bold transition ${activeTab === 'reviews' ? 'bg-[#E0533C] text-white shadow' : 'text-slate-700 hover:bg-slate-100'}`}
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Reviews ({reviewsList.length})
+                  {reviewsList.filter(r => !r.is_approved).length > 0 && (
+                    <span className="ml-auto rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-800">
+                      {reviewsList.filter(r => !r.is_approved).length} new
+                    </span>
+                  )}
                 </button>
               </div>
             </div>
@@ -441,23 +549,116 @@ export default function AdminDashboardPage() {
         </div>
       </aside>
 
+      {/* Mobile Drawer Backdrop & Sidebar */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          <div
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+          />
+          <div className="relative w-72 bg-white h-full shadow-2xl flex flex-col justify-between z-10">
+            <div>
+              <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200 bg-slate-50">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1C3A2B] text-[#C5A880] font-serif font-black text-base shadow">
+                    AT
+                  </div>
+                  <div>
+                    <span className="font-serif font-black tracking-wider text-[#1C3A2B] text-base block">AT BRAND</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">ARSLAN TARIQ</span>
+                  </div>
+                </div>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400 hover:text-slate-700">
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <nav className="p-4 space-y-4 text-sm font-bold">
+                <button
+                  onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 ${activeTab === 'dashboard' ? 'bg-[#E0533C] text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Dashboard
+                </button>
+                <button
+                  onClick={() => { setActiveTab('products'); setIsMobileMenuOpen(false); }}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 ${activeTab === 'products' ? 'bg-[#E0533C] text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+                >
+                  <Package className="h-4 w-4" />
+                  Products ({productsList.length})
+                </button>
+                <button
+                  onClick={() => { setActiveTab('orders'); setIsMobileMenuOpen(false); }}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 ${activeTab === 'orders' ? 'bg-[#E0533C] text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  Orders ({ordersList.length})
+                </button>
+                <button
+                  onClick={() => { setActiveTab('stitching'); setIsMobileMenuOpen(false); }}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 ${activeTab === 'stitching' ? 'bg-[#E0533C] text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+                >
+                  <Scissors className="h-4 w-4" />
+                  Stitching ({stitchingList.length})
+                </button>
+                <button
+                  onClick={() => { setActiveTab('reviews'); setIsMobileMenuOpen(false); }}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 ${activeTab === 'reviews' ? 'bg-[#E0533C] text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Reviews ({reviewsList.length})
+                </button>
+                <button
+                  onClick={() => { setActiveTab('inventory'); setIsMobileMenuOpen(false); }}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 ${activeTab === 'inventory' ? 'bg-[#E0533C] text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+                >
+                  <Archive className="h-4 w-4" />
+                  Inventory
+                </button>
+              </nav>
+            </div>
+
+            <div className="p-4 border-t border-slate-200">
+              <button
+                onClick={logout}
+                className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content Pane */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto min-w-0">
         {/* Top Header */}
-        <header className="flex h-16 items-center justify-between border-b border-slate-300 bg-white px-8 shadow-sm">
-          <div className="flex items-center gap-2 text-sm text-slate-600 font-semibold">
-            <span>Home</span>
-            <span>/</span>
-            <span className="font-extrabold text-slate-900 capitalize">{activeTab}</span>
+        <header className="flex h-16 items-center justify-between border-b border-slate-300 bg-white px-4 sm:px-8 shadow-sm">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition"
+              title="Toggle Menu"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-600 font-semibold">
+              <span className="hidden sm:inline">Home</span>
+              <span className="hidden sm:inline">/</span>
+              <span className="font-extrabold text-slate-900 capitalize">{activeTab}</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setShowAddProduct(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#E0533C] px-5 py-2.5 text-xs font-extrabold uppercase tracking-wider text-white shadow hover:opacity-90 transition"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#E0533C] px-3.5 sm:px-5 py-2 text-xs font-extrabold uppercase tracking-wider text-white shadow hover:opacity-90 transition"
             >
               <Plus className="h-4 w-4" />
-              Quick Add Product
+              <span className="hidden sm:inline">Quick Add Product</span>
+              <span className="sm:hidden">Add</span>
             </button>
           </div>
         </header>
@@ -748,6 +949,92 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
+          {/* Reviews Management View */}
+          {activeTab === 'reviews' && (
+            <div className="rounded-2xl border border-slate-300 bg-white p-6 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 pb-4 border-b border-slate-200 gap-4">
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-xl">Customer Reviews & Testimonials</h3>
+                  <p className="text-xs font-semibold text-slate-600 mt-0.5">
+                    Approve genuine reviews to feature them on the website homepage marquee.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-extrabold text-emerald-800">
+                    {reviewsList.filter(r => r.is_approved).length} Approved
+                  </span>
+                  <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-extrabold text-amber-800">
+                    {reviewsList.filter(r => !r.is_approved).length} Pending
+                  </span>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm min-w-[750px]">
+                  <thead className="border-b border-slate-300 bg-slate-50 text-slate-600 uppercase text-xs font-extrabold">
+                    <tr>
+                      <th className="p-3.5">CUSTOMER</th>
+                      <th className="p-3.5">SUIT / PRODUCT</th>
+                      <th className="p-3.5">RATING</th>
+                      <th className="p-3.5">FEEDBACK COMMENT</th>
+                      <th className="p-3.5">STATUS</th>
+                      <th className="p-3.5 text-right">ACTION</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 font-medium">
+                    {reviewsList.map(r => (
+                      <tr key={r.id} className="hover:bg-slate-50/70 transition">
+                        <td className="p-3.5">
+                          <p className="font-bold text-slate-900">{r.customer_name}</p>
+                          <p className="text-[11px] font-semibold text-slate-500">📍 {r.city || 'Sargodha'}</p>
+                        </td>
+                        <td className="p-3.5 text-xs font-bold text-slate-700">
+                          {r.suit_name || 'Men Suit Fabric'}
+                        </td>
+                        <td className="p-3.5">
+                          <span className="font-extrabold text-amber-500">★ {r.rating}/5</span>
+                        </td>
+                        <td className="p-3.5 text-xs text-slate-700 max-w-xs leading-relaxed italic">
+                          "{r.comment}"
+                        </td>
+                        <td className="p-3.5">
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-extrabold ${r.is_approved ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                            {r.is_approved ? 'Approved (Live)' : 'Pending Review'}
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleToggleReviewApproval(r.id, r.is_approved)}
+                              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition shadow-sm ${
+                                r.is_approved
+                                  ? 'border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100'
+                                  : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                              }`}
+                            >
+                              {r.is_approved ? 'Unpublish' : 'Approve'}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteReview(r.id)}
+                              className="rounded-lg border border-red-200 p-1.5 text-red-600 hover:bg-red-50 transition"
+                              title="Delete Review"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {reviewsList.length === 0 && (
+                  <p className="py-12 text-center text-slate-500 font-medium">No reviews submitted yet.</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Inventory View */}
           {activeTab === 'inventory' && (
             <div className="rounded-2xl border border-slate-300 bg-white p-6 shadow-sm">
@@ -814,30 +1101,29 @@ export default function AdminDashboardPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block mb-1.5 text-xs font-bold text-slate-800">Fabric Type</label>
+                  <label className="block mb-1.5 text-xs font-bold text-slate-800">Department / Section *</label>
+                  <select
+                    value={newProd.category}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 p-2.5 text-sm font-bold text-slate-900 focus:border-[#1C3A2B] focus:outline-none bg-slate-50"
+                  >
+                    <option value="Men">Men (Menswear)</option>
+                    <option value="Women">Women (Pret & Unstitched)</option>
+                    <option value="Perfumes">Perfumes (Artisanal Scents)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block mb-1.5 text-xs font-bold text-slate-800">
+                    {newProd.category === 'Perfumes' ? 'Fragrance Type / Note' : 'Fabric / Style Type'} *
+                  </label>
                   <select
                     value={newProd.type}
                     onChange={(e) => setNewProd({ ...newProd, type: e.target.value })}
                     className="w-full rounded-xl border border-slate-300 p-2.5 text-sm font-semibold text-slate-900 focus:border-[#1C3A2B] focus:outline-none"
                   >
-                    <option value="Rashid Cotton">Rashid Cotton</option>
-                    <option value="Ahmad Cotton">Ahmad Cotton</option>
-                    <option value="Wash & Wear">Wash & Wear</option>
-                    <option value="Boski">Boski</option>
-                    <option value="Khaddar">Khaddar</option>
-                    <option value="Lattha">Lattha</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block mb-1.5 text-xs font-bold text-slate-800">Section</label>
-                  <select
-                    value={newProd.category}
-                    onChange={(e) => setNewProd({ ...newProd, category: e.target.value })}
-                    className="w-full rounded-xl border border-slate-300 p-2.5 text-sm font-semibold text-slate-900 focus:border-[#1C3A2B] focus:outline-none"
-                  >
-                    <option value="Men">Men</option>
-                    <option value="Women">Women</option>
-                    <option value="Perfumes">Perfumes</option>
+                    {(CATEGORY_FABRICS[newProd.category] || CATEGORY_FABRICS.Men).map(fabricOption => (
+                      <option key={fabricOption} value={fabricOption}>{fabricOption}</option>
+                    ))}
                   </select>
                 </div>
               </div>

@@ -8,6 +8,7 @@ import Marquee from '@/components/Marquee';
 import ShopSection from '@/components/ShopSection';
 import PriceBands from '@/components/PriceBands';
 import HowToOrder from '@/components/HowToOrder';
+import TestimonialsSection from '@/components/TestimonialsSection';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import Reveal from '@/components/Reveal';
@@ -160,6 +161,7 @@ export default function HomePage() {
           setSeasonFilter={setSeasonFilter} 
         />
         <PriceBands onSelect={handleBandSelect} />
+        <TestimonialsSection />
         <HowToOrder />
 
         {/* About Us Section */}

@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import GarmentPreview2D from '@/components/GarmentPreview2D';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
-import { Scissors, CheckCircle, Ruler } from 'lucide-react';
-import { openWhatsApp, buildOrderMessage } from '@/lib/whatsapp';
+import { Scissors, CheckCircle, Ruler, ShoppingBag, X } from 'lucide-react';
+import { openWhatsApp, formatPKR } from '@/lib/whatsapp';
 
 export default function StitchingPage() {
+  const [searchParams] = useSearchParams();
+  const suitId = searchParams.get('suitId');
+  const suitName = searchParams.get('suitName');
+  const suitPrice = Number(searchParams.get('suitPrice')) || 0;
+  const suitImage = searchParams.get('suitImage');
+
+  const stitchingFee = 1500;
+  const totalCombinedPrice = suitId ? suitPrice + stitchingFee : stitchingFee;
+
   const [unit, setUnit] = useState('inches'); // 'inches' or 'cm'
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedData, setSubmittedData] = useState(null);
@@ -71,6 +81,7 @@ export default function StitchingPage() {
 
     setIsSubmitting(true);
     try {
+      // 1. Submit stitching request
       const res = await fetch('/api/stitching', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -83,37 +94,88 @@ export default function StitchingPage() {
           unit,
           style_selections: styles,
           measurements,
-          special_instructions: measurements.specialInstructions
+          fabric_choice: suitName ? `${suitName} (PKR ${suitPrice})` : 'Customer Own Fabric',
+          special_instructions: measurements.specialInstructions,
+          stitching_price: stitchingFee,
+          total_amount: totalCombinedPrice
         })
       });
 
       const data = await res.json();
+      
+      // 2. Also register order in orders database if bundled with a suit
+      if (suitId) {
+        try {
+          await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              customer_name: contact.name,
+              phone: contact.phone,
+              address: contact.address,
+              city: contact.city,
+              items: [
+                {
+                  id: suitId,
+                  name: `${suitName} + Custom Stitching`,
+                  price: totalCombinedPrice,
+                  quantity: 1,
+                  type: 'Suit + Stitching'
+                }
+              ],
+              subtotal: totalCombinedPrice,
+              delivery_charge: 0,
+              total_amount: totalCombinedPrice,
+              payment_method: 'COD',
+              customer_notes: `Bespoke Tailoring Request: ${data.request_number || 'ST'}. Style: ${styles.collar}, ${styles.sleeves}`
+            })
+          });
+        } catch (err) {
+          console.error("Order sync error", err);
+        }
+      }
+
       if (res.ok && data.success) {
         setSubmittedData(data);
         toast.success(`Stitching order ${data.request_number} recorded successfully!`);
 
         // Build WhatsApp notification message
-        const waText = [
-          '*NEW CUSTOM STITCHING REQUEST — AT BRAND*',
-          '------------------------------',
-          `*Request ID:* ${data.request_number}`,
-          `*Name:* ${contact.name}`,
+        const waLines = [
+          suitId ? '*COMBINED SUIT & CUSTOM STITCHING ORDER — AT BRAND*' : '*CUSTOM STITCHING REQUEST — AT BRAND*',
+          '==============================',
+          `*Order / Request ID:* ${data.request_number}`,
+          suitId ? `*Selected Suit:* ${suitName} (${formatPKR(suitPrice)})` : null,
+          `*Stitching Fee:* ${formatPKR(stitchingFee)}`,
+          suitId ? `*TOTAL AMOUNT (COD):* ${formatPKR(totalCombinedPrice)}` : `*Stitching Payable:* ${formatPKR(stitchingFee)}`,
+          '==============================',
+          `*Customer:* ${contact.name}`,
           `*Phone:* ${contact.phone}`,
-          `*City:* ${contact.city}`,
+          `*Delivery Address:* ${contact.address}, ${contact.city}`,
+          '==============================',
+          `*Style Selections:*`,
+          `• Ban / Collar: ${styles.collar}`,
+          `• Sleeves: ${styles.sleeves}`,
+          `• Daman: ${styles.daman}`,
+          `• Buttons: ${styles.buttons}`,
+          `• Fitting: ${measurements.fittingPreference}`,
           '------------------------------',
-          `*Style:* Collar: ${styles.collar}, Sleeves: ${styles.sleeves}, Daman: ${styles.daman}`,
           `*Measurements (${unit}):*`,
           `• Kurta Length: ${measurements.kurtaLength}`,
           `• Chest: ${measurements.chest}`,
           `• Shoulder (Teera): ${measurements.shoulder}`,
           `• Sleeves: ${measurements.sleeveLength}`,
+          `• Bazu Mori: ${measurements.bazuWidth}`,
+          `• Neck (Gala): ${measurements.neck}`,
+          `• Armhole (Monda): ${measurements.armhole}`,
+          `• Daman: ${measurements.damanWidth}`,
           `• Shalwar Length: ${measurements.shalwarLength}`,
-          `• Bottom Opening (Paincha): ${measurements.shalwarBottom}`,
-          '------------------------------',
-          'Please confirm fabric cutting and stitching schedule. Shukriya!'
-        ].join('\n');
+          `• Paincha: ${measurements.shalwarBottom}`,
+          measurements.specialInstructions ? `• Note: ${measurements.specialInstructions}` : null,
+          '==============================',
+          'Please confirm cutting and stitching schedule. Shukriya!'
+        ].filter(Boolean).join('\n');
 
-        openWhatsApp(waText);
+        openWhatsApp(waLines);
       } else {
         toast.error('Failed to submit stitching order. Please try again.');
       }
@@ -150,6 +212,61 @@ export default function StitchingPage() {
             Flawless cuts and traditional Pakistani craftsmanship for your unstitched suits. Customized to your exact fit.
           </p>
         </div>
+
+        {/* Attached Suit Bundle Banner (If navigating from a product page) */}
+        {suitId && (
+          <div className="mb-10 rounded-2xl border-2 border-primary bg-primary/5 p-5 shadow-sm sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                {suitImage ? (
+                  <img
+                    src={suitImage}
+                    alt={suitName}
+                    className="h-20 w-16 rounded-xl object-cover border border-primary/20 shadow-sm shrink-0"
+                  />
+                ) : (
+                  <div className="flex h-20 w-16 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                    <Scissors className="h-6 w-6" />
+                  </div>
+                )}
+                <div>
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-primary-foreground mb-1">
+                    <CheckCircle className="h-3 w-3" />
+                    Bundled Suit Selected
+                  </div>
+                  <h3 className="font-serif text-lg font-bold text-primary sm:text-xl">
+                    {suitName}
+                  </h3>
+                  <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-semibold">
+                    <span>Suit: <b className="text-primary">{formatPKR(suitPrice)}</b></span>
+                    <span>•</span>
+                    <span>Stitching: <b className="text-primary">{formatPKR(stitchingFee)}</b></span>
+                    <span>•</span>
+                    <span className="text-sm font-extrabold text-primary bg-accent/20 px-2 py-0.5 rounded-md">
+                      Total COD: {formatPKR(totalCombinedPrice)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Link
+                  to={`/product/${suitId}`}
+                  className="rounded-full border border-primary px-4 py-2 text-xs font-bold text-primary hover:bg-primary/10 transition"
+                >
+                  Change Suit
+                </Link>
+                <Link
+                  to="/stitching"
+                  className="rounded-full border border-slate-300 px-3 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 transition"
+                  title="Remove suit and order stitching only"
+                >
+                  Remove Suit
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
           {/* Left: 2D Interactive Preview & Style Selectors */}
@@ -426,12 +543,16 @@ export default function StitchingPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full rounded-xl bg-primary py-3.5 text-center text-xs font-bold uppercase tracking-widest text-primary-foreground shadow transition hover:opacity-90 disabled:opacity-50"
+                  className="w-full rounded-xl bg-primary py-4 text-center text-xs font-bold uppercase tracking-widest text-primary-foreground shadow transition hover:opacity-90 disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Saving Stitching Request...' : 'Submit & Confirm on WhatsApp'}
+                  {isSubmitting
+                    ? 'Saving Order & Generating WhatsApp...'
+                    : suitId
+                    ? `Confirm Suit + Stitching Order (${formatPKR(totalCombinedPrice)})`
+                    : `Submit Stitching Request (${formatPKR(stitchingFee)})`}
                 </button>
                 <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                  Our master tailor will review your measurements before cutting. Cash on delivery accepted.
+                  Our master tailor will review your measurements before cutting. Cash on delivery accepted nationwide.
                 </p>
               </div>
             </form>

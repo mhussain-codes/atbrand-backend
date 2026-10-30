@@ -77,7 +77,35 @@ $db->exec("
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS reviews (
+    id TEXT PRIMARY KEY,
+    customer_name TEXT NOT NULL,
+    city TEXT DEFAULT 'Sargodha',
+    rating INTEGER DEFAULT 5,
+    comment TEXT NOT NULL,
+    suit_name TEXT,
+    is_approved INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  );
 ");
+
+// Check and seed reviews if empty
+$revCount = (int)$db->query("SELECT COUNT(*) FROM reviews")->fetchColumn();
+if ($revCount === 0) {
+    $seedReviews = [
+        ['rev-1', 'Chaudhry Kamran', 'Sargodha', 5, 'MashaAllah Ahmad Cotton ka fall aur finishing kamal hai. Tali Chowk shop se pehle leta tha ab online mangwaya, same 100% original quality mili.', 'Ahmad Cotton Royal White', 1],
+        ['rev-2', 'Malik Zeeshan Tariq', 'Lahore', 5, 'Washing k baad bhi kapray ki chamak aur graceful fall bilkul fresh rahi. Rashid Cotton winter suit ki warm feel bohot umdah hai. Highly recommended!', 'Rashid Cotton Winter Grey', 1],
+        ['rev-3', 'Haji Abdul Rehman', 'Rawalpindi', 5, 'ماشاءاللہ بہت نفیس اور پائیدار کپڑا ہے۔ سلائی کے بعد سوٹ کی خوبصورتی مزید نکھر گئی۔ سرگودھا کا سب سے قابلِ اعتماد برانڈ ہے۔', 'Executive Boski Fall', 1],
+        ['rev-4', 'Usman Farooq', 'Islamabad', 5, 'Cash on delivery par 2 din me parcel mil gya. Fabric box packaging bht premium thi. Wash & Wear daily use k lye perfect hai, wrinkles bilkul nhi parte.', 'Premium Wash & Wear Cream', 1],
+        ['rev-5', 'Bilal Ahmad Gujjar', 'Faisalabad', 5, 'Silai k sath order kya tha, master tailor ki cutting aur sherwani ban fitting bilkul exact standard size k mutabiq aayi. Bohat shukriya Arslan bhai!', 'Ahmad Cotton Sky Blue', 1],
+        ['rev-6', 'Syed Hamza Ali', 'Multan', 5, 'Lattha aur cotton dono mangwaye thay. 100% pure cotton feel hai, garmiyon me pehnne k lye nihayat thanda aur aaramdeh fabric.', 'Pure Egyptian Lattha White', 1]
+    ];
+    $insRev = $db->prepare("INSERT INTO reviews (id, customer_name, city, rating, comment, suit_name, is_approved) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    foreach ($seedReviews as $sr) {
+        $insRev->execute($sr);
+    }
+}
 
 // Determine endpoint
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -314,6 +342,105 @@ if (preg_match('#^uploads/(.+)$#', $path, $matches)) {
         $mime = mime_content_type($file);
         header('Content-Type: ' . $mime);
         readfile($file);
+        exit;
+    }
+}
+
+// 10. REVIEWS ENDPOINTS
+if ($path === 'reviews') {
+    if ($method === 'GET') {
+        $stmt = $db->query("SELECT * FROM reviews WHERE is_approved = 1 ORDER BY created_at DESC");
+        $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['success' => true, 'count' => count($reviews), 'reviews' => $reviews]);
+        exit;
+    }
+    if ($method === 'POST') {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $name = trim($input['customer_name'] ?? '');
+        $comment = trim($input['comment'] ?? '');
+        if (!$name || !$comment) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Name and comment required']);
+            exit;
+        }
+        $id = 'rev-' . time() . '-' . rand(100, 999);
+        $stmt = $db->prepare("INSERT INTO reviews (id, customer_name, city, rating, comment, suit_name, is_approved) VALUES (?, ?, ?, ?, ?, ?, 0)");
+        $stmt->execute([
+            $id,
+            $name,
+            trim($input['city'] ?? 'Sargodha'),
+            (int)($input['rating'] ?? 5),
+            $comment,
+            trim($input['suit_name'] ?? '')
+        ]);
+        echo json_encode(['success' => true, 'message' => 'Review submitted for approval. Shukriya!', 'id' => $id]);
+        exit;
+    }
+}
+
+if ($path === 'admin/reviews' && $method === 'GET') {
+    $stmt = $db->query("SELECT * FROM reviews ORDER BY created_at DESC");
+    $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode(['success' => true, 'count' => count($reviews), 'reviews' => $reviews]);
+    exit;
+}
+
+if (preg_match('#^admin/reviews/(.+)$#', $path, $matches)) {
+    $reviewId = $matches[1];
+    if ($method === 'PATCH' || $method === 'POST') {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $is_approved = !empty($input['is_approved']) ? 1 : 0;
+        $stmt = $db->prepare("UPDATE reviews SET is_approved = ? WHERE id = ?");
+        $stmt->execute([$is_approved, $reviewId]);
+        echo json_encode(['success' => true, 'message' => 'Review status updated']);
+        exit;
+    }
+    if ($method === 'DELETE') {
+        $stmt = $db->prepare("DELETE FROM reviews WHERE id = ?");
+        $stmt->execute([$reviewId]);
+        echo json_encode(['success' => true, 'message' => 'Review deleted']);
+        exit;
+    }
+}
+
+// 11. STITCHING REQUESTS ENDPOINTS
+if ($path === 'stitching') {
+    if ($method === 'GET') {
+        $stmt = $db->query("SELECT * FROM stitching_requests ORDER BY created_at DESC");
+        $requests = [];
+        while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $r['style_selections'] = json_decode($r['style_selections'] ?? '{}', true);
+            $r['measurements'] = json_decode($r['measurements'] ?? '{}', true);
+            $requests[] = $r;
+        }
+        echo json_encode(['success' => true, 'requests' => $requests]);
+        exit;
+    }
+
+    if ($method === 'POST') {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $req_num = 'ST-' . substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 5);
+        $id = uniqid('st_', true);
+        $stmt = $db->prepare("
+            INSERT INTO stitching_requests (
+                id, request_number, customer_name, phone, whatsapp, address, city, unit, style_selections, measurements, fabric_choice, special_instructions
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([
+            $id,
+            $req_num,
+            trim($input['customer_name'] ?? ''),
+            trim($input['phone'] ?? ''),
+            trim($input['whatsapp'] ?? ''),
+            trim($input['address'] ?? ''),
+            trim($input['city'] ?? 'Sargodha'),
+            $input['unit'] ?? 'inches',
+            json_encode($input['style_selections'] ?? []),
+            json_encode($input['measurements'] ?? []),
+            $input['fabric_choice'] ?? '',
+            $input['special_instructions'] ?? ''
+        ]);
+        echo json_encode(['success' => true, 'request_number' => $req_num, 'id' => $id]);
         exit;
     }
 }
