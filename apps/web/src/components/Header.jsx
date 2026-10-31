@@ -23,6 +23,7 @@ const NAV = [
   { label: 'Women', to: '/women' },
   { label: 'Perfumes', to: '/perfumes' },
   { label: 'Custom Stitching', to: '/stitching' },
+  { label: 'Size Guide', to: '/size-guide' },
   { label: 'Shop All', to: '/shop' },
   { label: 'Track Order', to: '/track-order' },
   { label: 'Contact', to: '/contact' },

@@ -129,11 +129,12 @@ export default function GarmentPreview3D({
       animFrameIdRef.current = requestAnimationFrame(animate);
 
       if (autoRotate && !isDragging) {
-        targetRotation.current.y += 0.004;
+        targetRotation.current.y += 0.005;
       }
 
-      currentRotation.current.x += (targetRotation.current.x - currentRotation.current.x) * 0.08;
-      currentRotation.current.y += (targetRotation.current.y - currentRotation.current.y) * 0.08;
+      // Fast, snappy rotation damping (0.22 for immediate responsive feel)
+      currentRotation.current.x += (targetRotation.current.x - currentRotation.current.x) * 0.22;
+      currentRotation.current.y += (targetRotation.current.y - currentRotation.current.y) * 0.22;
 
       if (mannequinGroupRef.current) {
         mannequinGroupRef.current.rotation.x = currentRotation.current.x;
@@ -166,32 +167,49 @@ export default function GarmentPreview3D({
     };
   }, []);
 
-  // Pointer drag for smooth 360 degree inspection
+  // Pointer drag for smooth, instant 360 degree mouse/touch inspection
   const handlePointerDown = (e) => {
     setIsDragging(true);
     setAutoRotate(false);
+    if (e.currentTarget.setPointerCapture) {
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch (err) {}
+    }
     pointerPos.current = {
-      x: e.clientX || (e.touches && e.touches[0].clientX) || 0,
-      y: e.clientY || (e.touches && e.touches[0].clientY) || 0
+      x: e.clientX || 0,
+      y: e.clientY || 0
     };
   };
 
   const handlePointerMove = (e) => {
     if (!isDragging) return;
-    const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-    const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+    const clientX = e.clientX || 0;
+    const clientY = e.clientY || 0;
 
     const deltaX = clientX - pointerPos.current.x;
     const deltaY = clientY - pointerPos.current.y;
 
-    targetRotation.current.y += deltaX * 0.007;
-    targetRotation.current.x = Math.max(-0.25, Math.min(0.25, targetRotation.current.x + deltaY * 0.005));
+    // Fast, responsive mouse movement sensitivity
+    targetRotation.current.y += deltaX * 0.014;
+    targetRotation.current.x = Math.max(-0.35, Math.min(0.35, targetRotation.current.x + deltaY * 0.009));
 
     pointerPos.current = { x: clientX, y: clientY };
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e) => {
     setIsDragging(false);
+    if (e.currentTarget.releasePointerCapture) {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch (err) {}
+    }
+  };
+
+  const handleWheel = (e) => {
+    if (!cameraRef.current) return;
+    e.preventDefault();
+    cameraRef.current.position.z = Math.min(7.5, Math.max(3.8, cameraRef.current.position.z + e.deltaY * 0.003));
   };
 
   // Re-build 3D Mannequin & Realistic Garment
@@ -488,46 +506,45 @@ export default function GarmentPreview3D({
         </button>
       </div>
 
-      {/* 3D Viewport */}
+      {/* 3D Viewport with Fast Responsive Mouse & Touch Orbit */}
       <div
-        className="relative h-[430px] w-full cursor-grab active:cursor-grabbing select-none"
-        onMouseDown={handlePointerDown}
-        onMouseMove={handlePointerMove}
-        onMouseUp={handlePointerUp}
-        onTouchStart={handlePointerDown}
-        onTouchMove={handlePointerMove}
-        onTouchEnd={handlePointerUp}
+        className="relative h-[430px] w-full cursor-grab active:cursor-grabbing select-none touch-none"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onWheel={handleWheel}
       >
         <div ref={containerRef} className="h-full w-full" />
 
-        {/* Simple & Clean Measurement Box in Plain Urdu/English */}
+        {/* Transparent Frosted Glass Measurement Box */}
         <div className="absolute top-2 left-2 flex flex-col gap-1 pointer-events-none">
-          <div className="rounded-2xl bg-black/80 backdrop-blur-md px-3.5 py-2 text-white shadow-xl border border-white/10">
-            <p className="text-[10px] font-black uppercase tracking-wider text-[#C5A880]">Aapka Naap (Measurements)</p>
-            <div className="mt-1 space-y-0.5 text-xs font-medium">
-              <p>Lambai: <span className="font-bold text-emerald-400">{measurements.kurtaLength || 40} {unit}</span></p>
-              <p>Chhati: <span className="font-bold text-emerald-400">{measurements.chest || 42} {unit}</span></p>
-              <p>Teera: <span className="font-bold text-emerald-400">{measurements.shoulder || 18} {unit}</span></p>
-              <p>Ghera: <span className="font-bold text-emerald-400">{measurements.damanWidth || 23} {unit}</span></p>
+          <div className="rounded-2xl bg-white/75 backdrop-blur-md px-3.5 py-2 text-slate-800 shadow-md border border-white/80 ring-1 ring-slate-900/5">
+            <p className="text-[10px] font-black uppercase tracking-wider text-[#1C3A2B]">Aapka Naap (Measurements)</p>
+            <div className="mt-1 space-y-0.5 text-xs font-semibold text-slate-700">
+              <p>Lambai: <span className="font-bold text-[#1C3A2B]">{measurements.kurtaLength || 40} {unit}</span></p>
+              <p>Chhati: <span className="font-bold text-[#1C3A2B]">{measurements.chest || 42} {unit}</span></p>
+              <p>Teera: <span className="font-bold text-[#1C3A2B]">{measurements.shoulder || 18} {unit}</span></p>
+              <p>Ghera: <span className="font-bold text-[#1C3A2B]">{measurements.damanWidth || 23} {unit}</span></p>
             </div>
           </div>
         </div>
 
         {/* Selected Styles Tags */}
         <div className="absolute top-2 right-2 flex flex-col items-end gap-1.5 pointer-events-none">
-          <span className="rounded-xl bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm border border-slate-200">
+          <span className="rounded-xl bg-white/90 backdrop-blur-sm px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm border border-slate-200">
             {collar === 'sherwani' ? 'Sherwani Ban' : collar === 'shirt' ? 'Shirt Collar' : 'Gool Ban'}
           </span>
-          <span className="rounded-xl bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm border border-slate-200">
+          <span className="rounded-xl bg-white/90 backdrop-blur-sm px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm border border-slate-200">
             {sleeves === 'cuff' ? 'Kaf Bazu' : 'Seedha Bazu'}
           </span>
-          <span className="rounded-xl bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm border border-slate-200">
+          <span className="rounded-xl bg-white/90 backdrop-blur-sm px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm border border-slate-200">
             {daman === 'round' ? 'Gool Daman' : 'Chakor Daman'}
           </span>
         </div>
 
-        {/* View Angle Switcher */}
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 rounded-full bg-black/75 backdrop-blur-md px-3.5 py-1.5 shadow-xl border border-white/10">
+        {/* Transparent View Angle Switcher */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 rounded-full bg-white/80 backdrop-blur-md px-3.5 py-1.5 shadow-md border border-white/90 ring-1 ring-slate-900/5">
           {[
             { id: 'front', label: 'Saamne (Front)' },
             { id: '3/4', label: 'Angle View' },
@@ -540,8 +557,8 @@ export default function GarmentPreview3D({
               onClick={() => setViewAngle(view.id)}
               className={`rounded-full px-2.5 py-1 text-[10px] font-bold transition ${
                 activeView === view.id
-                  ? 'bg-[#C5A880] text-slate-900 shadow'
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
+                  ? 'bg-[#1C3A2B] text-white shadow'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-black/5'
               }`}
             >
               {view.label}

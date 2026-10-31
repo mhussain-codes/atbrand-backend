@@ -518,22 +518,34 @@ export default function StitchingPage() {
                   <h2 className="font-serif text-lg font-bold text-primary">Apna Naap Likhein (Measurements)</h2>
                 </div>
 
-                {/* Unit Switcher */}
-                <div className="flex items-center rounded-lg border border-input bg-muted p-1">
-                  <button
-                    type="button"
-                    onClick={() => setUnit('inches')}
-                    className={`rounded-md px-3 py-1 text-xs font-semibold ${unit === 'inches' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
+                <div className="flex items-center gap-3">
+                  <Link
+                    to="/size-guide"
+                    target="_blank"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-bold text-primary hover:bg-primary/10 transition"
+                    title="View Size Guide"
                   >
-                    Inches
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setUnit('cm')}
-                    className={`rounded-md px-3 py-1 text-xs font-semibold ${unit === 'cm' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
-                  >
-                    Centimeters
-                  </button>
+                    <Ruler className="h-3.5 w-3.5 text-accent" />
+                    <span>Size Guide</span>
+                  </Link>
+
+                  {/* Unit Switcher */}
+                  <div className="flex items-center rounded-lg border border-input bg-muted p-1">
+                    <button
+                      type="button"
+                      onClick={() => setUnit('inches')}
+                      className={`rounded-md px-3 py-1 text-xs font-semibold ${unit === 'inches' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
+                    >
+                      Inches
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUnit('cm')}
+                      className={`rounded-md px-3 py-1 text-xs font-semibold ${unit === 'cm' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
+                    >
+                      Centimeters
+                    </button>
+                  </div>
                 </div>
               </div>
 

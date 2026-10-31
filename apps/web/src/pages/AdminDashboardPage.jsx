@@ -27,7 +27,9 @@ import {
   Link as LinkIcon,
   MessageSquare,
   Menu,
-  Check
+  Check,
+  Play,
+  Pause
 } from 'lucide-react';
 import { formatPKR } from '@/lib/whatsapp';
 import { toast } from 'sonner';
@@ -97,6 +99,10 @@ export default function AdminDashboardPage() {
     fabric: '',
     stock_quantity: 15
   });
+
+  // Edit Product Modal State
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [isUpdatingProduct, setIsUpdatingProduct] = useState(false);
 
   // Multiple Image state: both external URL link input & uploaded/pending files
   const [imageUrlInput, setImageUrlInput] = useState('');
@@ -387,6 +393,63 @@ export default function AdminDashboardPage() {
       }
     } catch (e) {
       toast.error('Error deleting product');
+    }
+  };
+
+  const togglePauseProduct = async (product) => {
+    const newInStock = product.in_stock === false ? true : false;
+    try {
+      const res = await fetch(`/api/products/${product.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ in_stock: newInStock })
+      });
+      if (res.ok) {
+        toast.success(newInStock ? `"${product.name}" resumed (Active on website)` : `"${product.name}" paused`);
+        fetchProducts();
+        fetchDashboardStats();
+      } else {
+        toast.error('Failed to update product status');
+      }
+    } catch (err) {
+      toast.error('Network error updating status');
+    }
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    setIsUpdatingProduct(true);
+    try {
+      const res = await fetch(`/api/products/${editingProduct.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: editingProduct.name,
+          type: editingProduct.type,
+          price: Number(editingProduct.price),
+          stock_quantity: Number(editingProduct.stock_quantity),
+          in_stock: editingProduct.in_stock ? 1 : 0
+        })
+      });
+      if (res.ok) {
+        toast.success('Product updated successfully!');
+        setEditingProduct(null);
+        fetchProducts();
+        fetchDashboardStats();
+      } else {
+        toast.error('Failed to save changes');
+      }
+    } catch (err) {
+      toast.error('Error saving product');
+    } finally {
+      setIsUpdatingProduct(false);
     }
   };
 
@@ -816,30 +879,78 @@ export default function AdminDashboardPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-200 font-medium">
                     {productsList.map(p => (
-                      <tr key={p.id} className="hover:bg-slate-50/70">
+                      <tr key={p.id} className={`hover:bg-slate-50/70 transition ${p.in_stock === false ? 'bg-amber-50/40' : ''}`}>
                         <td className="p-3.5 font-bold text-slate-900 flex items-center gap-3">
                           <img
                             src={p.images?.[0] || 'https://via.placeholder.com/60'}
                             alt={p.name}
-                            className="h-12 w-10 rounded-lg object-cover border border-slate-300"
+                            className="h-12 w-10 rounded-lg object-cover border border-slate-300 shrink-0"
                           />
-                          <span>{p.name}</span>
+                          <div>
+                            <span className="block font-bold text-slate-900">{p.name}</span>
+                            <span className="block text-[10px] text-slate-400 font-mono">{p.sku || `AT-${p.id}`}</span>
+                          </div>
                         </td>
-                        <td className="p-3.5 text-slate-700 font-semibold">{p.type}</td>
-                        <td className="p-3.5 font-black text-slate-900">{formatPKR(p.price)}</td>
-                        <td className="p-3.5">
-                          <span className={`rounded-md px-2.5 py-1 text-xs font-black ${p.stock_quantity > 3 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
-                            {p.stock_quantity} in stock
+                        <td className="p-3.5 text-slate-700 font-semibold">
+                          <span className="inline-block bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-md text-xs">
+                            {p.type}
                           </span>
                         </td>
+                        <td className="p-3.5 font-black text-slate-900">{formatPKR(p.price)}</td>
                         <td className="p-3.5">
-                          <button
-                            onClick={() => deleteProduct(p.id)}
-                            className="text-red-600 hover:text-red-800 p-1.5 rounded-lg hover:bg-red-50"
-                            title="Delete Product"
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </button>
+                          {p.in_stock === false ? (
+                            <span className="rounded-md px-2.5 py-1 text-xs font-black bg-amber-100 text-amber-900 border border-amber-300 inline-flex items-center gap-1 shadow-2xs">
+                              <Pause className="h-3 w-3 fill-current" /> Paused
+                            </span>
+                          ) : (
+                            <span className={`rounded-md px-2.5 py-1 text-xs font-black ${p.stock_quantity > 3 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                              {p.stock_quantity} in stock
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-3.5">
+                          <div className="flex items-center gap-2">
+                            {/* Pause / Resume Button */}
+                            <button
+                              onClick={() => togglePauseProduct(p)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-extrabold inline-flex items-center gap-1.5 transition active:scale-95 ${
+                                p.in_stock === false
+                                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'
+                                  : 'bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100'
+                              }`}
+                              title={p.in_stock === false ? 'Resume on website' : 'Pause from website'}
+                            >
+                              {p.in_stock === false ? (
+                                <>
+                                  <Play className="h-3.5 w-3.5 fill-current" />
+                                  <span>Resume</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Pause className="h-3.5 w-3.5 fill-current" />
+                                  <span>Pause</span>
+                                </>
+                              )}
+                            </button>
+
+                            {/* Edit Button */}
+                            <button
+                              onClick={() => setEditingProduct({ ...p, in_stock: p.in_stock !== false })}
+                              className="text-blue-600 hover:text-blue-800 p-1.5 rounded-lg hover:bg-blue-50 border border-blue-200 transition"
+                              title="Edit Price, Stock, Type"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+
+                            {/* Delete Button */}
+                            <button
+                              onClick={() => deleteProduct(p.id)}
+                              className="text-red-600 hover:text-red-800 p-1.5 rounded-lg hover:bg-red-50 border border-red-200 transition"
+                              title="Delete Product"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1292,6 +1403,113 @@ export default function AdminDashboardPage() {
                   className="rounded-xl bg-[#E0533C] px-7 py-2.5 font-extrabold uppercase tracking-wider text-white shadow hover:opacity-90 transition disabled:opacity-50"
                 >
                   {isSavingProduct ? 'Uploading & Saving...' : 'Save Product'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Product Modal */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-7 shadow-2xl border border-slate-300">
+            <div className="flex justify-between items-center mb-5 border-b border-slate-200 pb-3">
+              <div>
+                <h3 className="font-extrabold text-slate-900 text-xl">Edit Product Details</h3>
+                <p className="text-xs text-slate-500">Update type, price, stock, and active status.</p>
+              </div>
+              <button
+                onClick={() => setEditingProduct(null)}
+                className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Product Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editingProduct.name}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                  className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1C3A2B]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Fabric Type</label>
+                  <select
+                    value={editingProduct.type}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, type: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1C3A2B]"
+                  >
+                    {CATEGORY_FABRICS.Men.map(f => (
+                      <option key={f} value={f}>{f}</option>
+                    ))}
+                    <option value="Special Edition">Special Edition</option>
+                    <option value="Unstitched">Other Unstitched</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Price (PKR)</label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    value={editingProduct.price}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#1C3A2B]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Stock Quantity</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    value={editingProduct.stock_quantity}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, stock_quantity: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#1C3A2B]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Status (Visibility)</label>
+                  <select
+                    value={editingProduct.in_stock ? 'active' : 'paused'}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, in_stock: e.target.value === 'active' })}
+                    className={`w-full rounded-xl border px-3 py-2 text-sm font-bold focus:outline-none focus:ring-2 ${
+                      editingProduct.in_stock ? 'border-emerald-300 bg-emerald-50 text-emerald-900' : 'border-amber-300 bg-amber-50 text-amber-900'
+                    }`}
+                  >
+                    <option value="active">Active (Live on Website)</option>
+                    <option value="paused">Paused (Hidden / Out of Stock)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setEditingProduct(null)}
+                  className="rounded-xl border border-slate-300 px-5 py-2.5 font-bold text-slate-700 hover:bg-slate-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdatingProduct}
+                  className="rounded-xl bg-[#1C3A2B] px-6 py-2.5 font-extrabold uppercase tracking-wider text-white shadow hover:opacity-90 transition disabled:opacity-50"
+                >
+                  {isUpdatingProduct ? 'Saving Changes...' : 'Save Changes'}
                 </button>
               </div>
             </form>

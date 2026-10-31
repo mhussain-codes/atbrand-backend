@@ -205,6 +205,49 @@ app.put('/api/products/:id', requireAdmin, (req, res) => {
   res.json({ success: true, message: 'Product updated successfully' });
 });
 
+app.patch('/api/products/:id', requireAdmin, (req, res) => {
+  const id = req.params.id;
+  const updates = req.body;
+  const existing = sqliteDb.prepare('SELECT * FROM products WHERE id = ?').get(id);
+  if (!existing) {
+    return res.status(404).json({ error: 'Product not found' });
+  }
+
+  const fields = [];
+  const params = { id };
+
+  if (updates.name !== undefined) {
+    fields.push('name = @name');
+    params.name = updates.name;
+  }
+  if (updates.type !== undefined) {
+    fields.push('type = @type');
+    params.type = updates.type;
+  }
+  if (updates.price !== undefined) {
+    fields.push('price = @price');
+    params.price = Number(updates.price);
+  }
+  if (updates.stock_quantity !== undefined) {
+    fields.push('stock_quantity = @stock_quantity');
+    params.stock_quantity = Number(updates.stock_quantity);
+  }
+  if (updates.in_stock !== undefined) {
+    fields.push('in_stock = @in_stock');
+    params.in_stock = updates.in_stock ? 1 : 0;
+  }
+
+  if (fields.length === 0) {
+    return res.json({ success: true, message: 'No fields to update' });
+  }
+
+  fields.push('updated_at = CURRENT_TIMESTAMP');
+  const sql = `UPDATE products SET ${fields.join(', ')} WHERE id = @id`;
+  sqliteDb.prepare(sql).run(params);
+
+  res.json({ success: true, message: 'Product updated successfully' });
+});
+
 app.delete('/api/products/:id', requireAdmin, (req, res) => {
   sqliteDb.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
   res.json({ success: true, message: 'Product deleted' });

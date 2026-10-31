@@ -24,7 +24,7 @@ export default function SizeGuidePage() {
             Measurement & Size Guide
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground sm:text-base">
-            Detailed dimensions for both unstitched fabric cuts (4 or 4.5 meters standard bar) and ready stitched kurta shalwar.
+            Detailed dimensions for unstitched cuts (Standard Wash &amp; Wear 4.0 Meters and Cotton Collection 4.5 Meters) and ready stitched kurta shalwar.
           </p>
         </div>
 
@@ -38,21 +38,27 @@ export default function SizeGuidePage() {
             All AT BRAND unstitched suits are cut from premium factory rolls with generous margins to comfortably accommodate tall and broad builds up to 6'4" height.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="rounded-xl border border-border bg-background p-5">
-              <h4 className="font-bold text-primary text-sm mb-1">Standard Cut (Bara Arz / Double Width)</h4>
-              <p className="text-2xl font-bold text-accent my-2">4.0 Meters</p>
-              <p className="text-xs text-muted-foreground">Arz: 54 - 58 inches. Perfect for complete Kurta and Shalwar for standard to large sizes.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="rounded-xl border-2 border-primary/20 bg-background p-6 shadow-sm hover:border-primary/40 transition">
+              <span className="inline-block rounded-full bg-accent/20 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-accent-foreground mb-2">
+                Wash &amp; Wear
+              </span>
+              <h4 className="font-serif font-bold text-primary text-base mb-1">Standard Wash &amp; Wear (Bara Arz)</h4>
+              <p className="text-3xl font-extrabold text-[#C5A880] my-2">4.0 Meters</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Arz: 54 - 58 inches (Double Width / Bara Arz). Complete shalwar kameez ya kurta pajama banwane ke liye perfect generous cutting jo 6'4" tak ke qad ke liye poori aati hai.
+              </p>
             </div>
-            <div className="rounded-xl border border-border bg-background p-5">
-              <h4 className="font-bold text-primary text-sm mb-1">Single Width Cut (Chhota Arz)</h4>
-              <p className="text-2xl font-bold text-accent my-2">4.5 Meters</p>
-              <p className="text-xs text-muted-foreground">Arz: 36 - 40 inches. Standard Pakistani width suitable for complete men's traditional suit.</p>
-            </div>
-            <div className="rounded-xl border border-border bg-background p-5">
-              <h4 className="font-bold text-primary text-sm mb-1">Kurta Fabric Only</h4>
-              <p className="text-2xl font-bold text-accent my-2">2.25 Meters</p>
-              <p className="text-xs text-muted-foreground">Ideal for standalone Kurtas to pair with contrasting white or off-white shalwar or trousers.</p>
+
+            <div className="rounded-xl border-2 border-primary/20 bg-background p-6 shadow-sm hover:border-primary/40 transition">
+              <span className="inline-block rounded-full bg-[#1C3A2B]/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#1C3A2B] mb-2">
+                Pure Cotton
+              </span>
+              <h4 className="font-serif font-bold text-primary text-base mb-1">Cotton Collection (Ahmad &amp; Rashid)</h4>
+              <p className="text-3xl font-extrabold text-[#1C3A2B] my-2">4.5 Meters</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Pure cotton fabrics (Ahmad Cotton, Rashid Cotton, Lattha) ke liye full 4.5 meters khuli cutting di jati hai taake pehli dhulai ke shrank hone ke baad bhi suit khula aur aaramdeh banay.
+              </p>
             </div>
           </div>
         </div>
