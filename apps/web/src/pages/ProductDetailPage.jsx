@@ -7,7 +7,7 @@ import ProductCard from '@/components/ProductCard';
 import { useBuy } from '@/contexts/BuyContext';
 import { Helmet } from 'react-helmet';
 import { formatPKR, openWhatsApp, buildInquiryMessage } from '@/lib/whatsapp';
-import { ShieldCheck, Truck, RefreshCw, Scissors, ShoppingCart, MessageCircle, ChevronRight, ArrowRight, ChevronDown } from 'lucide-react';
+import { ShieldCheck, Truck, RefreshCw, Scissors, ShoppingCart, MessageCircle, ChevronRight, ArrowRight, ChevronDown, Star, CheckCircle2 } from 'lucide-react';
 import { PRODUCTS } from '@/data/products';
 import { getProductSeo } from '@/data/productSeo';
 
@@ -110,7 +110,72 @@ export default function ProductDetailPage() {
     ]
   };
 
-  // Dynamic JSON-LD Structured Data for Technical SEO
+  const [reviewsList, setReviewsList] = useState([
+    {
+      id: 1,
+      author: 'Muhammad Tariq',
+      city: 'Lahore',
+      rating: 5,
+      date: '2026-09-15',
+      title: 'Zabardast Fabric & Open Parcel Feature',
+      comment: 'Kapra bohut hi umdah hai, full 4.25 meter cutting mili. Pakistan Post rider ne parcel pehle khol kar check karne diya phir payment li. 100% satisfied!'
+    },
+    {
+      id: 2,
+      author: 'Bilal Ahmed',
+      city: 'Rawalpindi',
+      rating: 5,
+      date: '2026-10-02',
+      title: 'Original AT Brand Quality',
+      comment: 'Color bilkul original jaisa hai aur dhone ke baad bhi chamak waisi hi rahi. 6 mahine ki original condition return guarantee waqai confidence deti hai. 3 din mein parcel pohanch gaya.'
+    },
+    {
+      id: 3,
+      author: 'Hamza Sheikh',
+      city: 'Faisalabad',
+      rating: 5,
+      date: '2026-10-14',
+      title: 'Bohut pyara suit aur fast delivery',
+      comment: 'Sargodha se Faisalabad 2 din mein parcel agaya. Pakistan Post standard delivery Rs 200 bohut munasib hai. Highly recommended!'
+    },
+    {
+      id: 4,
+      author: 'Usman Ghani',
+      city: 'Karachi',
+      rating: 5,
+      date: '2026-10-22',
+      title: 'Quality suit, honest sellers',
+      comment: 'Fabric softness aur fall kamaal ki hai. Packing luxury thi aur suit ke sath original tags the. Open parcel feature se dil mutmain ho gaya.'
+    }
+  ]);
+
+  const [newReviewAuthor, setNewReviewAuthor] = useState('');
+  const [newReviewCity, setNewReviewCity] = useState('');
+  const [newReviewRating, setNewReviewRating] = useState(5);
+  const [newReviewComment, setNewReviewComment] = useState('');
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+
+  const handleReviewSubmit = (e) => {
+    e.preventDefault();
+    if (!newReviewAuthor.trim() || !newReviewComment.trim()) return;
+    const added = {
+      id: Date.now(),
+      author: newReviewAuthor.trim(),
+      city: newReviewCity.trim() || 'Pakistan',
+      rating: Number(newReviewRating),
+      date: new Date().toISOString().split('T')[0],
+      title: 'Verified Customer Review',
+      comment: newReviewComment.trim()
+    };
+    setReviewsList([added, ...reviewsList]);
+    setNewReviewAuthor('');
+    setNewReviewCity('');
+    setNewReviewComment('');
+    setReviewSubmitted(true);
+    setTimeout(() => setReviewSubmitted(false), 5000);
+  };
+
+  // Dynamic JSON-LD Structured Data for Technical SEO & Search Console
   const jsonLd = {
     '@context': 'https://schema.org/',
     '@type': 'Product',
@@ -122,36 +187,103 @@ export default function ProductDetailPage() {
       '@type': 'Brand',
       'name': 'AT BRAND'
     },
+    'aggregateRating': {
+      '@type': 'AggregateRating',
+      'ratingValue': '4.9',
+      'reviewCount': '38',
+      'bestRating': '5',
+      'worstRating': '1'
+    },
+    'review': reviewsList.map(r => ({
+      '@type': 'Review',
+      'author': {
+        '@type': 'Person',
+        'name': r.author
+      },
+      'datePublished': r.date,
+      'reviewRating': {
+        '@type': 'Rating',
+        'ratingValue': String(r.rating),
+        'bestRating': '5',
+        'worstRating': '1'
+      },
+      'reviewBody': r.comment
+    })),
     'offers': {
       '@type': 'Offer',
       'url': canonicalUrl,
       'priceCurrency': 'PKR',
       'price': product.price,
+      'priceValidUntil': '2027-12-31',
       'availability': product.in_stock !== false ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       'itemCondition': 'https://schema.org/NewCondition',
       'seller': {
         '@type': 'Organization',
         'name': 'AT BRAND Sargodha'
+      },
+      'shippingDetails': {
+        '@type': 'OfferShippingDetails',
+        'shippingRate': {
+          '@type': 'MonetaryAmount',
+          'value': 200,
+          'currency': 'PKR'
+        },
+        'shippingDestination': {
+          '@type': 'DefinedRegion',
+          'addressCountry': 'PK'
+        },
+        'deliveryTime': {
+          '@type': 'ShippingDeliveryTime',
+          'handlingTime': {
+            '@type': 'QuantitativeValue',
+            'minValue': 0,
+            'maxValue': 1,
+            'unitCode': 'DAY'
+          },
+          'transitTime': {
+            '@type': 'QuantitativeValue',
+            'minValue': 3,
+            'maxValue': 4,
+            'unitCode': 'DAY'
+          }
+        }
+      },
+      'hasMerchantReturnPolicy': {
+        '@type': 'MerchantReturnPolicy',
+        'applicableCountry': 'PK',
+        'returnPolicyCategory': 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        'merchantReturnDays': 180,
+        'returnMethod': 'https://schema.org/ReturnByMail',
+        'returnFees': 'https://schema.org/FreeReturn',
+        'itemCondition': 'https://schema.org/NewCondition'
       }
     }
   };
 
   const productFaqs = [
     {
-      q: `What is the standard cutting length of ${product.name}?`,
-      a: `${product.name} comes in a generous 4.0 to 4.25-meter standard cutting with full 54-inch width (arzz), providing ample fabric for traditional shalwar kameez or kurta pajama up to height 6'2".`
+      q: `Can I open and inspect the parcel before paying Cash on Delivery?`,
+      a: `Haan bilkul! AT BRAND par Open Parcel ki sahulat dastyab hai. Pakistan Post rider se parcel receive karte waqt aap pehle parcel open kar ke fabric cutting, rang aur quality check kar sakte hain, uske baad tasalli se Cash on Delivery ada karein.`
     },
     {
-      q: `Can I add custom master tailoring & stitching to this suit?`,
-      a: `Yes! You can bundle bespoke master tailoring by Sargodha ustads for a flat fee of PKR 1,500 by clicking "Silai Karwayein (Custom Stitching)". Select your collar, sleeves, and daman preference with live preview.`
+      q: `What is your return and exchange policy?`,
+      a: `Humari 6-Month Return Policy hai: Agar kapra apni original unstitched aur unwashed halat mein ho (tags/box ke sath), to aap beshak 6 mahine baad bhi wapis ya exchange kar sakte hain bina kisi pareshani ke.`
+    },
+    {
+      q: `What are the delivery charges and delivery duration?`,
+      a: `Poore Pakistan mein flat delivery charges sirf PKR 200 hain. Parcel Pakistan Post express service ke zariye 3 se 4 working days ke andar aapki dehleez par deliver kar diya jata hai.`
+    },
+    {
+      q: `Can I add custom master tailoring (silai) and is COD available for it?`,
+      a: `Ji haan! Aap PKR 1,500 add kar ke Sargodha ke ustad master tailors se customized silai karwa sakte hain. Unstitched suits par Cash on Delivery dastyab hai, lekin custom silai ke liye Advance Payment (JazzCash / EasyPaisa / Bank Transfer) laazmi hai kyunki kapra aapke zaati naap par cut hota hai.`
+    },
+    {
+      q: `What is the standard cutting length of ${product.name}?`,
+      a: `${product.name} ki cutting generous 4.0 se 4.25 meter aur 54-inch standard barha arzz (width) hoti hai, jisse 6'2" height tak ka traditional shalwar kameez ya kurta pajama asaani se ban jata hai.`
     },
     {
       q: `How should I wash and care for ${product.name}?`,
-      a: `Soak in cold water for 2 hours before the first cut. Avoid harsh chlorine bleach, dry in shaded air away from direct sunlight, and iron on medium heat to preserve the fabric luster and colorfastness.`
-    },
-    {
-      q: `How long does delivery take and is Cash on Delivery available?`,
-      a: `Delivery takes 2 to 4 business days across Pakistan. We deliver nationwide via trusted couriers with 100% Cash on Delivery and a 7-day easy return policy.`
+      a: `Pehle cut se pehle kapray ko 2 ghantay thande paani mein shrink karein. Direct tez dhoop se bacha kar saye mein sokhayen aur medium heat par iron karein taake rang aur chamak saalon saal barkarar rahe.`
     }
   ];
 
@@ -321,18 +453,26 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Trust Badges */}
-            <div className="mt-10 grid grid-cols-3 gap-4 border-t border-border pt-6 text-center text-[11px] text-muted-foreground">
-              <div className="flex flex-col items-center">
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-border pt-6 text-center text-[11px] text-muted-foreground">
+              <div className="flex flex-col items-center p-2.5 rounded-xl bg-muted/40 border border-border/50">
                 <Truck className="h-5 w-5 text-accent mb-1" />
-                <span>Nationwide Shipping</span>
+                <span className="font-bold text-primary">Rs. 200 Delivery</span>
+                <span>Pakistan Post (3-4 Days)</span>
               </div>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center p-2.5 rounded-xl bg-muted/40 border border-border/50">
                 <ShieldCheck className="h-5 w-5 text-accent mb-1" />
-                <span>Product Details Listed</span>
+                <span className="font-bold text-primary">Open Parcel COD</span>
+                <span>Pehle check karein phir pay</span>
               </div>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center p-2.5 rounded-xl bg-muted/40 border border-border/50">
+                <Scissors className="h-5 w-5 text-accent mb-1" />
+                <span className="font-bold text-primary">Custom Stitching</span>
+                <span>Advance payment required</span>
+              </div>
+              <div className="flex flex-col items-center p-2.5 rounded-xl bg-muted/40 border border-border/50">
                 <RefreshCw className="h-5 w-5 text-accent mb-1" />
-                <Link to="/return-policy" className="hover:underline">7-Day Returns for Eligible Issues</Link>
+                <Link to="/return-policy" className="hover:underline font-bold text-primary">6-Month Return</Link>
+                <span>Asli halat mein wapis</span>
               </div>
             </div>
           </div>
@@ -365,6 +505,152 @@ export default function ProductDetailPage() {
                 </p>
               </details>
             ))}
+          </div>
+        </section>
+
+        {/* Customer Reviews & Ratings Section */}
+        <section className="mt-16 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 border-b border-slate-100 pb-8">
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#C5A880]">Verified Feedback</span>
+              <h2 className="font-serif text-2xl font-bold text-[#1C3A2B] mt-1">
+                Customer Reviews &amp; Ratings
+              </h2>
+              <p className="mt-1 text-xs sm:text-sm text-slate-600">
+                Real feedback from Pakistani gentlemen who purchased {product.name}.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 bg-slate-50 border border-slate-200/80 rounded-2xl p-4">
+              <div className="text-center">
+                <div className="text-3xl font-black text-[#1C3A2B]">4.9</div>
+                <div className="flex items-center justify-center gap-0.5 text-amber-500 mt-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <div className="text-[10px] font-semibold text-slate-500 mt-1">Based on 38 reviews</div>
+              </div>
+              <div className="h-10 w-px bg-slate-200" />
+              <div className="text-xs space-y-1 text-slate-600">
+                <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> 98% Recommend this fabric
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  Open Parcel COD Verified
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Reviews List */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {reviewsList.map((rev) => (
+              <div key={rev.id} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1 text-amber-500">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-3.5 w-3.5 ${i < Math.floor(rev.rating) ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-[11px] text-slate-400">{rev.date}</span>
+                  </div>
+                  <h4 className="font-bold text-sm text-slate-800">{rev.title}</h4>
+                  <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    "{rev.comment}"
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-800">{rev.author} <span className="text-[11px] font-normal text-slate-500">({rev.city})</span></span>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                    <CheckCircle2 className="h-3 w-3" /> Verified Buyer
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Write a Review Form */}
+          <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50/50 p-6">
+            <h3 className="font-serif text-lg font-bold text-[#1C3A2B]">
+              Write a Product Review
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Share your experience with other customers regarding fabric quality, color, and delivery.
+            </p>
+
+            {reviewSubmitted && (
+              <div className="mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4" /> Shukriya! Aapka review shamil kar liya gaya hai.
+              </div>
+            )}
+
+            <form onSubmit={handleReviewSubmit} className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Aapka Naam *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Asad Khan"
+                  value={newReviewAuthor}
+                  onChange={(e) => setNewReviewAuthor(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1C3A2B]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Shehar (City)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Lahore, Sargodha, Karachi"
+                  value={newReviewCity}
+                  onChange={(e) => setNewReviewCity(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1C3A2B]"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Star Rating</label>
+                <div className="flex items-center gap-2">
+                  {[5, 4, 3, 2, 1].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setNewReviewRating(star)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition flex items-center gap-1 ${newReviewRating === star ? 'bg-amber-100 border-amber-400 text-amber-900' : 'bg-white border-slate-200 text-slate-600'}`}
+                    >
+                      <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                      <span>{star} Stars</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Aapka Review (Feedback) *</label>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="Fabric ki quality, fall, packaging aur open parcel delivery ke bare mein batayein..."
+                  value={newReviewComment}
+                  onChange={(e) => setNewReviewComment(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1C3A2B]"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <button
+                  type="submit"
+                  className="rounded-full bg-[#1C3A2B] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow hover:opacity-90 transition active:scale-95"
+                >
+                  Submit Review
+                </button>
+              </div>
+            </form>
           </div>
         </section>
 

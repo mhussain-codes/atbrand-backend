@@ -3,50 +3,59 @@ export const WHATSAPP_NUMBER = '923106017983';
 export const WHATSAPP_NUMBER_DISPLAY = '+92 310 6017983';
 export const SUPPORT_EMAIL = 'atbrand00@gmail.com';
 export const STORE_LOCATION = 'New Satellite Town, Tali Chowk X-Block, Sargodha, Pakistan';
+export const DELIVERY_FEE = 200;
 
 export const formatPKR = (n) => `PKR ${Number(n).toLocaleString('en-PK')}`;
 
 // Professionally formatted order message sent when the Buy Now form is submitted (Single Item).
 export function buildOrderMessage({ product, name, mobile, address, orderId }) {
-  // Agar color select hua hai toh colorText banaye ga, warna empty rahega
   const colorText = product.selectedColor ? ` (Color: ${product.selectedColor})` : '';
+  const subtotal = Number(product.price) || 0;
+  const total = subtotal + DELIVERY_FEE;
 
   return [
     '*NEW ORDER — AT BRAND*',
     '------------------------------',
     `*Order ID:* ${orderId}`,
-    `*Product:* ${product.name}${colorText} (${product.type})`, // Color yahan add ho gaya
-    `*Price:* ${formatPKR(product.price)}`,
+    `*Product:* ${product.name}${colorText} (${product.type || 'Suit'})`,
+    `*Suit Price:* ${formatPKR(subtotal)}`,
+    `*Delivery (Pakistan Post):* ${formatPKR(DELIVERY_FEE)}`,
+    `*Total Payable (COD):* ${formatPKR(total)}`,
+    '------------------------------',
+    `*Payment:* Cash on Delivery (Open Parcel available)`,
+    `*Delivery Time:* 3 to 4 working days`,
     '------------------------------',
     `*Name:* ${name.trim()}`,
     `*Mobile:* ${mobile.trim()}`,
     `*Address:* ${address.trim()}`,
     '------------------------------',
-    'Please confirm my order and share delivery details. Shukriya!',
+    'Please confirm parcel dispatch via Pakistan Post. Shukriya!',
   ].join('\n');
 }
 
 // NEW: Professionally formatted order message for Multiple Cart Items
 export function buildCartMessage(cart) {
-  // Total calculate karna
-  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const total = subtotal + DELIVERY_FEE;
 
   let message = [
     '*NEW CART ORDER — AT BRAND*',
     '------------------------------'
   ];
 
-  // Har item ko list mein add karna
   cart.forEach((item, index) => {
-    // Cart mein bhi har item ka color check karega
     const colorText = item.selectedColor ? ` (Color: ${item.selectedColor})` : '';
-
-    message.push(`${index + 1}. *${item.name}*${colorText} (${item.type})`);
+    message.push(`${index + 1}. *${item.name}*${colorText} (${item.type || 'Suit'})`);
     message.push(`   Qty: ${item.quantity} x ${formatPKR(item.price)}`);
   });
 
   message.push('------------------------------');
-  message.push(`*Total Amount:* ${formatPKR(total)}`);
+  message.push(`*Subtotal:* ${formatPKR(subtotal)}`);
+  message.push(`*Delivery (Pakistan Post):* ${formatPKR(DELIVERY_FEE)}`);
+  message.push(`*Total Payable (COD):* ${formatPKR(total)}`);
+  message.push('------------------------------');
+  message.push('*Payment:* Cash on Delivery (Open Parcel inspection available)');
+  message.push('*Delivery Time:* 3 to 4 working days');
   message.push('------------------------------');
   message.push('I would like to place this order. Please guide me with the next steps. Shukriya!');
 

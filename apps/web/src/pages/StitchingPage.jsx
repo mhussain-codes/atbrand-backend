@@ -17,7 +17,8 @@ export default function StitchingPage() {
   const suitImage = searchParams.get('suitImage');
 
   const stitchingFee = 1500;
-  const totalCombinedPrice = suitId ? suitPrice + stitchingFee : stitchingFee;
+  const deliveryFee = 200;
+  const totalCombinedPrice = (suitId ? suitPrice : 0) + stitchingFee + deliveryFee;
 
   const [unit, setUnit] = useState('inches'); // 'inches' or 'cm'
   const [viewMode, setViewMode] = useState('3d'); // '3d' or '2d'
@@ -126,9 +127,9 @@ export default function StitchingPage() {
                 }
               ],
               subtotal: totalCombinedPrice,
-              delivery_charge: 0,
+              delivery_charge: deliveryFee,
               total_amount: totalCombinedPrice,
-              payment_method: 'COD',
+              payment_method: 'Advance Payment',
               customer_notes: `Bespoke Tailoring Request: ${data.request_number || 'ST'}. Style: ${styles.collar}, ${styles.sleeves}`
             })
           });
@@ -148,7 +149,9 @@ export default function StitchingPage() {
           `*Order / Request ID:* ${data.request_number}`,
           suitId ? `*Selected Suit:* ${suitName} (${formatPKR(suitPrice)})` : null,
           `*Stitching Fee:* ${formatPKR(stitchingFee)}`,
-          suitId ? `*TOTAL AMOUNT (COD):* ${formatPKR(totalCombinedPrice)}` : `*Stitching Payable:* ${formatPKR(stitchingFee)}`,
+          `*Delivery (Pakistan Post):* ${formatPKR(deliveryFee)}`,
+          `*TOTAL AMOUNT:* ${formatPKR(totalCombinedPrice)}`,
+          `*Payment Note:* Stitching ke liye Advance Payment lazmi hai. Unstitched suit par COD available hai.`,
           '==============================',
           `*Customer:* ${contact.name}`,
           `*Phone:* ${contact.phone}`,
@@ -333,8 +336,10 @@ export default function StitchingPage() {
                     <span>•</span>
                     <span>Stitching: <b className="text-primary">{formatPKR(stitchingFee)}</b></span>
                     <span>•</span>
+                    <span>Delivery: <b className="text-primary">{formatPKR(deliveryFee)}</b></span>
+                    <span>•</span>
                     <span className="text-sm font-extrabold text-primary bg-accent/20 px-2 py-0.5 rounded-md">
-                      Total COD: {formatPKR(totalCombinedPrice)}
+                      Total: {formatPKR(totalCombinedPrice)}
                     </span>
                   </div>
                 </div>
@@ -697,7 +702,7 @@ export default function StitchingPage() {
                     : `Silai Ka Order Dein (${formatPKR(stitchingFee)})`}
                 </button>
                 <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                  Kapra kaatne se pehle hamare master tailor aapke diye gaye naap ko check karenge. Poore Pakistan mein Cash on Delivery.
+                  Kapra kaatne se pehle hamare master tailor aapke diye gaye naap ko check karenge. Custom silai ke liye Advance Payment (JazzCash / EasyPaisa / Bank Transfer) zaroori hai. Pakistan Post ke zariye 3-4 working days mein delivery.
                 </p>
               </div>
             </form>

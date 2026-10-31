@@ -102,14 +102,14 @@ export default function CartPage() {
                     <span className="font-medium text-foreground">{formatPKR(total)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Standard Delivery</span>
-                    <span className="text-emerald-700 font-semibold">Free / COD</span>
+                    <span className="text-muted-foreground">Delivery (Pakistan Post)</span>
+                    <span className="text-primary font-semibold">PKR 200</span>
                   </div>
                 </div>
 
                 <div className="flex justify-between text-base font-bold text-primary mb-6">
                   <span>Total Payable:</span>
-                  <span>{formatPKR(total)}</span>
+                  <span>{formatPKR(total + 200)}</span>
                 </div>
 
                 <button
@@ -120,7 +120,7 @@ export default function CartPage() {
                 </button>
 
                 <p className="mt-3 text-center text-[11px] text-muted-foreground">
-                  Cash on Delivery available nationwide.
+                  Cash on Delivery &amp; Open Parcel available nationwide.
                 </p>
               </div>
             </div>

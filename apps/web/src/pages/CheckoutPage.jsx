@@ -22,7 +22,9 @@ export default function CheckoutPage() {
     notes: ''
   });
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const deliveryFee = 200;
+  const total = subtotal + deliveryFee;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,9 +64,14 @@ export default function CheckoutPage() {
           '*Items:*',
           itemsText,
           '------------------------------',
+          `*Subtotal:* ${formatPKR(subtotal)}`,
+          `*Delivery (Pakistan Post):* ${formatPKR(deliveryFee)}`,
           `*Total Amount (COD):* ${formatPKR(total)}`,
           '------------------------------',
-          'Please confirm parcel dispatch. Shukriya!'
+          '*Payment:* Cash on Delivery (Open Parcel available)',
+          '*Delivery Time:* 3 to 4 working days',
+          '------------------------------',
+          'Please confirm parcel dispatch via Pakistan Post. Shukriya!'
         ].join('\n');
 
         clearCart();
@@ -205,17 +212,20 @@ export default function CheckoutPage() {
               <div className="border-t border-border pt-4 space-y-2 text-sm">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>{formatPKR(total)}</span>
+                  <span>{formatPKR(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
-                  <span>Delivery</span>
-                  <span className="text-emerald-700 font-semibold">Free</span>
+                  <span>Delivery (Pakistan Post)</span>
+                  <span className="text-primary font-semibold">{formatPKR(deliveryFee)}</span>
                 </div>
                 <div className="flex justify-between text-base font-bold text-primary pt-2 border-t border-border">
                   <span>Total Payable:</span>
                   <span>{formatPKR(total)}</span>
                 </div>
               </div>
+              <p className="mt-3 text-center text-xs font-semibold text-emerald-700 bg-emerald-50 py-1.5 px-3 rounded-lg border border-emerald-200">
+                ✓ Open Parcel Available: Parcel khol kar check karein aur payment karein
+              </p>
             </div>
           </div>
         </div>

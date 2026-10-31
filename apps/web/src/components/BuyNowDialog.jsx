@@ -137,18 +137,19 @@ export default function BuyNowDialog({ product, open, onOpenChange }) {
             </DialogHeader>
 
             {/* FIX: Bilkul Cart jaisa design, choti image (w-20 h-24) aur product.type use kiya gaya hai */}
-            <div className="flex gap-4 border border-border rounded-xl p-3 bg-background shadow-sm w-full">
-              <img
-                src={product.images?.[0] || product.image || ''}
-                alt={`${product.name} - Mens Premium Unstitched Suit`}
-                className="w-20 h-24 object-cover rounded-md shrink-0"
-              />
-              <div className="flex flex-1 flex-col justify-center">
-                <h3 className="font-semibold text-sm text-foreground leading-tight">{product.name}</h3>
-                <p className="text-[11px] text-muted-foreground uppercase mt-1">{product.type || product.fabric}</p>
-                <p className="font-medium text-primary mt-1.5">{formatPKR(product.price)}</p>
+              <div className="flex gap-4 border border-border rounded-xl p-3 bg-background shadow-sm w-full">
+                <img
+                  src={product.images?.[0] || product.image || ''}
+                  alt={`${product.name} - Mens Premium Unstitched Suit`}
+                  className="w-20 h-24 object-cover rounded-md shrink-0"
+                />
+                <div className="flex flex-1 flex-col justify-center text-xs space-y-0.5">
+                  <h3 className="font-semibold text-sm text-foreground leading-tight">{product.name}</h3>
+                  <p className="text-[11px] text-muted-foreground uppercase">{product.type || product.fabric}</p>
+                  <p className="text-muted-foreground">Suit: <strong className="text-foreground">{formatPKR(product.price)}</strong> + Delivery: <strong>PKR 200</strong></p>
+                  <p className="font-bold text-primary text-sm pt-0.5">Total Payable (COD): {formatPKR(Number(product.price) + 200)}</p>
+                </div>
               </div>
-            </div>
 
             {/* FORM */}
             <form onSubmit={submit} className="space-y-4 mt-4 w-full" noValidate>
@@ -202,9 +203,9 @@ export default function BuyNowDialog({ product, open, onOpenChange }) {
                 {submitting ? 'Placing order…' : 'Confirm Order on WhatsApp'}
               </button>
 
-              <p className="flex items-center justify-center gap-1.5 pt-1 text-center text-[11px] text-muted-foreground w-full uppercase tracking-wide">
+              <p className="flex items-center justify-center gap-1.5 pt-1 text-center text-[11px] text-muted-foreground w-full font-medium">
                 <ShieldCheck className="h-3.5 w-3.5 text-accent" />
-                Cash on delivery nationwide
+                Cash on Delivery (Open Parcel available) • 3 to 4 working days
               </p>
             </form>
           </>
