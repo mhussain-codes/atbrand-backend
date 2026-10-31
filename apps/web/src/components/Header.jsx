@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, MessageCircle, ShoppingCart, Plus, Minus, Trash2, Search, Scissors, ChevronDown } from 'lucide-react';
+import { Menu, X, MessageCircle, ShoppingCart, Plus, Minus, Trash2, Search, Scissors, ChevronDown, Truck, ShieldCheck, RefreshCw } from 'lucide-react';
 import { openWhatsApp, buildCartMessage, formatPKR } from '@/lib/whatsapp';
 import { useBuy } from '@/contexts/BuyContext';
 import ProductCard from '@/components/ProductCard';
@@ -62,6 +62,24 @@ export default function Header() {
 
   return (
     <header ref={headerRef} className="sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
+      {/* High-Converting Top Trust & Delivery Bar for Paid & Organic Traffic */}
+      <div className="bg-[#1C3A2B] text-white text-[11px] sm:text-xs py-2 px-3 text-center font-medium tracking-wide flex items-center justify-center gap-2 sm:gap-5 flex-wrap border-b border-[#C5A880]/30 shadow-sm">
+        <span className="inline-flex items-center gap-1.5">
+          <Truck className="h-3.5 w-3.5 text-[#C5A880]" />
+          <span>Flat <b>Rs. 200 Delivery</b> (Pakistan Post)</span>
+        </span>
+        <span className="text-[#C5A880]/60 hidden xs:inline">•</span>
+        <span className="inline-flex items-center gap-1.5">
+          <ShieldCheck className="h-3.5 w-3.5 text-[#C5A880]" />
+          <span><b>Open Parcel COD:</b> Pehle Khol Kar Check Karein Phir Pay Karein</span>
+        </span>
+        <span className="text-[#C5A880]/60 hidden md:inline">•</span>
+        <span className="hidden md:inline-flex items-center gap-1.5">
+          <RefreshCw className="h-3.5 w-3.5 text-[#C5A880]" />
+          <span><b>6 Months</b> Return Guarantee</span>
+        </span>
+      </div>
+
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         
         {/* Mobile Menu Button */}

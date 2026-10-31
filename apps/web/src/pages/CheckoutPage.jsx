@@ -6,6 +6,7 @@ import { useBuy } from '@/contexts/BuyContext';
 import { Helmet } from 'react-helmet';
 import { formatPKR, openWhatsApp } from '@/lib/whatsapp';
 import { createOrder } from '@/lib/orders';
+import { trackPurchase } from '@/lib/adPixel';
 import { toast } from 'sonner';
 import { ShieldCheck, Truck } from 'lucide-react';
 
@@ -75,6 +76,7 @@ export default function CheckoutPage() {
         ].join('\n');
 
         clearCart();
+        trackPurchase({ orderId: res.order_id, total, items: cart });
         openWhatsApp(waMsg);
         navigate(`/track-order?id=${res.order_id}`);
       } else {

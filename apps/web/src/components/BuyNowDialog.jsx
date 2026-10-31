@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { buildOrderMessage, formatPKR, openWhatsApp } from '@/lib/whatsapp';
 import { createOrder } from '@/lib/orders';
+import { trackPurchase } from '@/lib/adPixel';
 
 const EMPTY = { name: '', mobile: '', address: '' };
 
@@ -72,6 +73,7 @@ export default function BuyNowDialog({ product, open, onOpenChange }) {
 
       const { order_id } = await createOrder({ product, ...form });
       setPlaced({ orderId: order_id });
+      trackPurchase({ orderId: order_id, total: (Number(product.price) || 0) + 200, items: [product] });
       openWhatsApp(buildOrderMessage({ product, ...form, orderId: order_id }));
       toast.success('Order placed! Opening WhatsApp…');
       

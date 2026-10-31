@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { MessageCircle, Sparkles, ChevronLeft, ChevronRight, ShoppingCart, Eye } from 'lucide-react';
 import { buildInquiryMessage, formatPKR, openWhatsApp } from '@/lib/whatsapp';
 import { useBuy } from '@/contexts/BuyContext';
+import { trackAddToCart, trackWhatsAppClick } from '@/lib/adPixel';
 import { toast } from 'sonner';
 
 export default function ProductCard({ product }) {
@@ -140,7 +141,12 @@ export default function ProductCard({ product }) {
         <p className="mt-0.5 text-sm text-muted-foreground line-clamp-1">
           {product.fabric || "Premium Unstitched Shalwar Kameez"}
         </p>
-        <p className="mt-2 text-lg font-semibold text-primary">{product.price ? formatPKR(product.price) : "PKR 1,500"}</p>
+        <div className="mt-2 flex items-center justify-between gap-2 flex-wrap">
+          <p className="text-lg font-bold text-primary">{product.price ? formatPKR(product.price) : "PKR 1,500"}</p>
+          <span className="inline-flex items-center text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/90 px-2 py-0.5 rounded-full shadow-2xs">
+            Open Parcel COD
+          </span>
+        </div>
 
         {isBudgetSection && availableColors.length > 0 && selectedColor && (
           <div className="mt-3" onClick={(e) => e.stopPropagation()}>
@@ -171,7 +177,9 @@ export default function ProductCard({ product }) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              addToCart(getProductData());
+              const pData = getProductData();
+              addToCart(pData);
+              trackAddToCart(pData);
               toast.success(`${product.name || 'Suit'} added to cart!`);
             }}
             className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-primary px-2 py-2.5 text-xs font-semibold text-primary transition hover:bg-primary/10 active:scale-[0.98]"
@@ -193,6 +201,7 @@ export default function ProductCard({ product }) {
           <button
             onClick={(e) => {
               e.stopPropagation();
+              trackWhatsAppClick('product_card');
               openWhatsApp(buildInquiryMessage(getProductData()));
             }}
             title="Chat on WhatsApp"

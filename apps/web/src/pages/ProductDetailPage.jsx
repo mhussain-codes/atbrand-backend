@@ -10,6 +10,7 @@ import { formatPKR, openWhatsApp, buildInquiryMessage } from '@/lib/whatsapp';
 import { ShieldCheck, Truck, RefreshCw, Scissors, ShoppingCart, MessageCircle, ChevronRight, ArrowRight, ChevronDown, Star, CheckCircle2 } from 'lucide-react';
 import { PRODUCTS } from '@/data/products';
 import { getProductSeo } from '@/data/productSeo';
+import { trackViewContent, trackAddToCart, trackWhatsAppClick } from '@/lib/adPixel';
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
@@ -33,6 +34,7 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (initialProduct) {
       setProduct(initialProduct);
+      trackViewContent(initialProduct);
     }
     setSelectedImage(0);
 
@@ -44,6 +46,9 @@ export default function ProductDetailPage() {
       .then(d => {
         if (d && d.product) {
           setProduct(d.product);
+          if (!initialProduct) {
+            trackViewContent(d.product);
+          }
         }
       })
       .catch(() => {});
@@ -436,7 +441,10 @@ export default function ProductDetailPage() {
               </button>
 
               <button
-                onClick={() => addToCart(product)}
+                onClick={() => {
+                  addToCart(product);
+                  trackAddToCart(product);
+                }}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary py-3.5 text-xs font-bold uppercase tracking-widest text-primary transition hover:bg-primary/5 active:scale-95"
               >
                 <ShoppingCart className="h-4 w-4" />
@@ -444,7 +452,10 @@ export default function ProductDetailPage() {
               </button>
 
               <button
-                onClick={() => openWhatsApp(buildInquiryMessage(product))}
+                onClick={() => {
+                  trackWhatsAppClick('product_detail_page');
+                  openWhatsApp(buildInquiryMessage(product));
+                }}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-emerald-600 bg-emerald-50 py-3 text-xs font-bold tracking-wider text-emerald-800 transition hover:bg-emerald-100"
               >
                 <MessageCircle className="h-4 w-4" />
