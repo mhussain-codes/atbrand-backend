@@ -234,8 +234,54 @@ if ($path === 'products') {
     }
 }
 
-// 4. DELETE PRODUCT
-if (preg_match('#^products/(.+)$#', $path, $matches) && $method === 'DELETE') {
+// 4. UPDATE / PATCH PRODUCT
+if ((preg_match('#^products/([^/]+)$#', $path, $matches) && ($method === 'PATCH' || $method === 'PUT')) ||
+    (preg_match('#^products/([^/]+)/update$#', $path, $matches) && $method === 'POST')) {
+    $id = $matches[1];
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    
+    $fields = [];
+    $params = [];
+    
+    if (isset($input['name'])) {
+        $fields[] = 'name = ?';
+        $params[] = $input['name'];
+    }
+    if (isset($input['type'])) {
+        $fields[] = 'type = ?';
+        $params[] = $input['type'];
+    }
+    if (isset($input['price'])) {
+        $fields[] = 'price = ?';
+        $params[] = (float)$input['price'];
+    }
+    if (isset($input['stock_quantity'])) {
+        $fields[] = 'stock_quantity = ?';
+        $params[] = (int)$input['stock_quantity'];
+    }
+    if (isset($input['in_stock'])) {
+        $fields[] = 'in_stock = ?';
+        $params[] = $input['in_stock'] ? 1 : 0;
+    }
+    
+    if (empty($fields)) {
+        echo json_encode(['success' => true, 'message' => 'No fields to update']);
+        exit;
+    }
+    
+    $fields[] = 'updated_at = CURRENT_TIMESTAMP';
+    $params[] = $id;
+    $sql = "UPDATE products SET " . implode(', ', $fields) . " WHERE id = ?";
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    
+    echo json_encode(['success' => true, 'message' => 'Product updated successfully']);
+    exit;
+}
+
+// 5. DELETE PRODUCT
+if ((preg_match('#^products/([^/]+)$#', $path, $matches) && $method === 'DELETE') ||
+    (preg_match('#^products/([^/]+)/delete$#', $path, $matches) && $method === 'POST')) {
     $stmt = $db->prepare("DELETE FROM products WHERE id = ?");
     $stmt->execute([$matches[1]]);
     echo json_encode(['success' => true, 'message' => 'Product deleted']);

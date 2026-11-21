@@ -110,12 +110,18 @@ export default function AdminDashboardPage() {
   const [selectedFilePreviews, setSelectedFilePreviews] = useState([]); // [{ file, preview }]
   const fileInputRef = useRef(null);
 
+  const getAuthHeader = () => {
+    const t = token || (typeof window !== 'undefined' ? localStorage.getItem('atbrand_admin_token') : null);
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  };
+
   // Fetch Dashboard Analytics
   const fetchDashboardStats = async () => {
-    if (!token) return;
+    const authHeaders = getAuthHeader();
+    if (!authHeaders.Authorization) return;
     try {
       const res = await fetch('/api/admin/dashboard-stats', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: authHeaders
       });
       const d = await res.json();
       if (d.success) setStats(d.stats);
@@ -381,15 +387,29 @@ export default function AdminDashboardPage() {
 
   const deleteProduct = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
+    const authHeaders = getAuthHeader();
     try {
-      const res = await fetch(`/api/products/${id}`, {
+      let res = await fetch(`/api/products/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: authHeaders
       });
+
+      if (!res.ok && (res.status === 404 || res.status === 405)) {
+        res = await fetch(`/api/products/${id}/delete`, {
+          method: 'POST',
+          headers: authHeaders
+        });
+      }
+
       if (res.ok) {
         toast.success('Product deleted');
         fetchProducts();
         fetchDashboardStats();
+      } else if (res.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        logout();
+      } else {
+        toast.error('Failed to delete product');
       }
     } catch (e) {
       toast.error('Error deleting product');
@@ -398,19 +418,35 @@ export default function AdminDashboardPage() {
 
   const togglePauseProduct = async (product) => {
     const newInStock = product.in_stock === false ? true : false;
+    const authHeaders = getAuthHeader();
     try {
-      const res = await fetch(`/api/products/${product.id}`, {
+      let res = await fetch(`/api/products/${product.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          ...authHeaders
         },
         body: JSON.stringify({ in_stock: newInStock })
       });
+
+      if (!res.ok && (res.status === 404 || res.status === 405)) {
+        res = await fetch(`/api/products/${product.id}/update`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders
+          },
+          body: JSON.stringify({ in_stock: newInStock })
+        });
+      }
+
       if (res.ok) {
         toast.success(newInStock ? `"${product.name}" resumed (Active on website)` : `"${product.name}" paused`);
         fetchProducts();
         fetchDashboardStats();
+      } else if (res.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        logout();
       } else {
         toast.error('Failed to update product status');
       }
@@ -423,26 +459,44 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     if (!editingProduct) return;
     setIsUpdatingProduct(true);
+    const authHeaders = getAuthHeader();
+    const payload = {
+      name: editingProduct.name,
+      type: editingProduct.type,
+      price: Number(editingProduct.price),
+      stock_quantity: Number(editingProduct.stock_quantity),
+      in_stock: editingProduct.in_stock ? 1 : 0
+    };
+
     try {
-      const res = await fetch(`/api/products/${editingProduct.id}`, {
+      let res = await fetch(`/api/products/${editingProduct.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          ...authHeaders
         },
-        body: JSON.stringify({
-          name: editingProduct.name,
-          type: editingProduct.type,
-          price: Number(editingProduct.price),
-          stock_quantity: Number(editingProduct.stock_quantity),
-          in_stock: editingProduct.in_stock ? 1 : 0
-        })
+        body: JSON.stringify(payload)
       });
+
+      if (!res.ok && (res.status === 404 || res.status === 405)) {
+        res = await fetch(`/api/products/${editingProduct.id}/update`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+
       if (res.ok) {
         toast.success('Product updated successfully!');
         setEditingProduct(null);
         fetchProducts();
         fetchDashboardStats();
+      } else if (res.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        logout();
       } else {
         toast.error('Failed to save changes');
       }
