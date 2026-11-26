@@ -7,7 +7,7 @@ import ProductCard from '@/components/ProductCard';
 import { useBuy } from '@/contexts/BuyContext';
 import { Helmet } from 'react-helmet';
 import { formatPKR, openWhatsApp, buildInquiryMessage } from '@/lib/whatsapp';
-import { ShieldCheck, Truck, RefreshCw, Scissors, ShoppingCart, MessageCircle, ChevronRight, ArrowRight, ChevronDown, Star, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Truck, RefreshCw, Scissors, ShoppingCart, MessageCircle, ChevronRight, ArrowRight, ChevronDown, Star, CheckCircle2, Sparkles } from 'lucide-react';
 import { PRODUCTS } from '@/data/products';
 import { getProductSeo } from '@/data/productSeo';
 import { trackViewContent, trackAddToCart, trackWhatsAppClick } from '@/lib/adPixel';
@@ -27,16 +27,30 @@ export default function ProductDetailPage() {
     ) || null;
   }, [cleanSlug]);
 
+  // ALL HOOKS DECLARED AT THE VERY TOP (Rules of Hooks Strict Compliance)
   const [product, setProduct] = useState(initialProduct);
+  const [loading, setLoading] = useState(!initialProduct);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [dbRelated, setDbRelated] = useState([]);
 
-  // Sync state and fetch background live updates without blocking UI
+  const [newReviewAuthor, setNewReviewAuthor] = useState('');
+  const [newReviewCity, setNewReviewCity] = useState('');
+  const [newReviewRating, setNewReviewRating] = useState(5);
+  const [newReviewComment, setNewReviewComment] = useState('');
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [customReviews, setCustomReviews] = useState([]);
+
+  // Sync state and fetch live data from server for new/database products
   useEffect(() => {
+    setSelectedImage(0);
+
     if (initialProduct) {
       setProduct(initialProduct);
+      setLoading(false);
       trackViewContent(initialProduct);
+    } else {
+      setLoading(true);
     }
-    setSelectedImage(0);
 
     fetch(`/api/products/${slug}`)
       .then(r => {
@@ -46,22 +60,292 @@ export default function ProductDetailPage() {
       .then(d => {
         if (d && d.product) {
           setProduct(d.product);
-          if (!initialProduct) {
-            trackViewContent(d.product);
-          }
+          trackViewContent(d.product);
+        } else if (!initialProduct) {
+          setProduct(null);
+        }
+      })
+      .catch(() => {
+        if (!initialProduct) setProduct(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [slug, initialProduct]);
+
+  // Fetch related items from DB matching category
+  useEffect(() => {
+    if (!product) return;
+    const cat = product.category || 'Men';
+    fetch(`/api/products?category=${encodeURIComponent(cat)}`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (d && Array.isArray(d.products)) {
+          setDbRelated(d.products.filter(p => p.id !== product.id).slice(0, 4));
         }
       })
       .catch(() => {});
-  }, [slug, initialProduct]);
+  }, [product?.id, product?.category]);
 
-  // ALL HOOKS DECLARED BEFORE ANY CONDITIONAL RETURNS (Rules of Hooks Compliance)
+  const cat = (product?.category || '').toLowerCase();
+  const isPerfume = cat === 'perfumes' || 
+    String(product?.type || '').toLowerCase().includes('oud') || 
+    String(product?.type || '').toLowerCase().includes('perfume') || 
+    String(product?.name || '').toLowerCase().includes('parfum') || 
+    String(product?.name || '').toLowerCase().includes('eau de');
+
+  const isWomen = cat === 'women';
+
+  // Category-specific default reviews
+  const defaultReviews = useMemo(() => {
+    if (isPerfume) {
+      return [
+        {
+          id: 'p-rev-1',
+          author: 'Muhammad Tariq',
+          city: 'Lahore',
+          rating: 5,
+          date: '2026-11-15',
+          title: 'Shandar Royal Khushboo & Long-Lasting Sillage',
+          comment: 'MashaAllah bohut hi pyari aur royal Arabic fragrance hai. Subah lagayi thi raat tak clothes par mehak rahi thi. Pakistan Post rider ne parcel pehle khol kar check karne diya phir payment li. 100% satisfied!'
+        },
+        {
+          id: 'p-rev-2',
+          author: 'Bilal Ahmed',
+          city: 'Rawalpindi',
+          rating: 5,
+          date: '2026-11-18',
+          title: 'Original Bottle & Luxury Packaging',
+          comment: 'Original luxury packaging aur bottle finish nihayat khoobsurat hai. Jummah prayers aur weddings ke function ke liye perfect fragrance. 3 din mein parcel pohanch gaya.'
+        },
+        {
+          id: 'p-rev-3',
+          author: 'Hamza Sheikh',
+          city: 'Faisalabad',
+          rating: 5,
+          date: '2026-11-20',
+          title: 'Heavy Projection (Zabardast Khushboo)',
+          comment: 'Dry down bohut smooth aur warm hai. Jo bhi milta hai zaroor poochta hai k konsa perfume lagaya hai. Box price se kam rate par zabardast cheez mili.'
+        },
+        {
+          id: 'p-rev-4',
+          author: 'Usman Ghani',
+          city: 'Karachi',
+          rating: 5,
+          date: '2026-11-22',
+          title: 'Open Parcel COD se dil mutmain ho gaya',
+          comment: 'Online perfume mangwate waqt darr hota hai k duplicate na ho, lekin AT Brand ki open parcel delivery aur original quality ne dil jeet liya. Highly recommended!'
+        }
+      ];
+    } else if (isWomen) {
+      return [
+        {
+          id: 'w-rev-1',
+          author: 'Sadia Malik',
+          city: 'Lahore',
+          rating: 5,
+          date: '2026-11-10',
+          title: 'Premium Quality Fabric & Fast Delivery',
+          comment: 'Fabric softness aur digital printing ki finishing kamaal hai. Pakistan Post rider ne parcel pehle khol kar check karne diya. Bohut khushi hui shopping kar ke.'
+        },
+        {
+          id: 'w-rev-2',
+          author: 'Ayesha Khan',
+          city: 'Islamabad',
+          rating: 5,
+          date: '2026-11-14',
+          title: 'Original AT Brand Trust',
+          comment: 'Washing ke baad bhi fabric ka rang aur chamak waisi hi rahi. Packaging bohut luxury thi aur 3 din mein deliver ho gaya. 100% recommended!'
+        },
+        {
+          id: 'w-rev-3',
+          author: 'Fatima Noor',
+          city: 'Rawalpindi',
+          rating: 5,
+          date: '2026-11-17',
+          title: 'Graceful Fall & Honest Service',
+          comment: 'Suit ka dupatta aur trouser fabric dono generous cutting mein mile. Master tailor ne stitching ki to fitting lajawab aayi.'
+        },
+        {
+          id: 'w-rev-4',
+          author: 'Hira Zainab',
+          city: 'Faisalabad',
+          rating: 5,
+          date: '2026-11-21',
+          title: 'Open Parcel Delivery Super Satisfied',
+          comment: 'Cash on delivery par pehle open kar ke check kiya. Fabric pure hai aur bohut soft hai. Will definitely buy again.'
+        }
+      ];
+    } else {
+      return [
+        {
+          id: 'm-rev-1',
+          author: 'Muhammad Tariq',
+          city: 'Lahore',
+          rating: 5,
+          date: '2026-09-15',
+          title: 'Zabardast Fabric & Open Parcel Feature',
+          comment: 'Kapra bohut hi umdah hai, full 4.25 meter cutting mili. Pakistan Post rider ne parcel pehle khol kar check karne diya phir payment li. 100% satisfied!'
+        },
+        {
+          id: 'm-rev-2',
+          author: 'Bilal Ahmed',
+          city: 'Rawalpindi',
+          rating: 5,
+          date: '2026-10-02',
+          title: 'Original AT Brand Quality',
+          comment: 'Color bilkul original jaisa hai aur dhone ke baad bhi chamak waisi hi rahi. 6 mahine ki original condition return guarantee waqai confidence deti hai. 3 din mein parcel pohanch gaya.'
+        },
+        {
+          id: 'm-rev-3',
+          author: 'Hamza Sheikh',
+          city: 'Faisalabad',
+          rating: 5,
+          date: '2026-10-14',
+          title: 'Bohut pyara suit aur fast delivery',
+          comment: 'Sargodha se Faisalabad 2 din mein parcel agaya. Pakistan Post standard delivery Rs 200 bohut munasib hai. Highly recommended!'
+        },
+        {
+          id: 'm-rev-4',
+          author: 'Usman Ghani',
+          city: 'Karachi',
+          rating: 5,
+          date: '2026-10-22',
+          title: 'Quality suit, honest sellers',
+          comment: 'Fabric softness aur fall kamaal ki hai. Packing luxury thi aur suit ke sath original tags the. Open parcel feature se dil mutmain ho gaya.'
+        }
+      ];
+    }
+  }, [isPerfume, isWomen]);
+
+  const reviewsList = useMemo(() => {
+    return [...customReviews, ...defaultReviews];
+  }, [customReviews, defaultReviews]);
+
+  const handleReviewSubmit = (e) => {
+    e.preventDefault();
+    if (!newReviewAuthor.trim() || !newReviewComment.trim()) return;
+    const added = {
+      id: Date.now(),
+      author: newReviewAuthor.trim(),
+      city: newReviewCity.trim() || 'Pakistan',
+      rating: Number(newReviewRating),
+      date: new Date().toISOString().split('T')[0],
+      title: 'Verified Customer Review',
+      comment: newReviewComment.trim()
+    };
+    setCustomReviews(prev => [added, ...prev]);
+    setNewReviewAuthor('');
+    setNewReviewCity('');
+    setNewReviewComment('');
+    setReviewSubmitted(true);
+    setTimeout(() => setReviewSubmitted(false), 5000);
+  };
+
+  const productFaqs = useMemo(() => {
+    if (!product) return [];
+    if (isPerfume) {
+      return [
+        {
+          q: `Can I open and inspect the perfume parcel before paying Cash on Delivery?`,
+          a: `Haan bilkul! AT BRAND par Open Parcel ki sahulat dastyab hai. Pakistan Post rider se parcel receive karte waqt aap pehle parcel open kar ke bottle, packaging aur seal check kar sakte hain, uske baad tasalli se Cash on Delivery ada karein.`
+        },
+        {
+          q: `What is the projection and longevity (lasting) of ${product.name}?`,
+          a: `${product.name} ek concentrated Eau De Parfum (EDP) hai. Iski heavy sillage projection aur khushboo kapron par 10 se 14 ghantay tak asani se barkarar rehti hai.`
+        },
+        {
+          q: `Is this 100% original Arabic perfume?`,
+          a: `Ji haan! Hum 100% authentic aur original Arabic fragrance notes guarantee karte hain. Original luxury bottle aur packaging ke sath deliver hota hai.`
+        },
+        {
+          q: `How should I apply ${product.name} for maximum projection?`,
+          a: `Behtareen results ke liye pulse points (kalaai, gardan ke sides) aur kapron par 2 se 3 sprays lagayein. Kapron par lagane se khushboo poora din mehakti rehti hai.`
+        },
+        {
+          q: `What are the delivery charges and delivery duration?`,
+          a: `Poore Pakistan mein flat delivery charges sirf PKR 200 hain. Parcel Pakistan Post express courier ke zariye 3 se 4 working days ke andar safe bubble packaging mein deliver hota hai.`
+        },
+        {
+          q: `What is your return and exchange policy?`,
+          a: `Humari 6-Month Return Policy hai: Agar bottle un-sprayed aur original box packaging mein ho, to aap 6 mahine ke andar baghair kisi pareshani ke wapis ya exchange kar sakte hain.`
+        }
+      ];
+    } else if (isWomen) {
+      return [
+        {
+          q: `Can I open and inspect the parcel before paying Cash on Delivery?`,
+          a: `Haan bilkul! AT BRAND par Open Parcel ki sahulat dastyab hai. Pakistan Post rider se parcel receive karte waqt aap pehle parcel open kar ke fabric, print aur quality check kar sakte hain, uske baad tasalli se Cash on Delivery ada karein.`
+        },
+        {
+          q: `What is your return and exchange policy?`,
+          a: `Humari 6-Month Return Policy hai: Agar kapra apni original unstitched aur unwashed halat mein ho, to aap 6 mahine baad bhi wapis ya exchange kar sakte hain.`
+        },
+        {
+          q: `What are the delivery charges and delivery duration?`,
+          a: `Poore Pakistan mein flat delivery charges sirf PKR 200 hain. Parcel Pakistan Post express service ke zariye 3 se 4 working days ke andar aapki dehleez par deliver kar diya jata hai.`
+        },
+        {
+          q: `What is the cutting length of ${product.name}?`,
+          a: `${product.name} ki generous cutting standard Pakistani sizes ke mutabiq hoti hai jisse kameez aur shalwar/trouser asani se banti hai.`
+        },
+        {
+          q: `How should I wash and care for ${product.name}?`,
+          a: `Direct tez dhoop se bacha kar saye mein sokhayen aur gentle detergent se wash karein taake colors aur print hamesha fresh rahein.`
+        }
+      ];
+    } else {
+      return [
+        {
+          q: `Can I open and inspect the parcel before paying Cash on Delivery?`,
+          a: `Haan bilkul! AT BRAND par Open Parcel ki sahulat dastyab hai. Pakistan Post rider se parcel receive karte waqt aap pehle parcel open kar ke fabric cutting, rang aur quality check kar sakte hain, uske baad tasalli se Cash on Delivery ada karein.`
+        },
+        {
+          q: `What is your return and exchange policy?`,
+          a: `Humari 6-Month Return Policy hai: Agar kapra apni original unstitched aur unwashed halat mein ho (tags/box ke sath), to aap beshak 6 mahine baad bhi wapis ya exchange kar sakte hain bina kisi pareshani ke.`
+        },
+        {
+          q: `What are the delivery charges and delivery duration?`,
+          a: `Poore Pakistan mein flat delivery charges sirf PKR 200 hain. Parcel Pakistan Post express service ke zariye 3 se 4 working days ke andar aapki dehleez par deliver kar diya jata hai.`
+        },
+        {
+          q: `Can I add custom master tailoring (silai) and is COD available for it?`,
+          a: `Ji haan! Aap PKR 1,500 add kar ke Sargodha ke ustad master tailors se customized silai karwa sakte hain. Unstitched suits par Cash on Delivery dastyab hai, lekin custom silai ke liye Advance Payment (JazzCash / EasyPaisa / Bank Transfer) laazmi hai kyunki kapra aapke zaati naap par cut hota hai.`
+        },
+        {
+          q: `What is the standard cutting length of ${product.name}?`,
+          a: `${product.name} ki cutting generous 4.0 se 4.25 meter aur 54-inch standard barha arzz (width) hoti hai, jisse 6'2" height tak ka traditional shalwar kameez ya kurta pajama asaani se ban jata hai.`
+        },
+        {
+          q: `How should I wash and care for ${product.name}?`,
+          a: `Pehle cut se pehle kapray ko 2 ghantay thande paani mein shrink karein. Direct tez dhoop se bacha kar saye mein sokhayen aur medium heat par iron karein taake rang aur chamak saalon saal barkarar rahe.`
+        }
+      ];
+    }
+  }, [product, isPerfume, isWomen]);
+
   const relatedProducts = useMemo(() => {
     if (!product) return [];
+    if (dbRelated.length > 0) return dbRelated;
     return PRODUCTS
       .filter(p => p.id !== product.id && (p.type === product.type || p.category === product.category))
       .slice(0, 4);
-  }, [product]);
+  }, [product, dbRelated]);
 
+  // Loading State
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex flex-col justify-between">
+        <Header />
+        <div className="py-32">
+          <BrandLoader message="Loading Product Details..." />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Not Found State
   if (!product) {
     return (
       <div className="min-h-screen bg-background text-foreground">
@@ -87,7 +371,6 @@ export default function ProductDetailPage() {
     : [product.image || 'https://via.placeholder.com/600'];
 
   const seoProduct = getProductSeo(product);
-  // Product IDs are the stable URLs used by the sitemap and product cards.
   const canonicalUrl = `https://atbrand.store/product/${product.id}`;
 
   const breadcrumbSchema = {
@@ -103,8 +386,8 @@ export default function ProductDetailPage() {
       {
         '@type': 'ListItem',
         'position': 2,
-        'name': product?.category === 'Men' ? "Men's Collection" : 'Shop',
-        'item': product?.category === 'Men' ? 'https://atbrand.store/men' : 'https://atbrand.store/shop'
+        'name': isPerfume ? 'Perfumes' : isWomen ? "Women's Collection" : product?.category === 'Men' ? "Men's Collection" : 'Shop',
+        'item': isPerfume ? 'https://atbrand.store/perfumes' : isWomen ? 'https://atbrand.store/women' : product?.category === 'Men' ? 'https://atbrand.store/men' : 'https://atbrand.store/shop'
       },
       {
         '@type': 'ListItem',
@@ -115,78 +398,13 @@ export default function ProductDetailPage() {
     ]
   };
 
-  const [reviewsList, setReviewsList] = useState([
-    {
-      id: 1,
-      author: 'Muhammad Tariq',
-      city: 'Lahore',
-      rating: 5,
-      date: '2026-09-15',
-      title: 'Zabardast Fabric & Open Parcel Feature',
-      comment: 'Kapra bohut hi umdah hai, full 4.25 meter cutting mili. Pakistan Post rider ne parcel pehle khol kar check karne diya phir payment li. 100% satisfied!'
-    },
-    {
-      id: 2,
-      author: 'Bilal Ahmed',
-      city: 'Rawalpindi',
-      rating: 5,
-      date: '2026-10-02',
-      title: 'Original AT Brand Quality',
-      comment: 'Color bilkul original jaisa hai aur dhone ke baad bhi chamak waisi hi rahi. 6 mahine ki original condition return guarantee waqai confidence deti hai. 3 din mein parcel pohanch gaya.'
-    },
-    {
-      id: 3,
-      author: 'Hamza Sheikh',
-      city: 'Faisalabad',
-      rating: 5,
-      date: '2026-10-14',
-      title: 'Bohut pyara suit aur fast delivery',
-      comment: 'Sargodha se Faisalabad 2 din mein parcel agaya. Pakistan Post standard delivery Rs 200 bohut munasib hai. Highly recommended!'
-    },
-    {
-      id: 4,
-      author: 'Usman Ghani',
-      city: 'Karachi',
-      rating: 5,
-      date: '2026-10-22',
-      title: 'Quality suit, honest sellers',
-      comment: 'Fabric softness aur fall kamaal ki hai. Packing luxury thi aur suit ke sath original tags the. Open parcel feature se dil mutmain ho gaya.'
-    }
-  ]);
-
-  const [newReviewAuthor, setNewReviewAuthor] = useState('');
-  const [newReviewCity, setNewReviewCity] = useState('');
-  const [newReviewRating, setNewReviewRating] = useState(5);
-  const [newReviewComment, setNewReviewComment] = useState('');
-  const [reviewSubmitted, setReviewSubmitted] = useState(false);
-
-  const handleReviewSubmit = (e) => {
-    e.preventDefault();
-    if (!newReviewAuthor.trim() || !newReviewComment.trim()) return;
-    const added = {
-      id: Date.now(),
-      author: newReviewAuthor.trim(),
-      city: newReviewCity.trim() || 'Pakistan',
-      rating: Number(newReviewRating),
-      date: new Date().toISOString().split('T')[0],
-      title: 'Verified Customer Review',
-      comment: newReviewComment.trim()
-    };
-    setReviewsList([added, ...reviewsList]);
-    setNewReviewAuthor('');
-    setNewReviewCity('');
-    setNewReviewComment('');
-    setReviewSubmitted(true);
-    setTimeout(() => setReviewSubmitted(false), 5000);
-  };
-
   // Dynamic JSON-LD Structured Data for Technical SEO & Search Console
   const jsonLd = {
     '@context': 'https://schema.org/',
     '@type': 'Product',
     'name': seoProduct.displayName,
     'image': images,
-    'description': product.fabric || `${product.name} unstitched men's suit by AT BRAND Sargodha.`,
+    'description': product.fabric || `${product.name} by AT BRAND Sargodha.`,
     'sku': product.sku || `AT-${product.id}`,
     'brand': {
       '@type': 'Brand',
@@ -265,33 +483,6 @@ export default function ProductDetailPage() {
     }
   };
 
-  const productFaqs = [
-    {
-      q: `Can I open and inspect the parcel before paying Cash on Delivery?`,
-      a: `Haan bilkul! AT BRAND par Open Parcel ki sahulat dastyab hai. Pakistan Post rider se parcel receive karte waqt aap pehle parcel open kar ke fabric cutting, rang aur quality check kar sakte hain, uske baad tasalli se Cash on Delivery ada karein.`
-    },
-    {
-      q: `What is your return and exchange policy?`,
-      a: `Humari 6-Month Return Policy hai: Agar kapra apni original unstitched aur unwashed halat mein ho (tags/box ke sath), to aap beshak 6 mahine baad bhi wapis ya exchange kar sakte hain bina kisi pareshani ke.`
-    },
-    {
-      q: `What are the delivery charges and delivery duration?`,
-      a: `Poore Pakistan mein flat delivery charges sirf PKR 200 hain. Parcel Pakistan Post express service ke zariye 3 se 4 working days ke andar aapki dehleez par deliver kar diya jata hai.`
-    },
-    {
-      q: `Can I add custom master tailoring (silai) and is COD available for it?`,
-      a: `Ji haan! Aap PKR 1,500 add kar ke Sargodha ke ustad master tailors se customized silai karwa sakte hain. Unstitched suits par Cash on Delivery dastyab hai, lekin custom silai ke liye Advance Payment (JazzCash / EasyPaisa / Bank Transfer) laazmi hai kyunki kapra aapke zaati naap par cut hota hai.`
-    },
-    {
-      q: `What is the standard cutting length of ${product.name}?`,
-      a: `${product.name} ki cutting generous 4.0 se 4.25 meter aur 54-inch standard barha arzz (width) hoti hai, jisse 6'2" height tak ka traditional shalwar kameez ya kurta pajama asaani se ban jata hai.`
-    },
-    {
-      q: `How should I wash and care for ${product.name}?`,
-      a: `Pehle cut se pehle kapray ko 2 ghantay thande paani mein shrink karein. Direct tez dhoop se bacha kar saye mein sokhayen aur medium heat par iron karein taake rang aur chamak saalon saal barkarar rahe.`
-    }
-  ];
-
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -327,8 +518,11 @@ export default function ProductDetailPage() {
         <nav className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
           <Link to="/" className="hover:text-primary">Home</Link>
           <ChevronRight className="h-3 w-3" />
-          <Link to={product.category === 'Men' ? '/men' : '/shop'} className="hover:text-primary">
-            {product.category === 'Men' ? "Men's Collection" : "Shop"}
+          <Link 
+            to={isPerfume ? '/perfumes' : isWomen ? '/women' : product.category === 'Men' ? '/men' : '/shop'} 
+            className="hover:text-primary"
+          >
+            {isPerfume ? 'Perfumes' : isWomen ? "Women's Collection" : product.category === 'Men' ? "Men's Collection" : "Shop"}
           </Link>
           <ChevronRight className="h-3 w-3" />
           <span className="text-foreground font-semibold truncate">{product.name}</span>
@@ -367,13 +561,15 @@ export default function ProductDetailPage() {
 
           {/* Right: Product Details and Actions */}
           <div className="lg:col-span-5 flex flex-col justify-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-accent">Men's Premium Suit</p>
-            <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-primary sm:text-4xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-accent">
+              {isPerfume ? 'Luxury Arabic Fragrance' : isWomen ? "Women's Designer Collection" : "Men's Premium Suit"}
+            </p>
+            <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-primary sm:text-3xl lg:text-4xl">
               {product.name}
             </h1>
             {seoProduct.colorSummary && (
               <p className="mt-2 text-sm text-muted-foreground">
-                This colour selection includes {seoProduct.colorSummary}.
+                This selection includes {seoProduct.colorSummary}.
               </p>
             )}
 
@@ -388,48 +584,83 @@ export default function ProductDetailPage() {
               )}
             </div>
 
+            {/* Description / Fabric or Fragrance Profile */}
             {product.fabric && (
               <div className="mt-6 rounded-xl border border-border bg-card p-4 text-xs leading-relaxed text-muted-foreground">
-                <span className="font-bold text-primary block mb-1">Fabric Specification:</span>
-                {product.fabric}
+                <span className="font-bold text-primary block mb-1">
+                  {isPerfume ? 'Fragrance Profile & Notes:' : 'Fabric Specification:'}
+                </span>
+                <p className="whitespace-pre-line leading-relaxed">{product.fabric}</p>
               </div>
             )}
 
-            {/* Custom Stitching Decision Card */}
-            <div className="mt-6 rounded-2xl border-2 border-primary/25 bg-primary/5 p-5 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="rounded-xl bg-primary p-2.5 text-primary-foreground shrink-0 mt-0.5">
-                  <Scissors className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <span className="inline-block rounded-full bg-accent/20 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-accent-foreground mb-1">
-                    Bespoke Tailoring
-                  </span>
-                  <h3 className="font-serif text-base font-bold text-primary">
-                    Do you want custom stitching with this suit?
-                  </h3>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                    Kya aap is suit ki master tailor se customized silai karwana chahte hain? Custom stitching fee <b>PKR 1,500</b> add hogi aur suit apke exact naap ke mutabiq silai hokar deliver hoga.
-                  </p>
-                  
-                  <div className="mt-4 flex flex-wrap gap-2.5">
-                    <Link
-                      to={`/stitching?suitId=${encodeURIComponent(product.id)}&suitName=${encodeURIComponent(product.name)}&suitPrice=${product.price}&suitImage=${encodeURIComponent(images[selectedImage] || images[0] || '')}`}
-                      className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-primary-foreground shadow hover:bg-primary/90 transition active:scale-95"
-                    >
-                      <Scissors className="h-3.5 w-3.5" />
-                      Yes, Add Stitching (+PKR 1,500)
-                    </Link>
-                    <button
-                      onClick={() => openBuy(product)}
-                      className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-white px-4 py-2.5 text-xs font-bold text-primary hover:bg-primary/5 transition"
-                    >
-                      No, Unstitched Fabric Only
-                    </button>
+            {/* Decision Card: Custom Stitching for clothing vs Authentic Fragrance Guarantee for perfumes */}
+            {isPerfume ? (
+              <div className="mt-6 rounded-2xl border-2 border-emerald-600/25 bg-emerald-50/70 p-5 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-xl bg-emerald-800 p-2.5 text-white shrink-0 mt-0.5 shadow-sm">
+                    <Sparkles className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="inline-block rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-900 mb-1">
+                      100% Original Guarantee
+                    </span>
+                    <h3 className="font-serif text-base font-bold text-emerald-950">
+                      Original Arabian Fragrance &amp; Heavy Sillage
+                    </h3>
+                    <p className="mt-1 text-xs text-emerald-800 leading-relaxed">
+                      Yeh fragrance 100% original Eau De Parfum (EDP) concentration hai jo kapron par 10 se 14 ghantay tak barkarar rehti hai. Open parcel Cash on Delivery ke sath receive karein — pehle bottle aur packaging check karein phir payment dein.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-bold text-emerald-900">
+                      <span className="inline-flex items-center gap-1 bg-white border border-emerald-200 px-2.5 py-1 rounded-lg shadow-2xs">
+                        <CheckCircle2 className="h-3 w-3 text-emerald-600" /> Long-Lasting Sillage
+                      </span>
+                      <span className="inline-flex items-center gap-1 bg-white border border-emerald-200 px-2.5 py-1 rounded-lg shadow-2xs">
+                        <CheckCircle2 className="h-3 w-3 text-emerald-600" /> Open Parcel COD
+                      </span>
+                      <span className="inline-flex items-center gap-1 bg-white border border-emerald-200 px-2.5 py-1 rounded-lg shadow-2xs">
+                        <CheckCircle2 className="h-3 w-3 text-emerald-600" /> 6-Month Return
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="mt-6 rounded-2xl border-2 border-primary/25 bg-primary/5 p-5 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-xl bg-primary p-2.5 text-primary-foreground shrink-0 mt-0.5">
+                    <Scissors className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="inline-block rounded-full bg-accent/20 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-accent-foreground mb-1">
+                      Bespoke Tailoring
+                    </span>
+                    <h3 className="font-serif text-base font-bold text-primary">
+                      Do you want custom stitching with this suit?
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                      Kya aap is suit ki master tailor se customized silai karwana chahte hain? Custom stitching fee <b>PKR 1,500</b> add hogi aur suit apke exact naap ke mutabiq silai hokar deliver hoga.
+                    </p>
+                    
+                    <div className="mt-4 flex flex-wrap gap-2.5">
+                      <Link
+                        to={`/stitching?suitId=${encodeURIComponent(product.id)}&suitName=${encodeURIComponent(product.name)}&suitPrice=${product.price}&suitImage=${encodeURIComponent(images[selectedImage] || images[0] || '')}`}
+                        className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-primary-foreground shadow hover:bg-primary/90 transition active:scale-95"
+                      >
+                        <Scissors className="h-3.5 w-3.5" />
+                        Yes, Add Stitching (+PKR 1,500)
+                      </Link>
+                      <button
+                        onClick={() => openBuy(product)}
+                        className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-white px-4 py-2.5 text-xs font-bold text-primary hover:bg-primary/5 transition"
+                      >
+                        No, Unstitched Fabric Only
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className="mt-8 flex flex-col gap-3">
@@ -476,14 +707,24 @@ export default function ProductDetailPage() {
                 <span>Pehle check karein phir pay</span>
               </div>
               <div className="flex flex-col items-center p-2.5 rounded-xl bg-muted/40 border border-border/50">
-                <Scissors className="h-5 w-5 text-accent mb-1" />
-                <span className="font-bold text-primary">Custom Stitching</span>
-                <span>Advance payment required</span>
+                {isPerfume ? (
+                  <>
+                    <Sparkles className="h-5 w-5 text-accent mb-1" />
+                    <span className="font-bold text-primary">Heavy Sillage</span>
+                    <span>10-14 hrs lasting</span>
+                  </>
+                ) : (
+                  <>
+                    <Scissors className="h-5 w-5 text-accent mb-1" />
+                    <span className="font-bold text-primary">Custom Stitching</span>
+                    <span>Advance payment required</span>
+                  </>
+                )}
               </div>
               <div className="flex flex-col items-center p-2.5 rounded-xl bg-muted/40 border border-border/50">
                 <RefreshCw className="h-5 w-5 text-accent mb-1" />
                 <Link to="/return-policy" className="hover:underline font-bold text-primary">6-Month Return</Link>
-                <span>Asli halat mein wapis</span>
+                <span>{isPerfume ? 'Original box mein wapis' : 'Asli halat mein wapis'}</span>
               </div>
             </div>
           </div>
@@ -498,7 +739,9 @@ export default function ProductDetailPage() {
             {product.name} — Frequently Asked Questions
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-slate-600">
-            Common questions about fabric length, stitching add-on, care instructions, and delivery.
+            {isPerfume
+              ? 'Common questions about fragrance longevity, projection, authentic notes, and delivery.'
+              : 'Common questions about fabric length, stitching add-on, care instructions, and delivery.'}
           </p>
 
           <div className="mt-6 space-y-3">
@@ -528,7 +771,9 @@ export default function ProductDetailPage() {
                 Customer Reviews &amp; Ratings
               </h2>
               <p className="mt-1 text-xs sm:text-sm text-slate-600">
-                Real feedback from Pakistani gentlemen who purchased {product.name}.
+                {isPerfume 
+                  ? `Real feedback from Pakistani fragrance lovers who purchased ${product.name}.`
+                  : `Real feedback from Pakistani customers who purchased ${product.name}.`}
               </p>
             </div>
 
@@ -545,7 +790,7 @@ export default function ProductDetailPage() {
               <div className="h-10 w-px bg-slate-200" />
               <div className="text-xs space-y-1 text-slate-600">
                 <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> 98% Recommend this fabric
+                  <CheckCircle2 className="h-3.5 w-3.5" /> 98% Recommend this product
                 </div>
                 <div className="text-[11px] text-slate-500">
                   Open Parcel COD Verified
@@ -591,7 +836,7 @@ export default function ProductDetailPage() {
               Write a Product Review
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Share your experience with other customers regarding fabric quality, color, and delivery.
+              Share your experience with other customers regarding product quality, fragrance/fabric, and delivery.
             </p>
 
             {reviewSubmitted && (
@@ -646,7 +891,7 @@ export default function ProductDetailPage() {
                 <textarea
                   required
                   rows={3}
-                  placeholder="Fabric ki quality, fall, packaging aur open parcel delivery ke bare mein batayein..."
+                  placeholder={isPerfume ? "Fragrance ki lasting, projection, packaging aur delivery ke bare mein batayein..." : "Quality, fall, packaging aur open parcel delivery ke bare mein batayein..."}
                   value={newReviewComment}
                   onChange={(e) => setNewReviewComment(e.target.value)}
                   className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1C3A2B]"
@@ -665,16 +910,20 @@ export default function ProductDetailPage() {
           </div>
         </section>
 
-        {/* Related Premium Fabrics - Continuous Internal Linking for High SEO */}
+        {/* Related Products - Dynamic per category */}
         {relatedProducts.length > 0 && (
           <section className="mt-20 border-t border-border pt-12">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#C5A880]">Complete Your Collection</p>
-                <h2 className="font-serif text-2xl font-bold text-[#1C3A2B]">Related Premium Fabrics</h2>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#C5A880]">
+                  {isPerfume ? 'Explore More Scents' : isWomen ? "Women's Collection" : 'Complete Your Collection'}
+                </p>
+                <h2 className="font-serif text-2xl font-bold text-[#1C3A2B]">
+                  {isPerfume ? 'Related Luxury Fragrances' : isWomen ? "Related Designer Suits" : 'Related Premium Fabrics'}
+                </h2>
               </div>
               <Link
-                to={product.category === 'Men' ? '/men' : '/shop'}
+                to={isPerfume ? '/perfumes' : isWomen ? '/women' : product.category === 'Men' ? '/men' : '/shop'}
                 className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:gap-2 transition-all"
               >
                 <span>Explore More</span>
