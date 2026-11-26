@@ -535,7 +535,19 @@ if (distDir) {
 
       const requestPath = req.path.replace(/\/+$/, '') || '/';
       const productMatch = requestPath.match(/^\/product\/([^/]+)$/);
-      const product = productMatch && PRODUCTS.find(item => item.id === productMatch[1]);
+      let product = productMatch && PRODUCTS.find(item => item.id === productMatch[1]);
+      if (productMatch && !product) {
+        try {
+          const row = sqliteDb.prepare('SELECT * FROM products WHERE id = ?').get(productMatch[1]);
+          if (row) {
+            product = {
+              ...row,
+              images: JSON.parse(row.images || '[]'),
+              colors: JSON.parse(row.colors || '[]')
+            };
+          }
+        } catch (e) {}
+      }
       const productSeo = product ? getProductSeo(product) : null;
       const metadata = productSeo
         ? { title: productSeo.title, description: productSeo.description }
